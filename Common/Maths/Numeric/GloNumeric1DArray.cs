@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-public class GloNumeric1DArray<T> where T : struct, INumber<T>
+public class GloNumeric1DArray<T> : IEnumerable<T> where T : struct, INumber<T>
 {
     private T[] _data;
 
@@ -132,7 +132,7 @@ public class GloNumeric1DArray<T> where T : struct, INumber<T>
     public int IndexForFraction(T fraction)
     {
         fraction = T.Clamp(fraction, T.Zero, T.One);
-        return (int)Math.Round(double.Parse((fraction * T.CreateChecked(Length - 1)).ToString()));
+        return (int)Math.Round(Convert.ToDouble(fraction * T.CreateChecked(Length - 1)));
     }
 
     public T InterpolateAtFraction(T fraction)
@@ -206,5 +206,20 @@ public class GloNumeric1DArray<T> where T : struct, INumber<T>
     public string ToString(string format)
     {
         return string.Join(", ", _data.Select(x => x.ToString()));
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: IEnumerable Implementation
+    // --------------------------------------------------------------------------------------------
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        foreach (var item in _data)
+            yield return item;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

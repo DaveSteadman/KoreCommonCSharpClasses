@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 
 // GloCentralTime - A standard C# class to provide a runtime timer for use throughout the class framework.

@@ -17,7 +17,7 @@ public static class GloTestList2D
             var size = list.Size;
 
 
-            testLog.Add("GloNumeric2DArray Test2DList Size", (size.Width == 3 && size.Height == 3));
+            testLog.AddResult("GloNumeric2DArray Test2DList Size", (size.Width == 3 && size.Height == 3));
 
         }
     }

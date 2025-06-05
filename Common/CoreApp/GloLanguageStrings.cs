@@ -132,8 +132,8 @@ public class GloLanguageStrings
         SetParam(ActiveLanguageKey, LanguageToString(lang));
 
         // Write the active language to config file
-        GloCentralConfig.Instance.SetParam("ActiveLanguage", GloLanguageStrings.Instance.CurrActiveLanguage());
-        GloCentralConfig.Instance.WriteToFile();
+        // GloCentralConfig.Instance.SetParam("ActiveLanguage", GloLanguageStrings.Instance.CurrActiveLanguage());
+        // GloCentralConfig.Instance.WriteToFile();
     }
 
     // --------------------------------------------------------------------------------------------

@@ -98,6 +98,9 @@ public class GloStringDictionary
     // MARK: JSON Export/Import
     // --------------------------------------------------------------------------------------------
 
+    // Usage: string json = myDictionary.ExportJson();
+    // Usage: myDictionary.ImportJson(json);
+
     public string ExportJson(bool indented = true)
     {
         var options = new JsonSerializerOptions

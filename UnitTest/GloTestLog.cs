@@ -8,70 +8,63 @@ using System.Text;
 
 // ------------------------------------------------------------------------
 
-public enum GloTestResult { Pass, Fail, Untested }
+public enum GloTestLogEntryType { Test, Comment, Separator}
 
-// To and from string conversion for the GloTestResult enum
-public static class GloTestResultUtils
-{
-    public static string ToString(GloTestResult result)
-    {
-        return result switch
-        {
-            GloTestResult.Pass     => "PASS",
-            GloTestResult.Fail     => "FAIL",
-            GloTestResult.Untested => "UNT",
-            _ => throw new ArgumentOutOfRangeException(nameof(result), result, null)
-        };
-    }
-
-    public static GloTestResult FromString(string str)
-    {
-        return str switch
-        {
-            "PASS" => GloTestResult.Pass,
-            "FAIL" => GloTestResult.Fail,
-            "UNT"  => GloTestResult.Untested,
-            _      => throw new ArgumentOutOfRangeException(nameof(str), str, null)
-        };
-    }
-}
+public enum GloTestLogResult { Pass, Fail, Untested }
 
 // ------------------------------------------------------------------------
 
 
-
-public class GloTestEntry
+public struct GloTestLogEntry
 {
-    public string Name    { get; }
-    public bool   Result  { get; }
-    public string Comment { get; }
+    public string Name;
+    public GloTestLogEntryType EntryType;
+    public GloTestLogResult Result;
+    public string Comment;
 
-    public GloTestEntry(string name, bool result, string comment)
-    {
-        Name    = name;
-        Result  = result;
-        Comment = comment;
-    }
 }
-
-// ------------------------------------------------------------------------
 
 public class GloTestLog
 {
-    private List<GloTestEntry> ResultList = new List<GloTestEntry>();
+    private List<GloTestLogEntry> ResultList = new List<GloTestLogEntry>();
 
     // --------------------------------------------------------------------------------------------
     // Add test results
     // --------------------------------------------------------------------------------------------
 
-    public void Add(string name, bool result, string comment)
+    public void AddResult(string name, bool result, string comment = "")
     {
-        ResultList.Add(new GloTestEntry(name, result, comment));
+        ResultList.Add(
+            new GloTestLogEntry()
+            {
+                Name = name,
+                EntryType = GloTestLogEntryType.Test,
+                Result = result ? GloTestLogResult.Pass : GloTestLogResult.Fail,
+                Comment = comment
+            });
     }
 
-    public void Add(string name, bool result)
+    public void AddComment(string comment)
     {
-        ResultList.Add(new GloTestEntry(name, result, ""));
+        ResultList.Add(
+            new GloTestLogEntry()
+            {
+                Name = "",
+                EntryType = GloTestLogEntryType.Comment,
+                Result = GloTestLogResult.Untested,
+                Comment = comment
+            });
+    }
+
+    public void AddSeparator()
+    {
+        ResultList.Add(new GloTestLogEntry()
+        {
+            Name = "",
+            EntryType = GloTestLogEntryType.Separator,
+            Result = GloTestLogResult.Untested,
+            Comment = ""
+        });
     }
 
     // --------------------------------------------------------------------------------------------
@@ -82,51 +75,96 @@ public class GloTestLog
     {
         bool result = true;
 
-        foreach (GloTestEntry entry in ResultList)
-            result &= entry.Result;
-
+        // Find each entry that is a test result, and then ensure its a pass
+        foreach (GloTestLogEntry entry in ResultList)
+        {
+            if (entry.EntryType == GloTestLogEntryType.Test)
+            {
+                if (entry.Result != GloTestLogResult.Pass)
+                {
+                    result = false;
+                    break; // No need to check further, we have a fail
+                }
+            }
+        }
         return result;
     }
+
+    // --------------------------------------------------------------------------------------------
 
     public string OneLineReport()
     {
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-        if (OverallPass())
+        int passCount = 0;
+        int failCount = 0;
+        int untestedCount = 0;
+        int testCount = 0;
+        foreach (var entry in ResultList)
         {
-            return $"Overall:PASS // NumTests:{ResultList.Count} // Time:{timestamp}";
+            if (entry.EntryType == GloTestLogEntryType.Test)
+            {
+                testCount++;
+                if (entry.Result == GloTestLogResult.Pass) { passCount++; }
+                if (entry.Result == GloTestLogResult.Fail) { failCount++; }
+                if (entry.Result == GloTestLogResult.Untested) { untestedCount++; }
+            }
+        }
+
+        string passFailStr = "PASS";
+        if (failCount > 0)
+        {
+            passFailStr = "FAIL";
         }
         else
         {
-            int passCount = 0;
-            int failCount = 0;
-
-            foreach (GloTestEntry entry in ResultList)
-            {
-                if (entry.Result)
-                    passCount++;
-                else
-                    failCount++;
-            }
-            return $"Overall:FAIL // NumTests:{ResultList.Count} Passed:{passCount} Failed:{failCount} // Time:{timestamp}";
+            if (untestedCount > 0)
+                passFailStr += " (with Untested: " + untestedCount + ")";
         }
+
+        return $"Overall:{passFailStr} // Time:{timestamp} // NumTests:{testCount} Passes:{passCount} Fails:{failCount} Untested:{untestedCount}";
     }
 
-    public string FullReport(bool includePasses = true, bool includeFails = true)
+    // --------------------------------------------------------------------------------------------
+
+    public string FullReport()
     {
         StringBuilder sb = new StringBuilder();
 
-        foreach (GloTestEntry entry in ResultList)
+        foreach (var entry in ResultList)
         {
-            if (( entry.Result && includePasses) ||
-                (!entry.Result && includeFails ))
+            switch (entry.EntryType)
             {
-                string resultStr = entry.Result ? "PASS" : "FAIL";
-                string comment = String.IsNullOrEmpty(entry.Comment) ? "" : $" - {entry.Comment}";
-                sb.AppendLine($"{resultStr} - {entry.Name}{comment}");
+                case GloTestLogEntryType.Separator:
+                    sb.AppendLine("--------------------------------------------------");
+                    break;
+
+                case GloTestLogEntryType.Comment:
+                    sb.AppendLine($"COMMENT: {entry.Comment}");
+                    break;
+
+                case GloTestLogEntryType.Test:
+                    string resultStr = ResultToString(entry.Result);
+                    string comment = string.IsNullOrEmpty(entry.Comment) ? "" : $" // {entry.Comment}";
+                    sb.AppendLine($"TEST: {entry.Name} // {resultStr}{comment}");
+                    break;
             }
         }
 
         return sb.ToString();
+    }
+
+
+    // --------------------------------------------------------------------------------------------
+
+    private string ResultToString(GloTestLogResult result)
+    {
+        return result switch
+        {
+            GloTestLogResult.Pass => "PASS",
+            GloTestLogResult.Fail => "FAIL",
+            GloTestLogResult.Untested => "UNT",
+            _ => "UNKNOWN"
+        };
     }
 }

@@ -21,8 +21,8 @@ public static partial class GloTestPosition
         var pointA = new GloXYZPoint(1, 2, 3);
         var pointB = new GloXYZPoint(4, 5, 6);
 
-        testLog.Add("GloXYZPoint Creation", pointA.X == 1 && pointA.Y == 2 && pointA.Z == 3);
-        testLog.Add("GloXYZPoint Distance", Math.Abs(pointA.DistanceTo(pointB) - 5.196) < 0.001); // Example threshold for floating point comparison
+        testLog.AddResult("GloXYZPoint Creation", pointA.X == 1 && pointA.Y == 2 && pointA.Z == 3);
+        testLog.AddResult("GloXYZPoint Distance", Math.Abs(pointA.DistanceTo(pointB) - 5.196) < 0.001); // Example threshold for floating point comparison
 
         // Add more tests for GloXYZPoint
     }
@@ -32,7 +32,7 @@ public static partial class GloTestPosition
         // Example: Test GloXYZLine creation and properties
         var line = new GloXYZLine(new GloXYZPoint(0, 0, 0), new GloXYZPoint(1, 1, 1));
 
-        testLog.Add("GloXYZLine Length", Math.Abs(line.Length - Math.Sqrt(3)) < 0.001);
+        testLog.AddResult("GloXYZLine Length", Math.Abs(line.Length - Math.Sqrt(3)) < 0.001);
         //testLog.Add("GloXYZLine MidPoint", line.MidPoint().Equals(new GloXYZPoint(0.5, 0.5, 0.5)));
 
         // Add more tests for GloXYZLine

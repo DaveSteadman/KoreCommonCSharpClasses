@@ -14,10 +14,12 @@ public static class GloTestCenter
             GloTestList1D.RunTests(testLog);
             GloTestList2D.RunTests(testLog);
             GloTestMesh.RunTests(testLog);
+
+            GloTestStringDictionary.RunTests(testLog);
         }
         catch (Exception)
         {
-            testLog.Add("Test Centre Run", false, "Exception");
+            testLog.AddResult("Test Centre Run", false, "Exception");
         }
 
         return testLog;
@@ -36,11 +38,11 @@ public static class GloTestCenter
 
         try
         {
-            GloTestStringDictionary.RunAll(testLog);
+            GloTestStringDictionary.RunTests(testLog);
         }
         catch (Exception)
         {
-            testLog.Add("Test Centre Run", false, "Exception");
+            testLog.AddResult("Test Centre Run", false, "Exception");
         }
 
         // Print the test log

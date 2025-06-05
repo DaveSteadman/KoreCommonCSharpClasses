@@ -80,7 +80,7 @@ public class GloNumericRange<T> where T : INumber<T>
     // MARK: General functions
     // --------------------------------------------------------------------------------------------
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(this, obj))
             return true;
@@ -88,8 +88,8 @@ public class GloNumericRange<T> where T : INumber<T>
         if (obj is GloNumericRange<T> other)
         {
             return this.Min.Equals(other.Min) &&
-                   this.Max.Equals(other.Max) &&
-                   this.Behavior == other.Behavior;
+                this.Max.Equals(other.Max) &&
+                this.Behavior == other.Behavior;
         }
         return false;
     }
