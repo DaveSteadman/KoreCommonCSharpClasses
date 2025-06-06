@@ -10,75 +10,69 @@ public static partial class GloMeshDataPrimitives
 {
     public static GloMeshData BasicSphere(float radius, GloColorRGB color, int numLatSegments)
     {
-        // Use the provided segments for latitude and double for longitude.
         int latSegments = numLatSegments;
         int lonSegments = numLatSegments * 2;
 
-        var mesh = new GloMeshData() { Name = "Sphere" };
+        var mesh = new GloMeshData { Name = "Sphere" };
+        var indexMap = new List<int>(); // Flat list of vertex indices
 
-        // Generate vertices, computing normals and colors in the same nested loop.
-        // (lonSegments+1) vertices per latitude ensure that the seam wraps around.
         for (int lat = 0; lat <= latSegments; lat++)
         {
-            float a1   = (float)Math.PI * lat / latSegments; // 0 (north pole) to PI (south pole)
+            float a1 = (float)Math.PI * lat / latSegments;
             float sin1 = (float)Math.Sin(a1);
             float cos1 = (float)Math.Cos(a1);
 
             for (int lon = 0; lon <= lonSegments; lon++)
             {
-                float a2   = 2f * (float)Math.PI * lon / lonSegments; // 0 to 2PI
+                float a2 = 2f * (float)Math.PI * lon / lonSegments;
                 float sin2 = (float)Math.Sin(a2);
                 float cos2 = (float)Math.Cos(a2);
 
-                // Compute vertex using spherical coordinates (Y is up)
-                float   x      = radius * sin1 * cos2;
-                float   y      = radius * cos1;
-                float   z      = radius * sin1 * sin2;
+                float x = radius * sin1 * cos2;
+                float y = radius * cos1;
+                float z = radius * sin1 * sin2;
+
                 GloXYZVector vertex = new GloXYZVector(x, y, z);
-                mesh.Vertices.Add(vertex);
+                GloXYZVector normal = radius != 0 ? vertex / radius : new GloXYZVector(0, 1, 0);
 
-                // Compute normal; use vertex/radius if radius is non-zero.
-                GloXYZVector normal = (radius != 0) ? vertex / radius : new GloXYZVector(0, 1, 0);
-                mesh.Normals.Add(normal);
-
-                // Assign color to vertex.
-                mesh.VertexColors.Add(color);
+                int idx = mesh.AddPoint(vertex, normal, color);
+                indexMap.Add(idx);
             }
         }
 
-        // Create triangles connecting vertices on adjacent latitude lines.
+        // Triangles
         for (int lat = 0; lat < latSegments; lat++)
         {
             for (int lon = 0; lon < lonSegments; lon++)
             {
-                // Each row has (lonSegments+1) vertices.
                 int current = lat * (lonSegments + 1) + lon;
-                int next    = current + lonSegments + 1;
+                int next = current + lonSegments + 1;
 
-                // Two triangles per quad
-                mesh.Triangles.Add((current, next, current + 1));
-                mesh.Triangles.Add((current + 1, next, next + 1));
+                mesh.AddTriangle(indexMap[current], indexMap[next], indexMap[current + 1]);
+                mesh.AddTriangle(indexMap[current + 1], indexMap[next], indexMap[next + 1]);
             }
         }
 
-        // Generate wireframe lines.
-        for (int lat = 0; lat <= latSegments; lat++) // Horizontal lines along the same latitude.
+        // Horizontal wireframe lines (latitude circles)
+        for (int lat = 0; lat <= latSegments; lat++)
         {
             int rowStart = lat * (lonSegments + 1);
             for (int lon = 0; lon < lonSegments; lon++)
             {
-                int current = rowStart + lon;
-                int next    = current + 1;
-                mesh.Lines.Add((current, next, color, color));
+                int a = indexMap[rowStart + lon];
+                int b = indexMap[rowStart + lon + 1];
+                mesh.AddLine(a, b, color, color);
             }
         }
-        for (int lon = 0; lon <= lonSegments; lon++) // Vertical lines along the same longitude.
+
+        // Vertical wireframe lines (longitude lines)
+        for (int lon = 0; lon <= lonSegments; lon++)
         {
             for (int lat = 0; lat < latSegments; lat++)
             {
-                int current = lat * (lonSegments + 1) + lon;
-                int next    = (lat + 1) * (lonSegments + 1) + lon;
-                mesh.Lines.Add((current, next, color, color));
+                int a = indexMap[lat * (lonSegments + 1) + lon];
+                int b = indexMap[(lat + 1) * (lonSegments + 1) + lon];
+                mesh.AddLine(a, b, color, color);
             }
         }
 

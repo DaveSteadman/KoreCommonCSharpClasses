@@ -54,11 +54,6 @@ public static partial class GloMeshDataPrimitives
                 mesh.AddLine(mesh.Vertices[idxBaseCenter], mesh.Vertices[currentIdx], color, color);
                 mesh.AddLine(mesh.Vertices[currentIdx], mesh.Vertices[nextIdx], color, color);
             }
-            else // CroppedCone: use dotted lines.
-            {
-                mesh.AddDottedLine(mesh.Vertices[idxBaseCenter], mesh.Vertices[currentIdx], color, color, numDots);
-                mesh.AddDottedLine(mesh.Vertices[currentIdx], mesh.Vertices[nextIdx], color, color, numDots);
-            }
         }
 
         // Create the lateral sides: connect the apex with every base point.

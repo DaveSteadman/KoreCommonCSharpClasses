@@ -146,7 +146,7 @@ public class GloTestLog
                 case GloTestLogEntryType.Test:
                     string resultStr = ResultToString(entry.Result);
                     string comment = string.IsNullOrEmpty(entry.Comment) ? "" : $" // {entry.Comment}";
-                    sb.AppendLine($"TEST: {entry.Name} // {resultStr}{comment}");
+                    sb.AppendLine($"TEST: {resultStr} // {entry.Name}{comment}");
                     break;
             }
         }

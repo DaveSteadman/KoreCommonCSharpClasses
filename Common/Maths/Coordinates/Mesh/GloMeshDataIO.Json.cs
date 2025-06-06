@@ -15,30 +15,35 @@ public static partial class GloMeshDataIO
     // --------------------------------------------------------------------------------------------
 
     // Save GloMeshData to JSON (triangles as 3 points, lines as native structure)
-    public static string ToJson(GloMeshData mesh)
+    public static string ToJson(GloMeshData mesh, bool dense = false)
     {
+
+        dense = true;
+
         var obj = new
         {
-            name           = GloStringOperations.WhitelistString(mesh.Name),
-            vertices       = mesh.Vertices,
-            lines          = mesh.Lines,
-            triangles      = mesh.Triangles,
-            normals        = mesh.Normals,
-            uvs            = mesh.UVs,
-            vertexColors   = mesh.VertexColors,
-            lineColors     = mesh.LineColors,
+            name = GloStringOperations.WhitelistString(mesh.Name),
+            vertices = mesh.Vertices,
+            lines = mesh.Lines,
+            triangles = mesh.Triangles,
+            normals = mesh.Normals,
+            uvs = mesh.UVs,
+            vertexColors = mesh.VertexColors,
+            lineColors = mesh.LineColors,
             triangleColors = mesh.TriangleColors,
         };
 
         var options = new JsonSerializerOptions
         {
-            WriteIndented = true,
+            WriteIndented = !dense,
             Converters = {
                 new Vector3Converter(),
                 new Vector2Converter(),
                 new ColorConverter(),
                 new TriangleConverter(),
                 new LineConverter(),
+                new GloMeshTriangleColourConverter(),
+                new GloMeshLineColourConverter()
             }
         };
         return JsonSerializer.Serialize(obj, options);
@@ -59,73 +64,59 @@ public static partial class GloMeshDataIO
         mesh.Name = root.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? "" : "";
 
         // --- Vertices ---
-        var vertexList = new List<GloXYZVector>();
         if (root.TryGetProperty("vertices", out var vertsProp) && vertsProp.ValueKind == JsonValueKind.Array)
         {
             foreach (var v in vertsProp.EnumerateArray())
-                vertexList.Add(Vector3Converter.ReadVector3(v));
+                mesh.AddPoint(Vector3Converter.ReadVector3(v));
         }
-        mesh.Vertices = vertexList;
 
         // --- Lines ---
-        mesh.Lines = new List<(int, int)>();
         if (root.TryGetProperty("lines", out var linesProp) && linesProp.ValueKind == JsonValueKind.Array)
         {
             foreach (var l in linesProp.EnumerateArray())
-                mesh.Lines.Add(LineConverter.ReadLineTuple(l));
+                mesh.AddLine(LineConverter.ReadLine(l));
         }
 
         // --- Triangles ---
-        mesh.Triangles = new List<(int, int, int)>();
         if (root.TryGetProperty("triangles", out var trisProp) && trisProp.ValueKind == JsonValueKind.Array)
         {
             foreach (var tri in trisProp.EnumerateArray())
-            {
-                int a = tri[0].GetInt32();
-                int b = tri[1].GetInt32();
-                int c = tri[2].GetInt32();
-                mesh.Triangles.Add((a, b, c));
-            }
+                mesh.AddTriangle(TriangleConverter.ReadTriangle(tri));
         }
 
         // --- Normals ---
-        mesh.Normals = new List<GloXYZVector>();
         if (root.TryGetProperty("normals", out var normalsProp) && normalsProp.ValueKind == JsonValueKind.Array)
         {
             foreach (var n in normalsProp.EnumerateArray())
-                mesh.Normals.Add(Vector3Converter.ReadVector3(n));
+                mesh.AddNormal(Vector3Converter.ReadVector3(n));
         }
 
         // --- UVs ---
-        mesh.UVs = new List<GloXYVector>();
         if (root.TryGetProperty("uvs", out var uvsProp) && uvsProp.ValueKind == JsonValueKind.Array)
         {
             foreach (var uv in uvsProp.EnumerateArray())
-                mesh.UVs.Add(Vector2Converter.ReadVector2(uv));
+                mesh.AddUV(Vector2Converter.ReadVector2(uv));
         }
 
         // --- VertexColors ---
-        mesh.VertexColors = new List<GloColorRGB>();
         if (root.TryGetProperty("vertexColors", out var colorsProp) && colorsProp.ValueKind == JsonValueKind.Array)
         {
             foreach (var c in colorsProp.EnumerateArray())
-                mesh.VertexColors.Add(ColorConverter.ReadColor(c));
+                mesh.AddVertexColor(ColorConverter.ReadColor(c));
         }
 
         // --- LineColors ---
-        mesh.LineColors = new List<GloColorRGB>();
         if (root.TryGetProperty("lineColors", out var lineColorsProp) && lineColorsProp.ValueKind == JsonValueKind.Array)
         {
             foreach (var c in lineColorsProp.EnumerateArray())
-                mesh.LineColors.Add(ColorConverter.ReadColor(c));
+                mesh.SetLineColor(GloMeshLineColourConverter.ReadLineColour(c));
         }
 
         // --- TriangleColors ---
-        mesh.TriangleColors = new List<GloColorRGB>();
         if (root.TryGetProperty("triangleColors", out var triangleColorsProp) && triangleColorsProp.ValueKind == JsonValueKind.Array)
         {
             foreach (var c in triangleColorsProp.EnumerateArray())
-                mesh.TriangleColors.Add(ColorConverter.ReadColor(c));
+                mesh.SetTriangleColor(GloMeshTriangleColourConverter.ReadTriangleColour(c));
         }
 
         return mesh;
@@ -217,20 +208,20 @@ public static partial class GloMeshDataIO
     // MARK: LineConverter
     // --------------------------------------------------------------------------------------------
 
-    private class LineConverter : JsonConverter<(int, int)>
+    private class LineConverter : JsonConverter<GloMeshLine>
     {
-        public override (int, int) Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override GloMeshLine Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             using var doc = JsonDocument.ParseValue(ref reader);
-            return ReadLineTuple(doc.RootElement);
+            return ReadLine(doc.RootElement);
         }
-        public override void Write(Utf8JsonWriter writer, (int, int) value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, GloMeshLine value, JsonSerializerOptions options)
         {
 
-            string str = $"{value.Item1}, {value.Item2}";
+            string str = $"{value.A}, {value.B}";
             writer.WriteStringValue(str);
         }
-        public static (int, int, GloColorRGB, GloColorRGB) ReadLineTuple(JsonElement el)
+        public static GloMeshLine ReadLine(JsonElement el)
         {
             // read the string representation
             string? str = el.GetString() ?? "";
@@ -239,24 +230,16 @@ public static partial class GloMeshDataIO
             if (!string.IsNullOrEmpty(str))
             {
                 var parts = str.Split(',');
-                if (parts.Length != 3) throw new FormatException("Invalid GloXYZVector string format.");
+                if (parts.Length < 2) throw new FormatException("Invalid GloMeshLine string format.");
 
-                int pnt1Id = int.Parse(parts[0].Split(':')[1]);
-                int pnt2Id = int.Parse(parts[1].Split(':')[1]);
+                int pnt1Id = int.Parse(parts[0].Trim());
+                int pnt2Id = int.Parse(parts[1].Trim());
 
-                string col1Str = parts[2].Split(':')[1].Trim();
-                string col2Str = parts[3].Split(':')[1].Trim();
-
-                GloColorRGB col1 = GloColorIO.HexStringToRGB(col1Str);
-                GloColorRGB col2 = GloColorIO.HexStringToRGB(col2Str);
-
-                return (pnt1Id, pnt2Id, col1, col2);
-
+                // If GloMeshLine has color fields, parse them here as needed.
+                // For now, just use the two indices.
+                return new GloMeshLine(pnt1Id, pnt2Id);
             }
-            return (0, 0, GloColorRGB.Zero, GloColorRGB.Zero);
-
-            // if (!string.IsNullOrEmpty(str))
-
+            return new GloMeshLine(0, 0);
         }
     }
 
@@ -264,35 +247,38 @@ public static partial class GloMeshDataIO
     // MARK: TriangleConverter
     // --------------------------------------------------------------------------------------------
 
-    private class TriangleConverter : JsonConverter<(int, int, int)>
+    private class TriangleConverter : JsonConverter<GloMeshTriangle>
     {
-        public override (int, int, int) Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override GloMeshTriangle Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             using var doc = JsonDocument.ParseValue(ref reader);
-            if (doc.RootElement.ValueKind == JsonValueKind.Array && doc.RootElement.GetArrayLength() == 3)
-            {
-                // read a string representation
-                string? str = doc.RootElement.GetString();
-
-                if (!string.IsNullOrEmpty(str))
-                {
-                    var parts = str.Split(',');
-                    if (parts.Length != 3) throw new FormatException("Invalid GloXYZVector string format.");
-
-                    int a = int.Parse(parts[0].Split(':')[1]);
-                    int b = int.Parse(parts[1].Split(':')[1]);
-                    int c = int.Parse(parts[2].Split(':')[1]);
-
-                    return (a, b, c);
-                }
-            }
-            return (0, 0, 0);
+            return ReadTriangle(doc.RootElement);
         }
 
-        public override void Write(Utf8JsonWriter writer, (int, int, int) value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, GloMeshTriangle value, JsonSerializerOptions options)
         {
-            string str = $"{value.Item1}, {value.Item2}, {value.Item3}";
+            string str = $"{value.A}, {value.B}, {value.C}";
             writer.WriteStringValue(str);
+        }
+
+        public static GloMeshTriangle ReadTriangle(JsonElement el)
+        {
+            // read the string representation
+            string? str = el.GetString() ?? "";
+
+            // split by comma
+            if (!string.IsNullOrEmpty(str))
+            {
+                var parts = str.Split(',');
+                if (parts.Length != 3) throw new FormatException("Invalid GloMeshTriangle string format.");
+
+                int a = int.Parse(parts[0]);
+                int b = int.Parse(parts[1]);
+                int c = int.Parse(parts[2]);
+
+                return new GloMeshTriangle(a, b, c);
+            }
+            return new GloMeshTriangle(0, 0, 0);
         }
     }
 
@@ -301,11 +287,82 @@ public static partial class GloMeshDataIO
     // MARK: LineColourConverter
     // --------------------------------------------------------------------------------------------
 
+    private class GloMeshLineColourConverter : JsonConverter<GloMeshLineColour>
+    {
+        public override GloMeshLineColour Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            using var doc = JsonDocument.ParseValue(ref reader);
+            return ReadLineColour(doc.RootElement);
+        }
+
+        public override void Write(Utf8JsonWriter writer, GloMeshLineColour value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue($"Index: {value.Index}, StartColor: {GloColorIO.RBGtoHexString(value.StartColor)}, EndColor: {GloColorIO.RBGtoHexString(value.EndColor)}");
+        }
+
+        public static GloMeshLineColour ReadLineColour(JsonElement el)
+        {
+            // read the string representation
+            string? str = el.GetString() ?? "";
+
+            // split by comma
+            if (!string.IsNullOrEmpty(str))
+            {
+                var parts = str.Split(',');
+                if (parts.Length != 3) throw new FormatException($"Invalid GloMeshLineColour string format. {parts}.");
+
+                int lineIndex        = int.Parse(parts[0].Split(':')[1].Trim());
+                string startColorStr = parts[1].Split(':')[1].Trim();
+                string endColorStr   = parts[2].Split(':')[1].Trim();
+
+                //Console.WriteLine($"GloMeshLineColourConverter: ReadLineColour: lineIndex: {lineIndex}, startColorStr: {startColorStr}, endColorStr: {endColorStr}");
+
+                GloColorRGB startColor = GloColorIO.HexStringToRGB(startColorStr);
+                GloColorRGB endColor = GloColorIO.HexStringToRGB(endColorStr);
+
+                return new GloMeshLineColour(lineIndex, startColor, endColor);
+            }
+            return new GloMeshLineColour(0, GloColorRGB.White, GloColorRGB.White);
+        }
+    }
+
     // --------------------------------------------------------------------------------------------
     // MARK: TriangleColourConverter
     // --------------------------------------------------------------------------------------------
 
+    private class GloMeshTriangleColourConverter : JsonConverter<GloMeshTriangleColour>
+    {
+        public override GloMeshTriangleColour Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            using var doc = JsonDocument.ParseValue(ref reader);
+            return ReadTriangleColour(doc.RootElement);
+        }
 
+        public override void Write(Utf8JsonWriter writer, GloMeshTriangleColour value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue($"Index: {value.Index}, Color: {GloColorIO.RBGtoHexString(value.Color)}");
+        }
 
+        public static GloMeshTriangleColour ReadTriangleColour(JsonElement el)
+        {
+            // read the string representation
+            string? str = el.GetString() ?? "";
+
+            // split by comma
+            if (!string.IsNullOrEmpty(str))
+            {
+                var parts = str.Split(',');
+                if (parts.Length != 2) throw new FormatException("Invalid GloMeshTriangle string format.");
+
+                int triIndex        = int.Parse(parts[0].Split(':')[1].Trim());
+                string triColorStr = parts[1].Split(':')[1].Trim();
+
+                GloColorRGB triColor = GloColorIO.HexStringToRGB(triColorStr);
+
+                return new GloMeshTriangleColour(triIndex, triColor);
+            }
+            return new GloMeshTriangleColour(0, GloColorRGB.White);
+        }
+    }
 }
 

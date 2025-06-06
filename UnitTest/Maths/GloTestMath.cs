@@ -4,10 +4,18 @@ public static class GloTestMath
 {
     public static void RunTests(GloTestLog testLog)
     {
-        TestValueUtilsBool(testLog);
-        TestValueUtilsInt(testLog);
-        TestValueUtilsFloat(testLog);
-        TestFloat1DArray_Basics(testLog);
+        try
+        {
+            TestValueUtilsBool(testLog);
+            TestValueUtilsInt(testLog);
+            TestValueUtilsFloat(testLog);
+            TestFloat1DArray_Basics(testLog);
+        }
+        catch (Exception ex)
+        {
+            testLog.AddResult("GloTestMath RunTests", false, ex.Message);
+            return;
+        }
     }
 
     public static void TestValueUtilsBool(GloTestLog testLog)

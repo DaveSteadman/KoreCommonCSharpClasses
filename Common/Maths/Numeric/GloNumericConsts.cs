@@ -12,7 +12,7 @@ public static class GloConsts<T> where T : INumber<T>
 {
     public static readonly T kPi;
     public static readonly T kTwoPi;
-    public static readonly T DegsInRads90;
+    //public static readonly T DegsInRads90;
     public static readonly T RadsToDegsMultiplier;
     public static readonly T DegsToRadsMultiplier;
     public static readonly T ArbitraryMin;

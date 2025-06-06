@@ -12,53 +12,41 @@ public static partial class GloMeshDataPrimitives
     // Usage: var cubeMesh = GloMeshDataPrimitives.BasicCube(1.0f, new GloColorRGB(255, 0, 0));
     public static GloMeshData BasicCube(float size, GloColorRGB color)
     {
-        // Create a new GloMeshData object
-        var mesh = new GloMeshData() { Name = "Cube" };
+        var mesh = new GloMeshData { Name = "Cube" };
 
         // Define the vertices of the cube
-        mesh.Vertices.Add(new GloXYZVector(-size, -size, -size));
-        mesh.Vertices.Add(new GloXYZVector(size, -size, -size));
-        mesh.Vertices.Add(new GloXYZVector(size, size, -size));
-        mesh.Vertices.Add(new GloXYZVector(-size, size, -size));
-        mesh.Vertices.Add(new GloXYZVector(-size, -size, size));
-        mesh.Vertices.Add(new GloXYZVector(size, -size, size));
-        mesh.Vertices.Add(new GloXYZVector(size, size, size));
-        mesh.Vertices.Add(new GloXYZVector(-size, size, size));
+        int v0 = mesh.AddPoint(new GloXYZVector(-size, -size, -size), null, color);
+        int v1 = mesh.AddPoint(new GloXYZVector( size, -size, -size), null, color);
+        int v2 = mesh.AddPoint(new GloXYZVector( size,  size, -size), null, color);
+        int v3 = mesh.AddPoint(new GloXYZVector(-size,  size, -size), null, color);
+        int v4 = mesh.AddPoint(new GloXYZVector(-size, -size,  size), null, color);
+        int v5 = mesh.AddPoint(new GloXYZVector( size, -size,  size), null, color);
+        int v6 = mesh.AddPoint(new GloXYZVector( size,  size,  size), null, color);
+        int v7 = mesh.AddPoint(new GloXYZVector(-size,  size,  size), null, color);
 
-        // Define each edge as a line
-        mesh.Lines.Add((0, 1, color, color)); // bottom face (-ve Y)
-        mesh.Lines.Add((1, 4, color, color));
-        mesh.Lines.Add((4, 5, color, color));
-        mesh.Lines.Add((5, 0, color, color));
-        mesh.Lines.Add((2, 3, color, color)); // top face (+ve Y)
-        mesh.Lines.Add((3, 6, color, color));
-        mesh.Lines.Add((6, 7, color, color));
-        mesh.Lines.Add((7, 2, color, color));
-        mesh.Lines.Add((0, 3, color, color)); // Vertical edges (-ve y to +ve y)
-        mesh.Lines.Add((1, 2, color, color));
-        mesh.Lines.Add((4, 7, color, color));
-        mesh.Lines.Add((5, 6, color, color));
+        // Lines
+        mesh.AddLine(v0, v1, color, color);
+        mesh.AddLine(v1, v5, color, color);
+        mesh.AddLine(v5, v4, color, color);
+        mesh.AddLine(v4, v0, color, color);
+        mesh.AddLine(v2, v3, color, color);
+        mesh.AddLine(v3, v7, color, color);
+        mesh.AddLine(v7, v6, color, color);
+        mesh.AddLine(v6, v2, color, color);
+        mesh.AddLine(v0, v3, color, color);
+        mesh.AddLine(v1, v2, color, color);
+        mesh.AddLine(v4, v7, color, color);
+        mesh.AddLine(v5, v6, color, color);
 
-        mesh.Triangles.Add((0, 1, 2)); // bottom face (-ve Y)
-        mesh.Triangles.Add((0, 2, 3));
-        mesh.Triangles.Add((4, 5, 6)); // top face (+ve Y)
-        mesh.Triangles.Add((4, 6, 7));
-        mesh.Triangles.Add((0, 1, 5)); // side faces
-        mesh.Triangles.Add((0, 5, 4));
-        mesh.Triangles.Add((1, 2, 6));
-        mesh.Triangles.Add((1, 6, 5));
-        mesh.Triangles.Add((2, 3, 7));
-        mesh.Triangles.Add((2, 7, 6));
-        mesh.Triangles.Add((3, 0, 4));
-        mesh.Triangles.Add((3, 4, 7));
+        // Triangles
+        mesh.AddTriangle(v0, v1, v2); mesh.AddTriangle(v0, v2, v3);
+        mesh.AddTriangle(v4, v5, v6); mesh.AddTriangle(v4, v6, v7);
+        mesh.AddTriangle(v0, v1, v5); mesh.AddTriangle(v0, v5, v4);
+        mesh.AddTriangle(v1, v2, v6); mesh.AddTriangle(v1, v6, v5);
+        mesh.AddTriangle(v2, v3, v7); mesh.AddTriangle(v2, v7, v6);
+        mesh.AddTriangle(v3, v0, v4); mesh.AddTriangle(v3, v4, v7);
 
-        // Set normals and colors for each vertex
-        for (int i = 0; i < mesh.Vertices.Count; i++)
-        {
-            mesh.Normals.Add(mesh.Vertices[i].Normalize());
-            mesh.VertexColors.Add(color);
-        }
-
+        mesh.MakeValid();
         return mesh;
     }
 
@@ -75,59 +63,39 @@ public static partial class GloMeshDataPrimitives
 
         // Define 8 unique vertices for the rectangular box
         // Front face vertices:
-        mesh.Vertices.Add(new GloXYZVector(-sizeLeft,  -sizeDown, -sizeFront)); // 0: Lower left front
-        mesh.Vertices.Add(new GloXYZVector( sizeRight, -sizeDown, -sizeFront)); // 1: Lower right front
-        mesh.Vertices.Add(new GloXYZVector( sizeRight,  sizeUp,   -sizeFront)); // 2: Upper right front
-        mesh.Vertices.Add(new GloXYZVector(-sizeLeft,   sizeUp,   -sizeFront)); // 3: Upper left front
+        int v0 = mesh.AddPoint(new GloXYZVector(-sizeLeft,  -sizeDown, -sizeFront), null, color); // Lower left front
+        int v1 = mesh.AddPoint(new GloXYZVector( sizeRight, -sizeDown, -sizeFront), null, color); // Lower right front
+        int v2 = mesh.AddPoint(new GloXYZVector( sizeRight,  sizeUp,   -sizeFront), null, color); // Upper right front
+        int v3 = mesh.AddPoint(new GloXYZVector(-sizeLeft,   sizeUp,   -sizeFront), null, color); // Upper left front
+
         // Back face vertices:
-        mesh.Vertices.Add(new GloXYZVector(-sizeLeft,  -sizeDown, sizeBack));   // 4: Lower left back
-        mesh.Vertices.Add(new GloXYZVector( sizeRight, -sizeDown, sizeBack));   // 5: Lower right back
-        mesh.Vertices.Add(new GloXYZVector( sizeRight,  sizeUp,   sizeBack));   // 6: Upper right back
-        mesh.Vertices.Add(new GloXYZVector(-sizeLeft,   sizeUp,   sizeBack));   // 7: Upper left back
+        int v4 = mesh.AddPoint(new GloXYZVector(-sizeLeft,  -sizeDown, sizeBack),   null, color); // Lower left back
+        int v5 = mesh.AddPoint(new GloXYZVector( sizeRight, -sizeDown, sizeBack),   null, color); // Lower right back
+        int v6 = mesh.AddPoint(new GloXYZVector( sizeRight,  sizeUp,   sizeBack),   null, color); // Upper right back
+        int v7 = mesh.AddPoint(new GloXYZVector(-sizeLeft,   sizeUp,   sizeBack),   null, color); // Upper left back
 
         // Define edges (lines)
-        // Front face edges
-        mesh.Lines.Add((0, 1, color, color));
-        mesh.Lines.Add((1, 2, color, color));
-        mesh.Lines.Add((2, 3, color, color));
-        mesh.Lines.Add((3, 0, color, color));
-        // Back face edges
-        mesh.Lines.Add((4, 5, color, color));
-        mesh.Lines.Add((5, 6, color, color));
-        mesh.Lines.Add((6, 7, color, color));
-        mesh.Lines.Add((7, 4, color, color));
-        // Connecting edges between front and back faces
-        mesh.Lines.Add((0, 4, color, color));
-        mesh.Lines.Add((1, 5, color, color));
-        mesh.Lines.Add((2, 6, color, color));
-        mesh.Lines.Add((3, 7, color, color));
+        // Lines
+        mesh.AddLine(v0, v1, color, color);
+        mesh.AddLine(v1, v5, color, color);
+        mesh.AddLine(v5, v4, color, color);
+        mesh.AddLine(v4, v0, color, color);
+        mesh.AddLine(v2, v3, color, color);
+        mesh.AddLine(v3, v7, color, color);
+        mesh.AddLine(v7, v6, color, color);
+        mesh.AddLine(v6, v2, color, color);
+        mesh.AddLine(v0, v3, color, color);
+        mesh.AddLine(v1, v2, color, color);
+        mesh.AddLine(v4, v7, color, color);
+        mesh.AddLine(v5, v6, color, color);
 
-        // Define triangles for each face (two per face)
-        // Front
-        mesh.Triangles.Add((0, 1, 2));
-        mesh.Triangles.Add((0, 2, 3));
-        // Back (winding order reversed if needed)
-        mesh.Triangles.Add((4, 6, 5));
-        mesh.Triangles.Add((4, 7, 6));
-        // Left
-        mesh.Triangles.Add((0, 3, 7));
-        mesh.Triangles.Add((0, 7, 4));
-        // Right
-        mesh.Triangles.Add((1, 5, 6));
-        mesh.Triangles.Add((1, 6, 2));
-        // Top
-        mesh.Triangles.Add((3, 2, 6));
-        mesh.Triangles.Add((3, 6, 7));
-        // Bottom
-        mesh.Triangles.Add((0, 4, 5));
-        mesh.Triangles.Add((0, 5, 1));
-
-        // Set normals and colors for each vertex
-        for (int i = 0; i < mesh.Vertices.Count; i++)
-        {
-            mesh.Normals.Add(mesh.Vertices[i].Normalize());
-            mesh.VertexColors.Add(color);
-        }
+        // Triangles
+        mesh.AddTriangle(v0, v1, v2); mesh.AddTriangle(v0, v2, v3);
+        mesh.AddTriangle(v4, v5, v6); mesh.AddTriangle(v4, v6, v7);
+        mesh.AddTriangle(v0, v1, v5); mesh.AddTriangle(v0, v5, v4);
+        mesh.AddTriangle(v1, v2, v6); mesh.AddTriangle(v1, v6, v5);
+        mesh.AddTriangle(v2, v3, v7); mesh.AddTriangle(v2, v7, v6);
+        mesh.AddTriangle(v3, v0, v4); mesh.AddTriangle(v3, v4, v7);
 
         return mesh;
     }

@@ -136,12 +136,16 @@ public static class GloFileOperations
 
     public static string DirectoryFromPath(string filepath)
     {
+        // If the filepath is null or empty, return an empty string.
         if (string.IsNullOrEmpty(filepath))
-        {
-            throw new ArgumentException($"Invalid file path: '{filepath}'");
-        }
+            return string.Empty;
 
-        string directory = Path.GetDirectoryName(filepath);
+        string? directory = Path.GetDirectoryName(filepath);
+
+        // If the directory is null or empty, return an empty string.
+        if (string.IsNullOrEmpty(directory))
+            return string.Empty;
+
         return directory;
     }
 
@@ -157,9 +161,7 @@ public static class GloFileOperations
     public static void CreateDirectory(string directory)
     {
         if (string.IsNullOrEmpty(directory))
-        {
             throw new ArgumentException($"Invalid file path: '{directory}'");
-        }
 
         Directory.CreateDirectory(DirectoryFromPath(directory));
     }

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 public record struct GloMeshLine(int A, int B);
 public record struct GloMeshTriangle(int A, int B, int C);
-
+public record struct GloMeshLineColour(int Index, GloColorRGB StartColor, GloColorRGB EndColor);
+public record struct GloMeshTriangleColour(int Index, GloColorRGB Color);
 
 public partial class GloMeshData
 {
@@ -32,10 +33,10 @@ public partial class GloMeshData
     public List<GloColorRGB> VertexColors;
 
     // List of line colors - for a wireframe mesh
-    public List<(int, GloColorRGB, GloColorRGB)> LineColors;
+    public List<GloMeshLineColour> LineColors;
 
     // List of triangle colors - for a solid mesh
-    public List<(int, GloColorRGB)> TriangleColors;
+    public List<GloMeshTriangleColour> TriangleColors;
 
     // --------------------------------------------------------------------------------------------
     // MARK: Validation Properties
@@ -58,8 +59,8 @@ public partial class GloMeshData
         this.Normals = new List<GloXYZVector>();
         this.UVs = new List<GloXYVector>();
         this.VertexColors = new List<GloColorRGB>();
-        this.LineColors = new List<(int, GloColorRGB, GloColorRGB)>();
-        this.TriangleColors = new List<(int, GloColorRGB)>();
+        this.LineColors = new List<GloMeshLineColour>();
+        this.TriangleColors = new List<GloMeshTriangleColour>();
     }
 
     // Copy constructor
@@ -71,8 +72,8 @@ public partial class GloMeshData
         List<GloXYZVector> normals,
         List<GloXYVector> uvs,
         List<GloColorRGB> vertexColors,
-        List<(int, GloColorRGB, GloColorRGB)> lineColors,
-        List<(int, GloColorRGB)> triangleColors)
+        List<GloMeshLineColour> lineColors,
+        List<GloMeshTriangleColour> triangleColors)
     {
         this.Name = inName;
         this.Vertices = vertices;
@@ -95,8 +96,8 @@ public partial class GloMeshData
         this.Normals = new List<GloXYZVector>(mesh.Normals);
         this.UVs = new List<GloXYVector>(mesh.UVs);
         this.VertexColors = new List<GloColorRGB>(mesh.VertexColors);
-        this.LineColors = new List<(int, GloColorRGB, GloColorRGB)>(mesh.LineColors);
-        this.TriangleColors = new List<(int, GloColorRGB)>(mesh.TriangleColors);
+        this.LineColors = new List<GloMeshLineColour>(mesh.LineColors);
+        this.TriangleColors = new List<GloMeshTriangleColour>(mesh.TriangleColors);
     }
 
     // Initialises the mesh data with empty lists
@@ -116,32 +117,160 @@ public partial class GloMeshData
     // MARK: Validity Operations
     // --------------------------------------------------------------------------------------------
 
-    public void MakeValid()
+    // Function to fully populate the mesh data with matching normals, UVs, vertex colors, line colors, and triangle colors.
+    public void FullyPopulate()
     {
         CreateMatchingNormals();
         CreateMatchingUVs();
         CreateMatchingVertexColors();
+        CreateMatchingLineColors();
+        CreateMatchingTriangleColors();
     }
+
+    // Function to examine the vertex list, and remove any orphaned or duplicate lines, triangles, and colors.
+    public void MakeValid()
+    {
+        RemoveOrphanedLines();
+        RemoveDuplicateLines();
+
+        RemoveOrphanedTriangles();
+        RemoveDuplicateTriangles();
+
+        RemoveOrphanedLineColors();
+        RemoveDuplicateLineColors();
+
+        RemoveOrphanedTriangleColors();
+        RemoveDuplicateTriangleColors();
+    }
+
+    // --------------------------------------------------------------------------------------------
 
     public void CreateMatchingNormals(GloXYZVector? defaultNormal = null)
     {
+        // Define the default normal to pad the normals list if it doesn't match the vertices count.
         GloXYZVector fallback = defaultNormal ?? new GloXYZVector(0, 1, 0);
+
+        //Add missing normals
         while (Normals.Count < Vertices.Count)
             Normals.Add(fallback);
+
+        // Remove excess normals if they exceed the vertices count
+        if (Normals.Count > Vertices.Count)
+            Normals.RemoveRange(Vertices.Count, Normals.Count - Vertices.Count);
     }
 
     public void CreateMatchingUVs(GloXYVector? defaultUV = null)
     {
+        // Define the default UV to pad the UVs list if it doesn't match the vertices count.
         GloXYVector fallback = defaultUV ?? new GloXYVector(0, 0);
+
+        // Add missing UVs
         while (UVs.Count < Vertices.Count)
             UVs.Add(fallback);
+
+        // Remove excess UVs if they exceed the vertices count
+        if (UVs.Count > Vertices.Count)
+            UVs.RemoveRange(Vertices.Count, UVs.Count - Vertices.Count);
     }
 
     public void CreateMatchingVertexColors(GloColorRGB? defaultColor = null)
     {
+        // Define the default color to pad the VertexColors list if it doesn't match the vertices count.
         GloColorRGB fallback = defaultColor ?? new GloColorRGB(1, 1, 1);
+
+        // Add missing vertex colors
         while (VertexColors.Count < Vertices.Count)
             VertexColors.Add(fallback);
+
+        // Remove excess vertex colors if they exceed the vertices count
+        if (VertexColors.Count > Vertices.Count)
+            VertexColors.RemoveRange(Vertices.Count, VertexColors.Count - Vertices.Count);
+    }
+
+    public void CreateMatchingLineColors(GloColorRGB? defaultColor = null)
+    {
+        // Define the default color to pad the LineColors list if it doesn't match the lines count.
+        GloColorRGB fallback = defaultColor ?? new GloColorRGB(1, 1, 1);
+
+        // Add missing line colors
+        while (LineColors.Count < Lines.Count)
+            LineColors.Add(new GloMeshLineColour(LineColors.Count, fallback, fallback));
+
+        // Remove excess line colors if they exceed the lines count
+        if (LineColors.Count > Lines.Count)
+            LineColors.RemoveRange(Lines.Count, LineColors.Count - Lines.Count);
+    }
+
+    public void CreateMatchingTriangleColors(GloColorRGB? defaultColor = null)
+    {
+        // Define the default color to pad the TriangleColors list if it doesn't match the triangles count.
+        GloColorRGB fallback = defaultColor ?? new GloColorRGB(1, 1, 1);
+
+        // Add missing triangle colors
+        while (TriangleColors.Count < Triangles.Count)
+            TriangleColors.Add(new GloMeshTriangleColour(TriangleColors.Count, fallback));
+
+        // Remove excess triangle colors if they exceed the triangles count
+        if (TriangleColors.Count > Triangles.Count)
+            TriangleColors.RemoveRange(Triangles.Count, TriangleColors.Count - Triangles.Count);
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    public void RemoveOrphanedLines()
+    {
+        // Remove lines that reference vertices that no longer exist
+        Lines.RemoveAll(line => line.A < 0 || line.A >= Vertices.Count || line.B < 0 || line.B >= Vertices.Count);
+    }
+
+    public void RemoveDuplicateLines()
+    {
+        // Remove duplicate lines based on their vertex indices
+        var uniqueLines = new HashSet<(int, int)>();
+        Lines.RemoveAll(line => !uniqueLines.Add((Math.Min(line.A, line.B), Math.Max(line.A, line.B))));
+    }
+
+    public void RemoveOrphanedTriangles()
+    {
+        // Remove triangles that reference vertices that no longer exist
+        Triangles.RemoveAll(triangle => triangle.A < 0 || triangle.A >= Vertices.Count ||
+                                          triangle.B < 0 || triangle.B >= Vertices.Count ||
+                                          triangle.C < 0 || triangle.C >= Vertices.Count);
+    }
+
+    public void RemoveDuplicateTriangles()
+    {
+        // Remove duplicate triangles based on their vertex indices
+        var uniqueTriangles = new HashSet<(int, int, int)>();
+        Triangles.RemoveAll(triangle => !uniqueTriangles.Add((Math.Min(triangle.A, Math.Min(triangle.B, triangle.C)),
+                                                              Math.Max(Math.Min(triangle.A, triangle.B), Math.Min(triangle.B, triangle.C)),
+                                                              Math.Max(triangle.A, Math.Max(triangle.B, triangle.C)))));
+    }
+
+    public void RemoveOrphanedLineColors()
+    {
+        // Remove line colors that reference lines that no longer exist
+        LineColors.RemoveAll(lineColor => lineColor.Index < 0 || lineColor.Index >= Lines.Count);
+    }
+
+    public void RemoveDuplicateLineColors()
+    {
+        // Remove duplicate line colors based on their index
+        var uniqueLineColors = new HashSet<int>();
+        LineColors.RemoveAll(lineColor => !uniqueLineColors.Add(lineColor.Index));
+    }
+
+    public void RemoveOrphanedTriangleColors()
+    {
+        // Remove triangle colors that reference triangles that no longer exist
+        TriangleColors.RemoveAll(triangleColor => triangleColor.Index < 0 || triangleColor.Index >= Triangles.Count);
+    }
+
+    public void RemoveDuplicateTriangleColors()
+    {
+        // Remove duplicate triangle colors based on their index
+        var uniqueTriangleColors = new HashSet<int>();
+        TriangleColors.RemoveAll(triangleColor => !uniqueTriangleColors.Add(triangleColor.Index));
     }
 
     // --------------------------------------------------------------------------------------------
@@ -201,7 +330,7 @@ public partial class GloMeshData
         Lines.Add(new GloMeshLine(idxA, idxB));
 
         int newLineIndex = LineColors.Count;
-        LineColors.Add((newLineIndex, colStart, colEnd));
+        LineColors.Add(new GloMeshLineColour(newLineIndex, colStart, colEnd));
         return newLineIndex;
     }
 
@@ -306,24 +435,52 @@ public partial class GloMeshData
     // MARK: Line Colors
     // --------------------------------------------------------------------------------------------
 
-    public void AddLineColor(int lineIndex, GloColorRGB startColor, GloColorRGB endColor)
-    {
-        if (lineIndex < 0 || lineIndex >= Lines.Count)
-            throw new ArgumentOutOfRangeException(nameof(lineIndex), "Line index is out of range.");
+    public void SetLineColor(int lineIndex, GloColorRGB startColor, GloColorRGB endColor) => SetLineColor(new GloMeshLineColour(lineIndex, startColor, endColor));
 
-        LineColors.Add((lineIndex, startColor, endColor));
+    public void SetLineColor(GloMeshLineColour lineColor)
+    {
+        // As the line list is indexed by the line index, we search for the line index rather than use the ID as an array lookup.
+        // We add the colors as a new entry in the LineColors list if it doesn't already exist.
+        foreach (var color in LineColors)
+        {
+            if (color.Index == lineColor.Index)
+            {
+                // Update existing color
+                LineColors[LineColors.IndexOf(color)] = lineColor;
+                return;
+            }
+        }
+
+        // else, add a new color entry
+        LineColors.Add(lineColor);
     }
 
     // --------------------------------------------------------------------------------------------
     // MARK: Triangle Colors
     // --------------------------------------------------------------------------------------------
 
-    public void AddTriangleColor(int triangleIndex, GloColorRGB color)
+    public void SetTriangleColor(int triangleIndex, GloColorRGB color)
     {
-        if (triangleIndex < 0 || triangleIndex >= Triangles.Count)
-            throw new ArgumentOutOfRangeException(nameof(triangleIndex), "Triangle index is out of range.");
-
-        TriangleColors.Add((triangleIndex, color));
+        GloMeshTriangleColour tricolor = new GloMeshTriangleColour(triangleIndex, color);
+        SetTriangleColor(tricolor);
     }
 
+    public void SetTriangleColor(GloMeshTriangleColour tricolor)
+    {
+        // As with the lines, the triangle colors are stored by their index, so we search for the index
+        foreach (var color in TriangleColors)
+        {
+            if (color.Index == tricolor.Index)
+            {
+                // Update existing color
+                TriangleColors[TriangleColors.IndexOf(color)] = tricolor;
+                return;
+            }
+        }
+
+        // else, add a new color entry
+        TriangleColors.Add(tricolor);
+    }
 }
+
+

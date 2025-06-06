@@ -12,88 +12,83 @@ public static partial class GloMeshDataPrimitives
 {
     public static GloMeshData MagSphere(GloXYZVector center, GloFloat2DArray radiusList, GloColorRange colorRange)
     {
-        GloMeshData returnedMesh = new GloMeshData() { Name = "MagSphere" };
+        var mesh = new GloMeshData { Name = "MagSphere" };
 
-        int vertSegments  = radiusList.Height - 1;
+        int vertSegments = radiusList.Height - 1;
         int horizSegments = radiusList.Width - 1;
 
-        double vertAngInc  = 180f / (double)vertSegments;
-        double horizAngInc = 360f / (double)horizSegments;
+        double vertAngInc  = 180.0 / vertSegments;
+        double horizAngInc = 360.0 / horizSegments;
 
         double maxRadius = radiusList.MaxVal();
         double minRadius = radiusList.MinVal();
 
-        // Hold the indices of the MeshData.Vertices for this sphere
-        List<int>   sphereVertexIndices = new List<int>();
+        var vertexIndices = new List<int>();
 
-        // Define the points on the sphere surface
-        for (int i = 0; i < vertSegments+1; i++)
+        // Generate all vertices
+        for (int i = 0; i <= vertSegments; i++)
         {
             for (int j = 0; j < horizSegments; j++)
             {
-                // Lookup the radius
                 float radius = radiusList[j, i];
 
-                // Calculate the angles
                 double azRads = GloAngle.DegsToRads(90f - (vertAngInc * i));
                 double elRads = GloAngle.DegsToRads(horizAngInc * j);
 
-                // Calculate the x,y,z
                 double y = radius * Math.Sin(azRads);
                 double r = radius * Math.Cos(azRads);
                 double x = r * Math.Cos(elRads);
                 double z = r * Math.Sin(elRads);
 
-                // Determine the final vertex position with the center offset
-                GloXYZVector v = new GloXYZVector(x, y, z) + center;
+                var position = new GloXYZVector(x, y, z);
+                var worldPosition = position + center;
+                var normal = position.Normalize();
 
-                // Add the vertex
-                int index = returnedMesh.AddPoint(v);
+                double uvX = (double)j / horizSegments;
+                double uvY = (double)i / vertSegments;
 
-                // Add the normal
-                GloXYZVector n = new GloXYZVector(x, y, z).Normalize();
-                returnedMesh.AddNormal(n);
-
-                // Add the UV
-                double uvXFraction = (double)j / (double)horizSegments;
-                double uvYFraction = (double)i / (double)vertSegments;
-                returnedMesh.AddUV(new GloXYVector(uvXFraction, uvYFraction));
-
-                // Calculate the fraction through the range, and add the color for that fraction
                 double radiusFraction = (radius - minRadius) / (maxRadius - minRadius);
-                returnedMesh.AddColor(colorRange.GetColor((float)radiusFraction));
+                var color = colorRange.GetColor((float)radiusFraction);
 
-                // Add the index to the sphereVertexIndices - to calculate the triangles later
-                sphereVertexIndices.Add(index);
+                int idx = mesh.AddPoint(worldPosition, normal, color);
+                mesh.AddUV(new GloXYVector(uvX, uvY));
+
+                vertexIndices.Add(idx);
             }
         }
 
-        // Define the MeshData.Triangles
-        for (int row = 0; row < (vertSegments); row++)
+        // Create triangles + wireframe lines
+        for (int row = 0; row < vertSegments; row++)
         {
-            int rowStart     = row       * horizSegments;
+            int rowStart     = row * horizSegments;
             int nextRowStart = (row + 1) * horizSegments;
 
-            for (int i = 0; i < (horizSegments); i++)
+            for (int i = 0; i < horizSegments; i++)
             {
-                int index1 = sphereVertexIndices[rowStart + i];
-                int index2 = sphereVertexIndices[rowStart + (i + 1) % horizSegments];
-                int index3 = sphereVertexIndices[nextRowStart + i];
-                int index4 = sphereVertexIndices[nextRowStart + (i + 1) % horizSegments];
+                int i1 = vertexIndices[rowStart + i];
+                int i2 = vertexIndices[rowStart + (i + 1) % horizSegments];
+                int i3 = vertexIndices[nextRowStart + i];
+                int i4 = vertexIndices[nextRowStart + (i + 1) % horizSegments];
 
-                returnedMesh.AddTriangle(index1, index4, index2);
-                returnedMesh.AddTriangle(index1, index3, index4);
+                mesh.AddTriangle(i1, i4, i2);
+                mesh.AddTriangle(i1, i3, i4);
 
-                returnedMesh.AddLine(index1, index2, returnedMesh.VertexColors[index1], returnedMesh.VertexColors[index2]);
-                returnedMesh.AddLine(index1, index3, returnedMesh.VertexColors[index1], returnedMesh.VertexColors[index3]);
+                var c1 = mesh.VertexColors[i1];
+                var c2 = mesh.VertexColors[i2];
+                var c3 = mesh.VertexColors[i3];
+                var c4 = mesh.VertexColors[i4];
 
-                // returnedMesh.AddLine(index1, index4, returnedMesh.VertexColors[index1], returnedMesh.VertexColors[index4]);
-                // returnedMesh.AddLine(index2, index3, returnedMesh.VertexColors[index2], returnedMesh.VertexColors[index3]);
-                // returnedMesh.AddLine(index2, index4, returnedMesh.VertexColors[index2], returnedMesh.VertexColors[index4]);
-                // returnedMesh.AddLine(index3, index4, returnedMesh.VertexColors[index3], returnedMesh.VertexColors[index4]);
+                mesh.AddLine(i1, i2, c1, c2);
+                mesh.AddLine(i1, i3, c1, c3);
+
+                // Optionally:
+                // mesh.AddLine(i1, i4, c1, c4);
+                // mesh.AddLine(i2, i3, c2, c3);
+                // mesh.AddLine(i2, i4, c2, c4);
+                // mesh.AddLine(i3, i4, c3, c4);
             }
         }
 
-        return returnedMesh;
+        return mesh;
     }
 }
