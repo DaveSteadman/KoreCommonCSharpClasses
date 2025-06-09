@@ -55,6 +55,48 @@ public static class GloColorIO
         return $"#{rgb.R:X2}{rgb.G:X2}{rgb.B:X2}{rgb.A:X2}";
     }
 
+    // Usage: string hexString = GloColorIO.RBGtoHexStringShort(new GloColorRGB(0.5f, 0.2f, 0.8f, 1.0f));
+    // Note: This function returns an 8-character hex string without the alpha channel, but if the characters
+    // are all the same, it will return a 4-character hex string. And if the apha is 255 (opaque), it will return a 3 character string.
+    public static string RBGtoHexStringShort(GloColorRGB rgb)
+    {
+        //Convert each channel to a string
+        string rStr = rgb.R.ToString("X2");
+        string gStr = rgb.G.ToString("X2");
+        string bStr = rgb.B.ToString("X2");
+        string aStr = rgb.A.ToString("X2");
+
+        // If the two characters in a channel match, we can shorten the string
+        // - rgb.RByte >> 4 isolates the upper nibble
+        // - rgb.RByte & 0xF isolates the lower nibble
+        // - If they're equal, then that byte is a valid shorthand hex like 0xAA (i.e. 'A' duplicated)
+        bool canShorten =
+            ((rgb.R >> 4) == (rgb.R & 0xF)) &&
+            ((rgb.G >> 4) == (rgb.G & 0xF)) &&
+            ((rgb.B >> 4) == (rgb.B & 0xF)) &&
+            ((rgb.A >> 4) == (rgb.A & 0xF));
+
+        if (canShorten)
+        {
+            string rStrShort = rStr[0].ToString();
+            string gStrShort = gStr[0].ToString();
+            string bStrShort = bStr[0].ToString();
+            string aStrShort = aStr[0].ToString();
+
+            if (aStr == "FF" || aStrShort == "F")
+            {
+                // If the alpha channel is fully opaque, we can shorten the string further
+                return $"#{rStrShort}{gStrShort}{bStrShort}";
+            }
+            return $"#{rStrShort}{gStrShort}{bStrShort}{aStrShort}";
+        }
+
+        if (aStr == "FF")
+            return $"#{rStr}{gStr}{bStr}";
+
+        return $"#{rStr}{gStr}{bStr}{aStr}";
+    }
+
     public static string RBGtoHexStringNoAlpha(GloColorRGB rgb)
     {
         return $"#{rgb.R:X2}{rgb.G:X2}{rgb.B:X2}";
@@ -94,26 +136,71 @@ public static class GloColorIO
     // An input like "#112233" or "#112233FF". Returns the zero color on any uncertainty.
     public static GloColorRGB HexStringToRGB(string hexString)
     {
-        // Trim any whitespace or hash characters
+        // Trim any whitespace characters, or haash characters off the front
         hexString = hexString.Trim().ToUpperInvariant();
         if (hexString.StartsWith("#"))
             hexString = hexString.Substring(1);
 
-        // Check we have a 6 or 8 character string
-        bool hasAlpha = (hexString.Length == 8);
-        if (hexString.Length != 6 && hexString.Length != 8)
-            return GloColorRGB.Zero;
+        // Extract based on string length
+        int strLength = hexString.Length;
 
-        byte r = byte.Parse(hexString.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-        byte g = byte.Parse(hexString.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-        byte b = byte.Parse(hexString.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+        switch (strLength)
+        {
+            case 3:
+                {
+                    // Convert 3-character hex to 6-character hex #RGB
+                    byte r = byte.Parse(hexString.Substring(0, 1), System.Globalization.NumberStyles.HexNumber);
+                    byte g = byte.Parse(hexString.Substring(1, 1), System.Globalization.NumberStyles.HexNumber);
+                    byte b = byte.Parse(hexString.Substring(2, 1), System.Globalization.NumberStyles.HexNumber);
 
-        byte a = 255;
-        if (hasAlpha)
-            a = byte.Parse(hexString.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
+                    // convert the 1-character values to 2-character values
+                    r = (byte)((r << 4) | r); // e.g. 0x1 -> 0x11
+                    g = (byte)((g << 4) | g); // e.g. 0x2 -> 0x22
+                    b = (byte)((b << 4) | b); // e.g. 0x3 -> 0x33
 
-        return new GloColorRGB(r, g, b, a);
+                    return new GloColorRGB(r, g, b, 255);
+                }
+            case 4:
+                {
+                    // Convert 4-character hex to 8-character hex #RGBA
+                    byte r = byte.Parse(hexString.Substring(0, 1), System.Globalization.NumberStyles.HexNumber);
+                    byte g = byte.Parse(hexString.Substring(1, 1), System.Globalization.NumberStyles.HexNumber);
+                    byte b = byte.Parse(hexString.Substring(2, 1), System.Globalization.NumberStyles.HexNumber);
+                    byte a = byte.Parse(hexString.Substring(3, 1), System.Globalization.NumberStyles.HexNumber);
+
+                    // convert the 1-character values to 2-character values
+                    r = (byte)((r << 4) | r); // e.g. 0x1 -> 0x11
+                    g = (byte)((g << 4) | g); // e.g. 0x2 -> 0x22
+                    b = (byte)((b << 4) | b); // e.g. 0x3 -> 0x33
+                    a = (byte)((a << 4) | a); // e.g. 0x4 -> 0x44
+
+                    return new GloColorRGB(r, g, b, a);
+                }
+            case 6:
+                {
+                    // Convert 6-character hex to 8-character hex #RRGGBB
+                    byte r = byte.Parse(hexString.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte g = byte.Parse(hexString.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte b = byte.Parse(hexString.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+
+                    return new GloColorRGB(r, g, b, 255);
+                }
+            case 8:
+                {
+                    // Convert 8-character hex to 8-character hex #RRGGBBAA
+                    byte r = byte.Parse(hexString.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte g = byte.Parse(hexString.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte b = byte.Parse(hexString.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte a = byte.Parse(hexString.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
+
+                    return new GloColorRGB(r, g, b, a);
+                }
+            default:
+                {
+                    // Invalid length, return zero color
+                    return new GloColorRGB(0, 0, 0, 255);
+                }
+        }
     }
-
 }
 

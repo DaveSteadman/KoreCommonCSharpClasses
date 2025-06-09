@@ -276,7 +276,7 @@ namespace GloNetworking
                 {
                     if (currConn is GloTcpClientConnection)
                     {
-                        GloTcpClientConnection currConnTcp = currConn as GloTcpClientConnection;
+                        GloTcpClientConnection? currConnTcp = currConn as GloTcpClientConnection;
 
                         if (currConnTcp != null && !currConnTcp.connected)
                         {

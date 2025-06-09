@@ -124,6 +124,8 @@ namespace GloNetworking
                     // Accept a new client connection.
                     // BLOCKING. Will throw on listener.Stop() call when stopping thread
                     GloCentralLog.AddEntry("Server Thread: Waiting for connections...");
+                    if (listener == null)
+                        throw new InvalidOperationException("TcpListener is not initialized.");
                     newClient = listener.AcceptTcpClient();
                     StatusString = "AcceptTcpClient";
                 }

@@ -19,7 +19,7 @@ public static partial class GloMeshDataPrimitives
         ConeStyle style = ConeStyle.Cone,
         int       numDots = 5)      // Number of dots for dotted lines.
     {
-        GloMeshData mesh = new GloMeshData() { Name = "HorizCone" };
+        GloMeshData mesh = new GloMeshData();
 
         // Define key points.
         // Apex at origin.

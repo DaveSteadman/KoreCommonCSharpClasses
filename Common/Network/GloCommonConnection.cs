@@ -5,7 +5,7 @@ namespace GloNetworking
 {
     public abstract class GloCommonConnection
     {
-        public string Name { set; get; }
+        public string Name { set; get; } = "DefaultConnection";
 
         public abstract string type();
         public abstract string connectionDetailsString();
@@ -19,9 +19,8 @@ namespace GloNetworking
         // Incoming message queue
         // ========================================================================================
 
-        public BlockingCollection<GloMessageText> IncomingQueue;
-
-        public List<GloMessageText> IncomingMessageLog;
+        public BlockingCollection<GloMessageText> IncomingQueue = new BlockingCollection<GloMessageText>();
+        public List<GloMessageText> IncomingMessageLog = new List<GloMessageText>();
 
         public void setupIncomingQueue(BlockingCollection<GloMessageText> newIncomingQueue)
         {

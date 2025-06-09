@@ -14,9 +14,6 @@ public static partial class GloMeshDataIO
         using var ms = new MemoryStream();
         using var bw = new BinaryWriter(ms);
 
-        // Write name
-        bw.Write(mesh.Name ?? "");
-
         // Vertices
         bw.Write(mesh.Vertices.Count);
         foreach (var v in mesh.Vertices)
@@ -95,9 +92,6 @@ public static partial class GloMeshDataIO
         var mesh = new GloMeshData();
         using var ms = new MemoryStream(data);
         using var br = new BinaryReader(ms);
-
-        // Name
-        mesh.Name = br.ReadString();
 
         // Vertices
         int vCount = br.ReadInt32();

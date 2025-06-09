@@ -14,19 +14,12 @@ namespace GloNetworking
         public static async Task<T> WithCancellation<T>(this Task<T> task, CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<bool>();
-            if (tcs != null)
+            using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s!).TrySetResult(true), tcs))
             {
-                using (cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).TrySetResult(true), tcs))
+                if (task != await Task.WhenAny(task, tcs.Task))
                 {
-                    if (task != await Task.WhenAny(task, tcs.Task))
-                    {
-                        throw new OperationCanceledException(cancellationToken);
-                    }
+                    throw new OperationCanceledException(cancellationToken);
                 }
-            }
-            else
-            {
-                // Handle the case where tcs is null, e.g., by logging an error or throwing an exception
             }
 
             return task.Result;

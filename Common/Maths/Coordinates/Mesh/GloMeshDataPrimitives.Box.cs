@@ -12,7 +12,7 @@ public static partial class GloMeshDataPrimitives
     // Usage: var cubeMesh = GloMeshDataPrimitives.BasicCube(1.0f, new GloColorRGB(255, 0, 0));
     public static GloMeshData BasicCube(float size, GloColorRGB color)
     {
-        var mesh = new GloMeshData { Name = "Cube" };
+        var mesh = new GloMeshData();
 
         // Define the vertices of the cube
         int v0 = mesh.AddPoint(new GloXYZVector(-size, -size, -size), null, color);
@@ -59,7 +59,7 @@ public static partial class GloMeshDataPrimitives
         GloColorRGB color)
     {
         // Create a new GloMeshData object
-        var mesh = new GloMeshData() { Name = "SizedBox" };
+        var mesh = new GloMeshData();
 
         // Define 8 unique vertices for the rectangular box
         // Front face vertices:

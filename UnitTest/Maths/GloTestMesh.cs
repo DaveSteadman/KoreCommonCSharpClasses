@@ -28,12 +28,13 @@ public static class GloTestMesh
         cubeMesh.SetLineColor(2, GloColorPalette.Colors["Blue"], GloColorPalette.Colors["Cyan"]);
         cubeMesh.SetTriangleColor(3, GloColorPalette.Colors["Yellow"]);
 
-        string cubeJSON = GloMeshDataIO.ToJson(cubeMesh);
+        bool denseJSON = false;
+        string cubeJSON = GloMeshDataIO.ToJson(cubeMesh, denseJSON);
         //Console.WriteLine($"Cube Mesh JSON:{cubeJSON}");
         testLog.AddComment($"GloMeshDataIO ToJson BasicCube: {cubeJSON}");
 
         var deserializedCubeMesh = GloMeshDataIO.FromJson(cubeJSON);
-        string reserialisedCubeJSON = GloMeshDataIO.ToJson(deserializedCubeMesh);
+        string reserialisedCubeJSON = GloMeshDataIO.ToJson(deserializedCubeMesh, denseJSON);
 
         testLog.AddComment($"GloMeshDataIO FromJson BasicCube - JSON format: {reserialisedCubeJSON}");
 

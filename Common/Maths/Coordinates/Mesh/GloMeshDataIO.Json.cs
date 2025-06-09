@@ -10,6 +10,11 @@ using System.Text.Json.Serialization;
 
 public static partial class GloMeshDataIO
 {
+    static string idName         = "id";
+    static string startColorName = "start";
+    static string endColorName   = "end";
+    static string colorName      = "color";
+
     // --------------------------------------------------------------------------------------------
     // MARK: ToJson
     // --------------------------------------------------------------------------------------------
@@ -17,25 +22,22 @@ public static partial class GloMeshDataIO
     // Save GloMeshData to JSON (triangles as 3 points, lines as native structure)
     public static string ToJson(GloMeshData mesh, bool dense = false)
     {
-
-        dense = true;
-
         var obj = new
         {
-            name = GloStringOperations.WhitelistString(mesh.Name),
-            vertices = mesh.Vertices,
-            lines = mesh.Lines,
-            triangles = mesh.Triangles,
-            normals = mesh.Normals,
-            uvs = mesh.UVs,
-            vertexColors = mesh.VertexColors,
-            lineColors = mesh.LineColors,
+            vertices       = mesh.Vertices,
+            lines          = mesh.Lines,
+            triangles      = mesh.Triangles,
+            normals        = mesh.Normals,
+            uvs            = mesh.UVs,
+            vertexColors   = mesh.VertexColors,
+            lineColors     = mesh.LineColors,
             triangleColors = mesh.TriangleColors,
         };
 
         var options = new JsonSerializerOptions
         {
             WriteIndented = !dense,
+            AllowTrailingCommas = true,
             Converters = {
                 new Vector3Converter(),
                 new Vector2Converter(),
@@ -60,8 +62,6 @@ public static partial class GloMeshDataIO
         using var doc = JsonDocument.Parse(json);
 
         var root = doc.RootElement;
-
-        mesh.Name = root.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? "" : "";
 
         // --- Vertices ---
         if (root.TryGetProperty("vertices", out var vertsProp) && vertsProp.ValueKind == JsonValueKind.Array)
@@ -192,7 +192,7 @@ public static partial class GloMeshDataIO
         }
         public override void Write(Utf8JsonWriter writer, GloColorRGB value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(GloColorIO.RBGtoHexString(value));
+            writer.WriteStringValue(GloColorIO.RBGtoHexStringShort(value));
         }
         public static GloColorRGB ReadColor(JsonElement el)
         {
@@ -297,7 +297,7 @@ public static partial class GloMeshDataIO
 
         public override void Write(Utf8JsonWriter writer, GloMeshLineColour value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue($"Index: {value.Index}, StartColor: {GloColorIO.RBGtoHexString(value.StartColor)}, EndColor: {GloColorIO.RBGtoHexString(value.EndColor)}");
+            writer.WriteStringValue($"{idName}: {value.Index}, {startColorName}: {GloColorIO.RBGtoHexStringShort(value.StartColor)}, {endColorName}: {GloColorIO.RBGtoHexStringShort(value.EndColor)}");
         }
 
         public static GloMeshLineColour ReadLineColour(JsonElement el)
@@ -340,7 +340,7 @@ public static partial class GloMeshDataIO
 
         public override void Write(Utf8JsonWriter writer, GloMeshTriangleColour value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue($"Index: {value.Index}, Color: {GloColorIO.RBGtoHexString(value.Color)}");
+            writer.WriteStringValue($"{idName}: {value.Index}, {colorName}: {GloColorIO.RBGtoHexStringShort(value.Color)}");
         }
 
         public static GloMeshTriangleColour ReadTriangleColour(JsonElement el)

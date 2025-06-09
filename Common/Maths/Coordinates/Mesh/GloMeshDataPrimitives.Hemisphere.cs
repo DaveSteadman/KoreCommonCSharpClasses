@@ -13,7 +13,7 @@ public static partial class GloMeshDataPrimitives
         int latSegments = numLatSegments;
         int lonSegments = numLatSegments * 2;
 
-        var mesh = new GloMeshData { Name = "Hemisphere" };
+        var mesh = new GloMeshData();
         var indexMap = new List<int>();
 
         for (int lat = 0; lat <= latSegments; lat++)

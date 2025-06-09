@@ -12,7 +12,7 @@ public static partial class GloMeshDataPrimitives
 {
     public static GloMeshData MagSphere(GloXYZVector center, GloFloat2DArray radiusList, GloColorRange colorRange)
     {
-        var mesh = new GloMeshData { Name = "MagSphere" };
+        var mesh = new GloMeshData();
 
         int vertSegments = radiusList.Height - 1;
         int horizSegments = radiusList.Width - 1;

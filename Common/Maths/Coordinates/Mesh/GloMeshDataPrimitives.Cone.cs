@@ -17,7 +17,7 @@ public static partial class GloMeshDataPrimitives
         GloColorRGB      color,
         ConeStyle        style = ConeStyle.Cone)      // Number of dots for dotted lines.
     {
-        GloMeshData mesh = new GloMeshData() { Name = "Cone" };
+        GloMeshData mesh = new GloMeshData();
 
         double length = baseCenterPoint.Magnitude - apexPoint.Magnitude;
 

@@ -6,8 +6,6 @@ using System.Linq;
 
 public static class GloFileOperations
 {
-    // --------------------------------------------------------------------------------------------
-
     // Function to standardize a path, changing any backslash characters to a "/".
 
     // Usage example: GloFileOperations.StandardizePath("C:\\Users\\User\\Documents\\file.txt");

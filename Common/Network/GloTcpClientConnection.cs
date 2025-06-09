@@ -88,7 +88,7 @@ namespace GloNetworking
             StatusString = "BeginConnect";
 
             client = new TcpClient();
-            client.BeginConnect(ipAddress, port, ConnectCallback, client);
+            client.BeginConnect(ipAddress!, port, ConnectCallback, client);
         }
 
         public override void stopConnection()
@@ -184,13 +184,14 @@ namespace GloNetworking
             {
                 try
                 {
-                    string nextMsg;
-
-                    if (sendMsgQueue.TryTake(out nextMsg, 1000))
+                    if (sendMsgQueue.TryTake(out string? nextMsg, 1000))
                     {
-                        byte[] msgBuffer = Encoding.ASCII.GetBytes(nextMsg);
-                        if (stream != null)
-                            stream.Write(msgBuffer, 0, msgBuffer.Length);
+                        if (nextMsg != null)
+                        {
+                            byte[] msgBuffer = Encoding.ASCII.GetBytes(nextMsg);
+                            if (stream != null)
+                                stream.Write(msgBuffer, 0, msgBuffer.Length);
+                        }
                     }
                 }
                 catch (SocketException ex)

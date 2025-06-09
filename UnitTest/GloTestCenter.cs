@@ -15,6 +15,9 @@ public static class GloTestCenter
             GloTestList2D.RunTests(testLog);
             GloTestMesh.RunTests(testLog);
 
+            GloTestColor.RunTests(testLog);
+            GloTestLangStrings.RunTests(testLog);
+
             GloTestStringDictionary.RunTests(testLog);
         }
         catch (Exception)

@@ -7,10 +7,12 @@ public record struct GloMeshTriangle(int A, int B, int C);
 public record struct GloMeshLineColour(int Index, GloColorRGB StartColor, GloColorRGB EndColor);
 public record struct GloMeshTriangleColour(int Index, GloColorRGB Color);
 
+// GloMeshData: A class to hold mesh data for 3D geometry.
+// - points, lines, triangles, normals, UVs, vertex colors, line colors, and triangle colors.
+// - Information about the larger context, such as the object's name, position, rotation, and scale is handled by a higher level class.
+
 public partial class GloMeshData
 {
-    public string Name;
-
     // List of vertices
     public List<GloXYZVector> Vertices;
 
@@ -52,51 +54,47 @@ public partial class GloMeshData
     // Empty constructor
     public GloMeshData()
     {
-        this.Name = string.Empty;
-        this.Vertices = new List<GloXYZVector>();
-        this.Lines = new List<GloMeshLine>();
-        this.Triangles = new List<GloMeshTriangle>();
-        this.Normals = new List<GloXYZVector>();
-        this.UVs = new List<GloXYVector>();
-        this.VertexColors = new List<GloColorRGB>();
-        this.LineColors = new List<GloMeshLineColour>();
+        this.Vertices       = new List<GloXYZVector>();
+        this.Lines          = new List<GloMeshLine>();
+        this.Triangles      = new List<GloMeshTriangle>();
+        this.Normals        = new List<GloXYZVector>();
+        this.UVs            = new List<GloXYVector>();
+        this.VertexColors   = new List<GloColorRGB>();
+        this.LineColors     = new List<GloMeshLineColour>();
         this.TriangleColors = new List<GloMeshTriangleColour>();
     }
 
     // Copy constructor
     public GloMeshData(
-        string inName,
-        List<GloXYZVector> vertices,
-        List<GloMeshLine> lines,
-        List<GloMeshTriangle> triangles,
-        List<GloXYZVector> normals,
-        List<GloXYVector> uvs,
-        List<GloColorRGB> vertexColors,
-        List<GloMeshLineColour> lineColors,
+        List<GloXYZVector>         vertices,
+        List<GloMeshLine>          lines,
+        List<GloMeshTriangle>      triangles,
+        List<GloXYZVector>         normals,
+        List<GloXYVector>          uvs,
+        List<GloColorRGB>          vertexColors,
+        List<GloMeshLineColour>    lineColors,
         List<GloMeshTriangleColour> triangleColors)
     {
-        this.Name = inName;
-        this.Vertices = vertices;
-        this.Lines = lines;
-        this.Triangles = triangles;
-        this.Normals = normals;
-        this.UVs = uvs;
-        this.VertexColors = vertexColors;
-        this.LineColors = lineColors;
+        this.Vertices       = vertices;
+        this.Lines          = lines;
+        this.Triangles      = triangles;
+        this.Normals        = normals;
+        this.UVs            = uvs;
+        this.VertexColors   = vertexColors;
+        this.LineColors     = lineColors;
         this.TriangleColors = triangleColors;
     }
 
     // Copy constructor
     public GloMeshData(GloMeshData mesh)
     {
-        this.Name = mesh.Name;
-        this.Vertices = new List<GloXYZVector>(mesh.Vertices);
-        this.Lines = new List<GloMeshLine>(mesh.Lines);
-        this.Triangles = new List<GloMeshTriangle>(mesh.Triangles);
-        this.Normals = new List<GloXYZVector>(mesh.Normals);
-        this.UVs = new List<GloXYVector>(mesh.UVs);
-        this.VertexColors = new List<GloColorRGB>(mesh.VertexColors);
-        this.LineColors = new List<GloMeshLineColour>(mesh.LineColors);
+        this.Vertices       = new List<GloXYZVector>(mesh.Vertices);
+        this.Lines          = new List<GloMeshLine>(mesh.Lines);
+        this.Triangles      = new List<GloMeshTriangle>(mesh.Triangles);
+        this.Normals        = new List<GloXYZVector>(mesh.Normals);
+        this.UVs            = new List<GloXYVector>(mesh.UVs);
+        this.VertexColors   = new List<GloColorRGB>(mesh.VertexColors);
+        this.LineColors     = new List<GloMeshLineColour>(mesh.LineColors);
         this.TriangleColors = new List<GloMeshTriangleColour>(mesh.TriangleColors);
     }
 

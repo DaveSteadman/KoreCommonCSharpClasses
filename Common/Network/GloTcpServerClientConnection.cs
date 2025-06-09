@@ -153,15 +153,16 @@ namespace GloNetworking
             // Enter an infinite loop to process client connections.
             while (running)
             {
-                string nextMsg;
-
                 // Blocking call on the new message collection, with a 1sec timeout to allow the running flag to be checked.
-                if (sendMsgQueue.TryTake(out nextMsg, 1000))
+                if (sendMsgQueue != null && sendMsgQueue.TryTake(out string? nextMsg, 1000))
                 {
-                    byte[] msgBuffer = Encoding.ASCII.GetBytes(nextMsg);
-                    if (stream != null)
-                        stream.Write(msgBuffer, 0, msgBuffer.Length);
-                    if (NumMsgsHandled<10000) NumMsgsHandled++;
+                    if (nextMsg != null)
+                    {
+                        byte[] msgBuffer = Encoding.ASCII.GetBytes(nextMsg);
+                        if (stream != null)
+                            stream.Write(msgBuffer, 0, msgBuffer.Length);
+                        if (NumMsgsHandled<10000) NumMsgsHandled++;
+                    }
                 }
             }
         }

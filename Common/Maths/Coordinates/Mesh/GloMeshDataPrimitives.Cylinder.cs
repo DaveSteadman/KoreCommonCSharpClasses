@@ -10,7 +10,7 @@ public static partial class GloMeshDataPrimitives
 {
     public static GloMeshData Cylinder(GloXYZVector p1, GloXYZVector p2, double p1radius, double p2radius, int sides, bool endsClosed)
     {
-        var mesh = new GloMeshData() { Name = "Cylinder" };
+        var mesh = new GloMeshData();
 
         // Direction and length
         GloXYZVector axis   = p2 - p1;

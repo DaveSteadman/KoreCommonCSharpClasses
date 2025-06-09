@@ -50,7 +50,7 @@ public struct GloColorRGB
         A = GloColorIO.MaxByte;
     }
 
-    public static readonly GloColorRGB Zero  = new GloColorRGB(GloColorIO.MinByte, GloColorIO.MinByte, GloColorIO.MinByte, GloColorIO.MinByte);
+    public static readonly GloColorRGB Zero = new GloColorRGB(GloColorIO.MinByte, GloColorIO.MinByte, GloColorIO.MinByte, GloColorIO.MinByte);
     public static readonly GloColorRGB White = new GloColorRGB(GloColorIO.MaxByte, GloColorIO.MaxByte, GloColorIO.MaxByte, GloColorIO.MaxByte);
 
     // --------------------------------------------------------------------------------------------
@@ -72,6 +72,7 @@ public struct GloColorRGB
 
         return new GloColorRGB(newRf, newGf, newBf, newAf);
     }
+
 
 
 }
