@@ -1,4 +1,4 @@
-# CSharpCommonClasses
+# C Sharp Common Classes
 
 A dotnet console program for the development and unit test of common classes, before they are cut/paste into more complex applications and relied upon.
 
