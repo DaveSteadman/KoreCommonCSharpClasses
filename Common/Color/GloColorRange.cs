@@ -1,10 +1,10 @@
 
 
-// GloColorRange - A class to contain a list of numeric values associated colors, then provide interpolation between them from an input value.
+// GloColorRange - A class to contain a list of numeric values associated colors, then provide
+// interpolation between them from an input value.
 
 using System;
 using System.Collections.Generic;
-
 // ------------------------------------------------------------------------------------------------
 
 struct GloColorRangeEntry

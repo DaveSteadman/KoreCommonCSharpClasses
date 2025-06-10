@@ -58,26 +58,26 @@ public static partial class GloMeshDataIO
         }
 
         // VertexColors
-        bw.Write(mesh.VertexColors.Count);
-        foreach (var c in mesh.VertexColors)
-            WriteColor(bw, c);
+        // bw.Write(mesh.VertexColors.Count);
+        // foreach (var c in mesh.VertexColors)
+        //     WriteColor(bw, c);
 
-        // Lines colours
-        bw.Write(mesh.LineColors.Count);
-        foreach (var lc in mesh.LineColors)
-        {
-            bw.Write(lc.Index);
-            WriteColor(bw, lc.StartColor);
-            WriteColor(bw, lc.EndColor);
-        }
+        // // Lines colours
+        // bw.Write(mesh.LineColors.Count);
+        // foreach (var lc in mesh.LineColors)
+        // {
+        //     bw.Write(lc.Index);
+        //     WriteColor(bw, lc.StartColor);
+        //     WriteColor(bw, lc.EndColor);
+        // }
 
-        // Triangles colours
-        bw.Write(mesh.TriangleColors.Count);
-        foreach (var tc in mesh.TriangleColors)
-        {
-            bw.Write(tc.Index);
-            WriteColor(bw, tc.Color);
-        }
+        // // Triangles colours
+        // bw.Write(mesh.TriangleColors.Count);
+        // foreach (var tc in mesh.TriangleColors)
+        // {
+        //     bw.Write(tc.Index);
+        //     WriteColor(bw, tc.Color);
+        // }
 
         bw.Flush();
         return ms.ToArray();
@@ -108,7 +108,7 @@ public static partial class GloMeshDataIO
         for (int i = 0; i < tCount; i++)
             mesh.AddTriangle(br.ReadInt32(), br.ReadInt32(), br.ReadInt32());
 
-            // Normals
+        // Normals
         int nCount = br.ReadInt32();
         for (int i = 0; i < nCount; i++)
             mesh.AddNormal(new GloXYZVector(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()));
@@ -118,20 +118,20 @@ public static partial class GloMeshDataIO
         for (int i = 0; i < uvCount; i++)
             mesh.AddUV(new GloXYVector(br.ReadSingle(), br.ReadSingle()));
 
-        // VertexColors
-        int vcCount = br.ReadInt32();
-        for (int i = 0; i < vcCount; i++)
-            mesh.VertexColors.Add(ReadColor(br));
+        // Vertex colors
+        // int vcCount = br.ReadInt32();
+        // for (int i = 0; i < vcCount; i++)
+        //     mesh.VertexColors.Add(ReadColor(br));
 
-        // Lines colours
-        int lcCount = br.ReadInt32();
-        for (int i = 0; i < lcCount; i++)
-            mesh.SetLineColor(br.ReadInt32(), ReadColor(br), ReadColor(br));
+        // // Line colours
+        // int lcCount = br.ReadInt32();
+        // for (int i = 0; i < lcCount; i++)
+        //     mesh.SetLineColor(br.ReadInt32(), ReadColor(br), ReadColor(br));
 
-        // Triangles colours
-        int tcCount = br.ReadInt32();
-        for (int i = 0; i < tcCount; i++)
-            mesh.SetTriangleColor(br.ReadInt32(), ReadColor(br));
+        // // Triangle colours
+        // int tcCount = br.ReadInt32();
+        // for (int i = 0; i < tcCount; i++)
+        //     mesh.SetTriangleColor(br.ReadInt32(), ReadColor(br));
 
         return mesh;
     }

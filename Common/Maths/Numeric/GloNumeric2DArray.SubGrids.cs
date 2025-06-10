@@ -32,9 +32,9 @@ public partial class GloNumeric2DArray<T> where T : struct, INumber<T>
                 int yIndex = Math.Min((int)(j * yFactorFloat), Height - 2);
                 T yRemainder = T.CreateChecked(j) * yFactor - T.CreateChecked(yIndex);
 
-                T a = Data[xIndex, yIndex];
+                T a = Data[xIndex,     yIndex];
                 T b = Data[xIndex + 1, yIndex];
-                T c = Data[xIndex, yIndex + 1];
+                T c = Data[xIndex,     yIndex + 1];
                 T d = Data[xIndex + 1, yIndex + 1];
 
                 T newVal = (T.One - xRemainder) * (T.One - yRemainder) * a +

@@ -12,9 +12,9 @@ public class GloBinaryDataManager : IDisposable
     private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
     private bool _disposed = false;
 
-    // Centralized lock for one-time schema creation across all instances.
-    private static readonly object SchemaLock = new object();
-    private static bool _schemaCreated = false;
+    // Centralized lock for one-time schema creation per instance.
+    private readonly object _schemaLock = new object();
+    private bool _schemaCreated = false;
 
     // ----------------------------------------------------------------------------------------
     // Constructor: Initializes the connection and ensures schema exists.
@@ -32,7 +32,7 @@ public class GloBinaryDataManager : IDisposable
     {
         if (!_schemaCreated)
         {
-            lock (SchemaLock)
+            lock (_schemaLock)
             {
                 if (!_schemaCreated)
                 {

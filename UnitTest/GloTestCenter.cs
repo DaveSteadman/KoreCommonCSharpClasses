@@ -9,6 +9,8 @@ public static class GloTestCenter
         try
         {
             GloTestMath.RunTests(testLog);
+            GloTestXYZVector.RunTests(testLog);
+
             GloTestPosition.RunTests(testLog);
             //GloTestPlotter.RunTests(testLog);
             GloTestList1D.RunTests(testLog);
@@ -17,6 +19,8 @@ public static class GloTestCenter
 
             GloTestColor.RunTests(testLog);
             GloTestLangStrings.RunTests(testLog);
+
+            GloTestDatabase.RunTests(testLog);
 
             GloTestStringDictionary.RunTests(testLog);
         }
