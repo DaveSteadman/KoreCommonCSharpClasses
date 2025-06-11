@@ -174,7 +174,7 @@ public static partial class GloMeshDataIO
     }
 
     // --------------------------------------------------------------------------------------------
-    // MARK: Colour
+    // MARK: Color
     // --------------------------------------------------------------------------------------------
 
     private static void WriteColor(BinaryWriter bw, GloColorRGB c)

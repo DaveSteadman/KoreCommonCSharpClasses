@@ -203,7 +203,6 @@ public static partial class GloMeshDataIO
         }
     }
 
-
     // --------------------------------------------------------------------------------------------
     // MARK: LineConverter
     // --------------------------------------------------------------------------------------------
@@ -215,12 +214,14 @@ public static partial class GloMeshDataIO
             using var doc = JsonDocument.ParseValue(ref reader);
             return ReadLine(doc.RootElement);
         }
+
         public override void Write(Utf8JsonWriter writer, GloMeshLine value, JsonSerializerOptions options)
         {
 
             string str = $"{value.A}, {value.B}";
             writer.WriteStringValue(str);
         }
+
         public static GloMeshLine ReadLine(JsonElement el)
         {
             // read the string representation
