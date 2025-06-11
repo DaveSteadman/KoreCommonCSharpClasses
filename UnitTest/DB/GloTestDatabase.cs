@@ -91,6 +91,9 @@ public static class GloTestDatabase
         // Check vertex and triangle counts
         bool vertsMatch = mesh2.Vertices.Count == mesh.Vertices.Count;
         bool trisMatch  = mesh2.Triangles.Count == mesh.Triangles.Count;
+
+        testLog.AddComment($"Mesh Buffer Size: {meshBytes.Length} bytes");
+
         testLog.AddResult($"GloBinaryDataManager Mesh Vertices Count ({mesh.Vertices.Count} -> {mesh2.Vertices.Count})", vertsMatch);
         testLog.AddResult($"GloBinaryDataManager Mesh Triangles Count ({mesh.Triangles.Count} -> {mesh2.Triangles.Count})", trisMatch);
     }

@@ -2,12 +2,14 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-
 public static partial class GloMeshDataIO
 {
     // --------------------------------------------------------------------------------------------
     // MARK: ToBytes
     // --------------------------------------------------------------------------------------------
+
+    // Write a structure to bytes. We explicitly cast some of the types, to ensure that the correct
+    // types are written to the byte array.
 
     public static byte[] ToBytes(GloMeshData mesh)
     {
@@ -15,69 +17,69 @@ public static partial class GloMeshDataIO
         using var bw = new BinaryWriter(ms);
 
         // Vertices
-        bw.Write(mesh.Vertices.Count);
+        bw.Write((int)mesh.Vertices.Count);
         foreach (var v in mesh.Vertices)
         {
-            bw.Write(v.X);
-            bw.Write(v.Y);
-            bw.Write(v.Z);
+            bw.Write((double)v.X);
+            bw.Write((double)v.Y);
+            bw.Write((double)v.Z);
         }
 
         // Lines
-        bw.Write(mesh.Lines.Count);
+        bw.Write((int)mesh.Lines.Count);
         foreach (var l in mesh.Lines)
         {
-            bw.Write(l.A);
-            bw.Write(l.B);
+            bw.Write((int)l.A);
+            bw.Write((int)l.B);
         }
 
         // Triangles
-        bw.Write(mesh.Triangles.Count);
+        bw.Write((int)mesh.Triangles.Count);
         foreach (var t in mesh.Triangles)
         {
-            bw.Write(t.A);
-            bw.Write(t.B);
-            bw.Write(t.C);
+            bw.Write((int)t.A);
+            bw.Write((int)t.B);
+            bw.Write((int)t.C);
         }
 
         // Normals
-        bw.Write(mesh.Normals.Count);
+        bw.Write((int)mesh.Normals.Count);
         foreach (var n in mesh.Normals)
         {
-            bw.Write(n.X);
-            bw.Write(n.Y);
-            bw.Write(n.Z);
+            bw.Write((double)n.X);
+            bw.Write((double)n.Y);
+            bw.Write((double)n.Z);
         }
 
         // UVs
-        bw.Write(mesh.UVs.Count);
+        bw.Write((int)mesh.UVs.Count);
         foreach (var uv in mesh.UVs)
         {
-            bw.Write(uv.X);
-            bw.Write(uv.Y);
+            bw.Write((double)uv.X);
+            bw.Write((double)uv.Y);
         }
 
-        // VertexColors
-        // bw.Write(mesh.VertexColors.Count);
-        // foreach (var c in mesh.VertexColors)
-        //     WriteColor(bw, c);
+        // Vertex colors
+        bw.Write((int)mesh.VertexColors.Count);
+        foreach (var c in mesh.VertexColors)
+            WriteColor(bw, c);
 
-        // // Lines colours
-        // bw.Write(mesh.LineColors.Count);
-        // foreach (var lc in mesh.LineColors)
-        // {
-        //     bw.Write(lc.Index);
-        //     WriteColor(bw, lc.StartColor);
-        //     WriteColor(bw, lc.EndColor);
-        // }
+        // Line colors
+        bw.Write((int)mesh.LineColors.Count);
+        foreach (var lc in mesh.LineColors)
+        {
+            bw.Write((int)lc.Index);
+            WriteColor(bw, lc.StartColor);
+            WriteColor(bw, lc.EndColor);
+        }
 
-        // // Triangles colours
-        // bw.Write(mesh.TriangleColors.Count);
-        // foreach (var tc in mesh.TriangleColors)
-        // {
-        //     bw.Write(tc.Index);
-        //     WriteColor(bw, tc.Color);
-        // }
+        // Triangle colors
+        bw.Write((int)mesh.TriangleColors.Count);
+        foreach (var tc in mesh.TriangleColors)
+        {
+            bw.Write((int)tc.Index);
+            WriteColor(bw, tc.Color);
+        }
 
         bw.Flush();
         return ms.ToArray();
@@ -96,44 +98,79 @@ public static partial class GloMeshDataIO
         // Vertices
         int vCount = br.ReadInt32();
         for (int i = 0; i < vCount; i++)
-            mesh.Vertices.Add(new GloXYZVector(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()));
+        {
+            double x = br.ReadDouble();
+            double y = br.ReadDouble();
+            double z = br.ReadDouble();
+            mesh.Vertices.Add(new GloXYZVector(x, y, z));
+        }
 
         // Lines
         int lCount = br.ReadInt32();
         for (int i = 0; i < lCount; i++)
-            mesh.AddLine(br.ReadInt32(), br.ReadInt32());
+        {
+            int a = br.ReadInt32();
+            int b = br.ReadInt32();
+            mesh.AddLine(a, b);
+        }
 
         // Triangles
         int tCount = br.ReadInt32();
         for (int i = 0; i < tCount; i++)
-            mesh.AddTriangle(br.ReadInt32(), br.ReadInt32(), br.ReadInt32());
+        {
+            int a = br.ReadInt32();
+            int b = br.ReadInt32();
+            int c = br.ReadInt32();
+            mesh.AddTriangle(a, b, c);
+        }
 
         // Normals
         int nCount = br.ReadInt32();
         for (int i = 0; i < nCount; i++)
-            mesh.AddNormal(new GloXYZVector(br.ReadSingle(), br.ReadSingle(), br.ReadSingle()));
+            mesh.AddNormal(new GloXYZVector(br.ReadDouble(), br.ReadDouble(), br.ReadDouble()));
 
         // UVs
         int uvCount = br.ReadInt32();
         for (int i = 0; i < uvCount; i++)
-            mesh.AddUV(new GloXYVector(br.ReadSingle(), br.ReadSingle()));
+            mesh.AddUV(new GloXYVector(br.ReadDouble(), br.ReadDouble()));
 
         // Vertex colors
-        // int vcCount = br.ReadInt32();
-        // for (int i = 0; i < vcCount; i++)
-        //     mesh.VertexColors.Add(ReadColor(br));
+        int vcCount = br.ReadInt32();
+        for (int i = 0; i < vcCount; i++)
+            mesh.VertexColors.Add(ReadColor(br));
 
-        // // Line colours
-        // int lcCount = br.ReadInt32();
-        // for (int i = 0; i < lcCount; i++)
-        //     mesh.SetLineColor(br.ReadInt32(), ReadColor(br), ReadColor(br));
+        // Line colors
+        int lcCount = br.ReadInt32();
+        for (int i = 0; i < lcCount; i++)
+            mesh.SetLineColor(br.ReadInt32(), ReadColor(br), ReadColor(br));
 
-        // // Triangle colours
-        // int tcCount = br.ReadInt32();
-        // for (int i = 0; i < tcCount; i++)
-        //     mesh.SetTriangleColor(br.ReadInt32(), ReadColor(br));
+        // Triangle colors
+        int tcCount = br.ReadInt32();
+        for (int i = 0; i < tcCount; i++)
+            mesh.SetTriangleColor(br.ReadInt32(), ReadColor(br));
 
         return mesh;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    public static bool TryFromBytes(byte[] data, out GloMeshData mesh)
+    {
+        // Initialise the return values to a blank mesh default value
+        mesh = new GloMeshData();
+        try
+        {
+            // Read the mesh (as successfully as we can)
+            mesh = FromBytes(data);
+
+            // Return true if we successfully read the mesh
+            return true;
+        }
+        catch
+        {
+            // If we hit an error, return false and the mesh object will remain in whatever state it reached.
+            return false;
+        }
     }
 
     // --------------------------------------------------------------------------------------------
@@ -142,14 +179,14 @@ public static partial class GloMeshDataIO
 
     private static void WriteColor(BinaryWriter bw, GloColorRGB c)
     {
-        bw.Write(c.R);
-        bw.Write(c.G);
-        bw.Write(c.B);
-        bw.Write(c.A);
+        bw.Write((byte)c.R);
+        bw.Write((byte)c.G);
+        bw.Write((byte)c.B);
+        bw.Write((byte)c.A);
     }
 
     private static GloColorRGB ReadColor(BinaryReader br)
     {
-        return new GloColorRGB(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+        return new GloColorRGB(br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte());
     }
 }

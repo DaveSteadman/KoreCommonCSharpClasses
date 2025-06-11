@@ -35,12 +35,8 @@ public static class GloTestCenter
     // --------------------------------------------------------------------------------------------
 
     // Usage: GloTestCenter.RunAdHocTests()
-    public static void RunAdHocTests()
+    public static GloTestLog RunAdHocTests()
     {
-        //RunCoreTests();
-
-        GloCentralLog.AddEntry("=====> Test Centre - Running");
-
         GloTestLog testLog = new GloTestLog();
 
         try
@@ -52,8 +48,7 @@ public static class GloTestCenter
             testLog.AddResult("Test Centre Run", false, "Exception");
         }
 
-        // Print the test log
-        GloCentralLog.AddEntry(testLog.FullReport());
+        return testLog;
     }
 }
 

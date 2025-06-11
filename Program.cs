@@ -14,6 +14,9 @@ class Program
 
         GloTestLog testres = GloTestCenter.RunCoreTests();
 
+        // Adhoc tests - a function designed to be reworked to consider issues-of-the-day
+        //GloTestLog testres = GloTestCenter.RunAdHocTests();
+
         // Get the test reports
         // Add default statements if no tests passed or failed
         string fullReport = testres.FullReport();
