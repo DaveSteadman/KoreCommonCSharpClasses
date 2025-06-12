@@ -11,13 +11,13 @@ public static partial class GloMeshDataPrimitives
     public enum ConeStyle { Cone, CroppedCone }
 
     public static GloMeshData HorizCone(
-        float     length,         // Distance from apex to base center.
-        float     majorAxis,      // Radius along Y.
-        float     minorAxis,      // Radius along Z.
-        int       baseNumPoints,
-        GloColorRGB     color,
+        float length,         // Distance from apex to base center.
+        float majorAxis,      // Radius along Y.
+        float minorAxis,      // Radius along Z.
+        int baseNumPoints,
+        GloColorRGB color,
         ConeStyle style = ConeStyle.Cone,
-        int       numDots = 5)      // Number of dots for dotted lines.
+        int numDots = 5)      // Number of dots for dotted lines.
     {
         GloMeshData mesh = new GloMeshData();
 
@@ -31,7 +31,7 @@ public static partial class GloMeshDataPrimitives
         List<int> basePointIndices = new List<int>();
         for (int i = 0; i < baseNumPoints; i++)
         {
-            double angle   = 2 * Math.PI * i / baseNumPoints;
+            double angle = 2 * Math.PI * i / baseNumPoints;
             double offsetY = majorAxis * Math.Cos(angle);
             double offsetZ = minorAxis * Math.Sin(angle);
 
@@ -46,7 +46,7 @@ public static partial class GloMeshDataPrimitives
         for (int i = 0; i < basePointIndices.Count; i++)
         {
             int currentIdx = basePointIndices[i];
-            int nextIdx    = basePointIndices[(i + 1) % basePointIndices.Count];
+            int nextIdx = basePointIndices[(i + 1) % basePointIndices.Count];
 
             if (style == ConeStyle.Cone)
             {
@@ -64,5 +64,38 @@ public static partial class GloMeshDataPrimitives
 
         return mesh;
     }
+
+
+    public static GloMeshData Cone(
+        GloXYZPoint apex,         // Apex point of the cone.
+        GloXYZVector centerLine,  // Center line vector of the cone.
+        double baseRadius,        // Radius perpendicular to the center line at the base.
+        int baseNumPoints)
+    {
+        GloMeshData mesh = new GloMeshData();
+
+        // Define the key points
+        GloXYZPoint apexPoint = apex;
+        GloXYZPoint baseCenterpoint = apexPoint + centerLine;
+
+        // Create the list of base points around the base center point, perpendicular to the center line.
+        List<GloXYZPoint> basePoints = new List<GloXYZPoint>();
+        for (int i = 0; i < baseNumPoints; i++)
+        {
+            double angle = 2 * Math.PI * i / baseNumPoints;
+            GloXYZVector offset = new GloXYZVector(
+                baseRadius * Math.Cos(angle),
+                baseRadius * Math.Sin(angle),
+                0); // Assuming the cone is upright, so Z offset is zero.
+            GloXYZPoint basePoint = baseCenterpoint + offset;
+            basePoints.Add(basePoint);
+        }
+
+
+       return mesh;
+   }
+
+
+
 }
 

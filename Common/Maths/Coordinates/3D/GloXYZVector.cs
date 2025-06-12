@@ -48,11 +48,11 @@ public struct GloXYZVector
     // Example: GloXYZVector newPos = GloXYZVector.Zero();
     public static GloXYZVector Zero => new GloXYZVector(0, 0, 0);
 
-    public static GloXYZVector Right    => new GloXYZVector(1, 0, 0);
-    public static GloXYZVector Left     => new GloXYZVector(-1, 0, 0);
-    public static GloXYZVector Up       => new GloXYZVector(0, 1, 0);
-    public static GloXYZVector Down     => new GloXYZVector(0, -1, 0);
-    public static GloXYZVector Forward  => new GloXYZVector(0, 0, 1);
+    public static GloXYZVector Right => new GloXYZVector(1, 0, 0);
+    public static GloXYZVector Left => new GloXYZVector(-1, 0, 0);
+    public static GloXYZVector Up => new GloXYZVector(0, 1, 0);
+    public static GloXYZVector Down => new GloXYZVector(0, -1, 0);
+    public static GloXYZVector Forward => new GloXYZVector(0, 0, 1);
     public static GloXYZVector Backward => new GloXYZVector(0, 0, -1);
 
     // --------------------------------------------------------------------------------------------
@@ -60,10 +60,10 @@ public struct GloXYZVector
     // --------------------------------------------------------------------------------------------
 
     public GloXYZVector Offset(double x, double y, double z) => new GloXYZVector(X + x, Y + y, Z + z);
-    public GloXYZVector Offset(GloXYZVector shiftXYZ)        => new GloXYZVector(X + shiftXYZ.X, Y + shiftXYZ.Y, Z + shiftXYZ.Z);
-    public GloXYZVector Subtract(GloXYZVector inputXYZ)      => new GloXYZVector(X - inputXYZ.X, Y - inputXYZ.Y, Z - inputXYZ.Z);
-    public GloXYZVector Scale(double scaleFactor)            => new GloXYZVector(X * scaleFactor, Y * scaleFactor, Z * scaleFactor);
-    public GloXYZVector Invert()                             => new GloXYZVector(-X, -Y, -Z);
+    public GloXYZVector Offset(GloXYZVector shiftXYZ) => new GloXYZVector(X + shiftXYZ.X, Y + shiftXYZ.Y, Z + shiftXYZ.Z);
+    public GloXYZVector Subtract(GloXYZVector inputXYZ) => new GloXYZVector(X - inputXYZ.X, Y - inputXYZ.Y, Z - inputXYZ.Z);
+    public GloXYZVector Scale(double scaleFactor) => new GloXYZVector(X * scaleFactor, Y * scaleFactor, Z * scaleFactor);
+    public GloXYZVector Invert() => new GloXYZVector(-X, -Y, -Z);
 
     public GloXYZVector Normalize()
     {
@@ -93,18 +93,18 @@ public struct GloXYZVector
     // --------------------------------------------------------------------------------------------
 
     // + operator overload
-    public static GloXYZVector operator +(GloXYZVector a, GloXYZVector b)        { return new GloXYZVector(a.X + b.X, a.Y + b.Y, a.Z + b.Z); }
+    public static GloXYZVector operator +(GloXYZVector a, GloXYZVector b) { return new GloXYZVector(a.X + b.X, a.Y + b.Y, a.Z + b.Z); }
 
     // - operator overload for subtracting points
-    public static GloXYZVector operator -(GloXYZVector a, GloXYZVector b)        { return new GloXYZVector(a.X - b.X, a.Y - b.Y, a.Z - b.Z); }
+    public static GloXYZVector operator -(GloXYZVector a, GloXYZVector b) { return new GloXYZVector(a.X - b.X, a.Y - b.Y, a.Z - b.Z); }
 
     // * operator overload for scaling a
-    public static GloXYZVector operator *(GloXYZVector a, double scaleFactor)    { return new GloXYZVector(a.X * scaleFactor, a.Y * scaleFactor, a.Z * scaleFactor); }
-    public static GloXYZVector operator *(double scaleFactor, GloXYZVector a)    { return new GloXYZVector(a.X * scaleFactor, a.Y * scaleFactor, a.Z * scaleFactor); }
+    public static GloXYZVector operator *(GloXYZVector a, double scaleFactor) { return new GloXYZVector(a.X * scaleFactor, a.Y * scaleFactor, a.Z * scaleFactor); }
+    public static GloXYZVector operator *(double scaleFactor, GloXYZVector a) { return new GloXYZVector(a.X * scaleFactor, a.Y * scaleFactor, a.Z * scaleFactor); }
 
     // / operator overload for scaling a point
-    public static GloXYZVector operator /(GloXYZVector a, double scaleFactor)    { return new GloXYZVector(a.X / scaleFactor, a.Y / scaleFactor, a.Z / scaleFactor); }
-    public static GloXYZVector operator /(double scaleFactor, GloXYZVector a)    { return new GloXYZVector(a.X / scaleFactor, a.Y / scaleFactor, a.Z / scaleFactor); }
+    public static GloXYZVector operator /(GloXYZVector a, double scaleFactor) { return new GloXYZVector(a.X / scaleFactor, a.Y / scaleFactor, a.Z / scaleFactor); }
+    public static GloXYZVector operator /(double scaleFactor, GloXYZVector a) { return new GloXYZVector(a.X / scaleFactor, a.Y / scaleFactor, a.Z / scaleFactor); }
 
     // --------------------------------------------------------------------------------------------
     // Conversion
@@ -152,6 +152,7 @@ public struct GloXYZVector
         return (inputXYZ1.X * inputXYZ2.X) + (inputXYZ1.Y * inputXYZ2.Y) + (inputXYZ1.Z * inputXYZ2.Z);
     }
 
+    // Usage: GloXYZVector.CrossProduct(v1, v2)
     public static GloXYZVector CrossProduct(GloXYZVector a, GloXYZVector b)
     {
         return new GloXYZVector(
@@ -160,5 +161,26 @@ public struct GloXYZVector
             a.X * b.Y - a.Y * b.X
         );
     }
+
+    // Create a vector that is perpendicular to this vector.
+    // Usage: GloXYZVector.AngleBetween(v1, v2)
+    public GloXYZVector ArbitraryPerpendicular()
+    {
+        if (IsZero())
+            return new GloXYZVector(1, 0, 0); // Default for zero input
+
+        GloXYZVector axis = Math.Abs(X) <= Math.Abs(Y) && Math.Abs(X) <= Math.Abs(Z)
+            ? new GloXYZVector(1, 0, 0)
+            : (Math.Abs(Y) <= Math.Abs(Z)
+                ? new GloXYZVector(0, 1, 0)
+                : new GloXYZVector(0, 0, 1));
+
+        var perp = CrossProduct(this, axis);
+        if (perp.IsZero())
+            perp = CrossProduct(this, new GloXYZVector(1, 1, 1));  // Last resort
+
+        return perp.Normalize();
+    }
+
 
 }

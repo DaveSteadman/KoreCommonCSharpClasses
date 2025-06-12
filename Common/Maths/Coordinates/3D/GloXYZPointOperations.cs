@@ -7,6 +7,12 @@ public static class GloXYZPointOperations
     // near +1 means the angle is near 0 degrees (absolute to remove sign)
     // wiki - https://en.wikipedia.org/wiki/Dot_product
 
+    // Computes the dot product of two 3D points (vectors).
+    // The result is a scalar representing the cosine of the angle between the vectors, scaled by their magnitudes.
+    // Useful for measuring alignment or projection between directions.
+    // Calculates the dot product of two 3D points (vectors).
+    // This returns the sum of the products of their corresponding components.
+    // The result is proportional to the cosine of the angle between the vectors.
     public static double DotProduct(GloXYZPoint a, GloXYZPoint b)
     {
         return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
@@ -15,6 +21,12 @@ public static class GloXYZPointOperations
     // Cross Product - the vector perpendicular to both input vectors
     // wiki - https://en.wikipedia.org/wiki/Cross_product
 
+    // Computes the cross product of two 3D points (vectors).
+    // Returns a new vector perpendicular to both inputs, with magnitude equal to the area of the parallelogram they span.
+    // Used to find normals or perpendicular directions in 3D geometry.
+    // Calculates the cross product of two 3D points (vectors).
+    // Returns a new vector perpendicular to both input vectors, following the right-hand rule.
+    // Useful for finding normals or the area of a parallelogram defined by the vectors.
     public static GloXYZPoint CrossProduct(GloXYZPoint a, GloXYZPoint b)
     {
         double x = (a.Y * b.Z) - (a.Z * b.Y);
@@ -26,6 +38,11 @@ public static class GloXYZPointOperations
 
     // --------------------------------------------------------------------------------------------
 
+    // Returns the angle in radians between two 3D points (vectors) from the origin.
+    // Uses the dot product and magnitudes to compute the cosine of the angle, then clamps for safety.
+    // Calculates the angle (in radians) between two 3D vectors from the origin.
+    // Uses the dot product and magnitudes to compute the angle via arccosine.
+    // Handles edge cases to avoid NaN from floating-point rounding errors.
     public static double AngleBetweenRads(GloXYZPoint a, GloXYZPoint b)
     {
         double dotProduct = DotProduct(a, b);
@@ -57,6 +74,9 @@ public static class GloXYZPointOperations
     // usage: GloXYZPoint a = new GloXYZPoint(1, 2, 3);
     //        GloXYZPoint c = GloXYZPointOperations.OffsetAzEl(a, 10, GloValueUtils.DegsToRads(45), GloValueUtils.DegsToRads(30));
 
+    // Returns a new point offset from the origin by a given radius, azimuth, and elevation (in radians).
+    // Converts spherical coordinates to Cartesian, then adds to the origin.
+    // Useful for generating points on a sphere or in polar coordinate systems.
     public static GloXYZPoint OffsetAzEl(GloXYZPoint origin, double radius, double azimuthRads, double elevationRads)
     {
         double x = origin.X + radius * Math.Cos(azimuthRads) * Math.Cos(elevationRads);
@@ -70,6 +90,9 @@ public static class GloXYZPointOperations
 
     // Usage: GloXYZPoint c = GloXYZPointOperations.Lerp(from, to, 0.1);
 
+    // Linearly interpolates between two 3D points by a given fraction (0.0 to 1.0).
+    // Returns a point along the straight line from 'fromPoint' to 'toPoint'.
+    // Handles edge cases for fraction <= 0 or >= 1.
     public static GloXYZPoint Lerp(GloXYZPoint fromPoint, GloXYZPoint toPoint, double fraction)
     {
         // Handle edge cases
@@ -86,6 +109,9 @@ public static class GloXYZPointOperations
 
     // --------------------------------------------------------------------------------------------
 
+    // Spherically interpolates between two 3D points on a unit sphere by a given fraction.
+    // Produces smooth interpolation along the surface of the sphere (great arc), not a straight line.
+    // Normalizes inputs, computes the angle, and blends using sine-based weights.
     public static GloXYZPoint Slerp(GloXYZPoint a, GloXYZPoint b, double fraction)
     {
         // Handle edge cases
@@ -115,6 +141,9 @@ public static class GloXYZPointOperations
 
     // --------------------------------------------------------------------------------------------
 
+    // Computes an inset point at vertex B, offset along the angle bisector of segments AB and BC by distance t.
+    // Useful for generating smoothed or beveled corners in 3D geometry.
+    // Handles all three dimensions for accurate 3D insetting.
     public static GloXYZPoint InsetPoint(GloXYZPoint a, GloXYZPoint b, GloXYZPoint c, double t)
     {
         // Calculate direction vectors for AB and BC, including the Z dimension
@@ -154,6 +183,9 @@ public static class GloXYZPointOperations
 
     // --------------------------------------------------------------------------------------------
 
+    // Rotates a 3D point around an arbitrary axis by a given angle (in radians).
+    // Uses Rodrigues' rotation formula to compute the rotated coordinates.
+    // Axis must be nonzero; function normalizes it internally.
     public static GloXYZPoint RotateAboutAxis(GloXYZPoint point, GloXYZPoint axis, double angleRads)
     {
         // Normalize the axis vector
@@ -182,5 +214,29 @@ public static class GloXYZPointOperations
 
         return new GloXYZPoint(newX, newY, newZ);
     }
+
+    // --------------------------------------------------------------------------------------------
+
+    // Computes a point on a circle lying in an arbitrary plane in 3D space.
+    // The plane is defined by its normal and a reference direction (zero angle), with the circle centered at 'origin'.
+    // Returns the point at the given radius and angle (in radians) from the reference direction.
+
+    public static GloXYZPoint PointOnCirclePlane(
+        GloXYZPoint origin,
+        GloXYZVector normal,         // Plane normal
+        GloXYZVector reference,      // Zero-angle direction in the plane (must be perpendicular to normal)
+        double radius,
+        double angleRads)
+    {
+        var n = normal.Normalize();
+        var u = reference.Normalize(); // Zero-angle direction
+        var v = GloXYZVector.CrossProduct(n, u).Normalize(); // 90° direction
+
+        var offset =
+            (u * Math.Cos(angleRads) + v * Math.Sin(angleRads)) * radius;
+
+        return origin + offset;
+    }
+
 
 }

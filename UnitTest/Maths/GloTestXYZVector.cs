@@ -14,6 +14,7 @@ public static class GloTestXYZVector
             TestScaling(testLog);
             TestDotProduct(testLog);
             TestCrossProduct(testLog);
+            TestArbitraryPerpendicular(testLog);
         }
         catch (Exception ex)
         {
@@ -95,6 +96,39 @@ public static class GloTestXYZVector
         var v2 = new GloXYZVector(4, 5, 6);
         var cross = GloXYZVector.CrossProduct(v1, v2);
         testLog.AddResult("GloXYZVector CrossProduct", cross.X == -3 && cross.Y == 6 && cross.Z == -3);
+    }
+
+    public static void TestArbitraryPerpendicular(GloTestLog testLog)
+    {
+        // Test for a non-zero vector
+        var v = new GloXYZVector(1, 2, 3);
+        var perp = v.ArbitraryPerpendicular();
+        testLog.AddComment($"Input: {v}, Perpendicular: {perp}");
+        testLog.AddResult("GloXYZVector ArbitraryPerpendicular", !perp.IsZero());
+
+        // Test for a zero vector
+        var zeroVector = new GloXYZVector(0, 0, 0);
+        var perpZero = zeroVector.ArbitraryPerpendicular();
+        testLog.AddComment($"Zero Input: {zeroVector}, Perpendicular: {perpZero}");
+        testLog.AddResult("GloXYZVector ArbitraryPerpendicular Zero Vector", perpZero.X == 1 && perpZero.Y == 0 && perpZero.Z == 0);
+
+        // Test for a fixed direction (X axis)
+        var xAxis = new GloXYZVector(1, 0, 0);
+        var perpX = xAxis.ArbitraryPerpendicular();
+        testLog.AddComment($"X Axis Input: {xAxis}, Perpendicular: {perpX}");
+        testLog.AddResult("GloXYZVector ArbitraryPerpendicular X Axis", !perpX.IsZero() && Math.Abs(GloXYZVector.DotProduct(xAxis, perpX)) < 1e-10);
+
+        // Test for a fixed direction (Y axis)
+        var yAxis = new GloXYZVector(0, 1, 0);
+        var perpY = yAxis.ArbitraryPerpendicular();
+        testLog.AddComment($"Y Axis Input: {yAxis}, Perpendicular: {perpY}");
+        testLog.AddResult("GloXYZVector ArbitraryPerpendicular Y Axis", !perpY.IsZero() && Math.Abs(GloXYZVector.DotProduct(yAxis, perpY)) < 1e-10);
+
+        // Test for a non-standard direction
+        var custom = new GloXYZVector(2, -5, 7);
+        var perpCustom = custom.ArbitraryPerpendicular();
+        testLog.AddComment($"Custom Input: {custom}, Perpendicular: {perpCustom}");
+        testLog.AddResult("GloXYZVector ArbitraryPerpendicular Custom", !perpCustom.IsZero() && Math.Abs(GloXYZVector.DotProduct(custom, perpCustom)) < 1e-10);
     }
 }
 

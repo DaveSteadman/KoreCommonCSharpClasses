@@ -41,7 +41,7 @@ public static class GloTestCenter
 
         try
         {
-            GloTestStringDictionary.RunTests(testLog);
+            GloTestXYZVector.TestArbitraryPerpendicular(testLog);
         }
         catch (Exception)
         {
