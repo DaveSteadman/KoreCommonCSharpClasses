@@ -66,13 +66,13 @@ public partial class GloMeshData
 
     // Copy constructor
     public GloMeshData(
-        List<GloXYZVector>         vertices,
-        List<GloMeshLine>          lines,
-        List<GloMeshTriangle>      triangles,
-        List<GloXYZVector>         normals,
-        List<GloXYVector>          uvs,
-        List<GloColorRGB>          vertexColors,
-        List<GloMeshLineColour>    lineColors,
+        List<GloXYZVector>          vertices,
+        List<GloMeshLine>           lines,
+        List<GloMeshTriangle>       triangles,
+        List<GloXYZVector>          normals,
+        List<GloXYVector>           uvs,
+        List<GloColorRGB>           vertexColors,
+        List<GloMeshLineColour>     lineColors,
         List<GloMeshTriangleColour> triangleColors)
     {
         this.Vertices       = vertices;
@@ -356,26 +356,40 @@ public partial class GloMeshData
         return Triangles.Count - 1; // Return the index of the newly added triangle
     }
 
-    public void AddTriangle(GloXYZVector a, GloXYZVector b, GloXYZVector c, GloColorRGB? color = null)
+    // Add a completely independent triangle with vertices and optional color.
+    public void AddTriangle(GloXYZVector a, GloXYZVector b, GloXYZVector c, GloColorRGB? linecolor = null, GloColorRGB? fillColor = null)
     {
         int idxA = AddPoint(a);
         int idxB = AddPoint(b);
         int idxC = AddPoint(c);
 
-        if (color.HasValue)
+        // Set the vertex colors if fill color is provided
+        if (fillColor.HasValue)
         {
-            VertexColors[idxA] = color.Value;
-            VertexColors[idxB] = color.Value;
-            VertexColors[idxC] = color.Value;
+            VertexColors[idxA] = fillColor.Value;
+            VertexColors[idxB] = fillColor.Value;
+            VertexColors[idxC] = fillColor.Value;
         }
 
-        GloColorRGB lineColor = color ?? new GloColorRGB(1, 1, 1);
-        AddLine(idxA, idxB, lineColor, lineColor);
-        AddLine(idxB, idxC, lineColor, lineColor);
-        AddLine(idxC, idxA, lineColor, lineColor);
+        // Use the line color if provided, otherwise don't add the lines.
+        if (linecolor.HasValue)
+        {
+            // If a line color is provided, add lines between the vertices.
+            GloColorRGB lineCol = linecolor.Value;
+            AddLine(idxA, idxB, lineCol, lineCol);
+            AddLine(idxB, idxC, lineCol, lineCol);
+            AddLine(idxC, idxA, lineCol, lineCol);
+        }
 
         // Add the triangle to the list
         Triangles.Add(new GloMeshTriangle(idxA, idxB, idxC));
+
+        // If a fill color is provided, also add a triangle color
+        if (fillColor.HasValue)
+        {
+            GloMeshTriangleColour triangleColor = new GloMeshTriangleColour(Triangles.Count - 1, fillColor.Value);
+            TriangleColors.Add(triangleColor);
+        }
     }
 
     // --------------------------------------------------------------------------------------------
@@ -452,6 +466,17 @@ public partial class GloMeshData
         // else, add a new color entry
         LineColors.Add(lineColor);
     }
+
+    public void SetAllLineColors(GloColorRGB startColor, GloColorRGB endColor)
+    {
+        // Set all line colors to the specified start and end colors
+        for (int i = 0; i < Lines.Count; i++)
+        {
+            SetLineColor(i, startColor, endColor);
+        }
+    }
+
+    public void SetAllLineColors(GloColorRGB color) => SetAllLineColors(color, color);
 
     // --------------------------------------------------------------------------------------------
     // MARK: Triangle Colors

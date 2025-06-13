@@ -14,29 +14,37 @@ public static partial class GloMeshDataPrimitives
         GloXYZVector     baseCenterPoint,
         double           baseRadius,
         int              numRadialPoints,
-        GloColorRGB      color,
-        ConeStyle        style = ConeStyle.Cone)      // Number of dots for dotted lines.
+        GloColorRGB      color)      // Number of dots for dotted lines.
     {
         GloMeshData mesh = new GloMeshData();
 
-        double length = baseCenterPoint.Magnitude - apexPoint.Magnitude;
+        // Compute axis vector and its length
+        GloXYZVector axis = baseCenterPoint - apexPoint;
+        double length = axis.Magnitude;
+        if (length == 0) length = 1e-8; // Avoid division by zero
+        GloXYZVector axisDir = axis.Normalize();
 
-        // Define key points.
-        // Apex at origin.
-        int idxApex = mesh.AddPoint(new GloXYZVector(0, 0, 0), null, color);
-        // Base center along +X.
-        int idxBaseCenter = mesh.AddPoint(new GloXYZVector(length, 0, 0), null, color);
+        // Find two perpendicular vectors to axisDir for the base circle
+        // perp1: Any unit vector perpendicular to axisDir, found using ArbitraryPerpendicular().
+        GloXYZVector perp1 = axisDir.ArbitraryPerpendicular().Normalize();
 
-        // Generate base points on an ellipse in the YZ plane (centered at baseCenter).
+        // perp2: The cross product of axisDir and perp1, normalized.
+        // perp2 is guaranteed to be perpendicular to both axisDir and perp1, and thus also lies in the base plane.
+        // Together, perp1 and perp2 form an orthonormal basis for the plane perpendicular to the cone's axis.
+        // By using perp1 * cos(angle) + perp2 * sin(angle), we can sweep out the entire circle in the base plane.
+        GloXYZVector perp2 = GloXYZVector.CrossProduct(axisDir, perp1).Normalize();
+
+        // Add apex and base center points
+        int idxApex = mesh.AddPoint(apexPoint, null, color);
+        int idxBaseCenter = mesh.AddPoint(baseCenterPoint, null, color);
+
+        // Generate base points in the plane perpendicular to axisDir
         List<int> basePointIndices = new List<int>();
         for (int i = 0; i < numRadialPoints; i++)
         {
-            double angle   = 2 * Math.PI * i / numRadialPoints;
-            double offsetY = baseRadius * Math.Cos(angle);
-            double offsetZ = baseRadius * Math.Sin(angle);
-
-            // Base point is offset from the base center.
-            GloXYZVector basePoint = new GloXYZVector(length, offsetY, offsetZ);
+            double angle = 2 * Math.PI * i / numRadialPoints;
+            GloXYZVector offset = (perp1 * (baseRadius * Math.Cos(angle))) + (perp2 * (baseRadius * Math.Sin(angle)));
+            GloXYZVector basePoint = baseCenterPoint + offset;
             int idx = mesh.AddPoint(basePoint, null, color);
             basePointIndices.Add(idx);
         }
@@ -48,17 +56,9 @@ public static partial class GloMeshDataPrimitives
             int currentIdx = basePointIndices[i];
             int nextIdx    = basePointIndices[(i + 1) % basePointIndices.Count];
 
-            if (style == ConeStyle.Cone)
-            {
-                // Draw solid lines.
-                mesh.AddLine(mesh.Vertices[idxBaseCenter], mesh.Vertices[currentIdx], color, color);
-                mesh.AddLine(mesh.Vertices[currentIdx], mesh.Vertices[nextIdx], color, color);
-            }
-            // else // CroppedCone: use dotted lines.
-            // {
-            //     mesh.AddDottedLine(mesh.Vertices[idxBaseCenter], mesh.Vertices[currentIdx], color, color, numDots);
-            //     mesh.AddDottedLine(mesh.Vertices[currentIdx], mesh.Vertices[nextIdx], color, color, numDots);
-            // }
+            // Draw solid lines.
+            mesh.AddLine(mesh.Vertices[idxBaseCenter], mesh.Vertices[currentIdx], color, color);
+            mesh.AddLine(mesh.Vertices[currentIdx], mesh.Vertices[nextIdx], color, color);
         }
 
         // Create the lateral sides: connect the apex with every base point.
