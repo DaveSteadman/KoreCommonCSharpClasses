@@ -45,12 +45,9 @@ public struct GloXYTriangle
 
     public GloXYRect AABB()
     {
-        double minX = Math.Min(A.X, Math.Min(B.X, C.X));
-        double maxX = Math.Max(A.X, Math.Max(B.X, C.X));
-        double minY = Math.Min(A.Y, Math.Min(B.Y, C.Y));
-        double maxY = Math.Max(A.Y, Math.Max(B.Y, C.Y));
-
-        return new GloXYRect(minX, minY, maxX - minX, maxY - minY);
+        GloXYPoint topLeft     = new GloXYPoint( GloNumericUtils.Min3(A.X, B.X, C.X), GloNumericUtils.Min3(A.Y, B.Y, C.Y) );
+        GloXYPoint bottomRight = new GloXYPoint( GloNumericUtils.Min3(A.X, B.X, C.X), GloNumericUtils.Min3(A.Y, B.Y, C.Y) );
+        return new GloXYRect(topLeft, bottomRight);
     }
 
     // --------------------------------------------------------------------------------------------

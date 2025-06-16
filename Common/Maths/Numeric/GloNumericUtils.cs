@@ -50,12 +50,12 @@ public static class GloNumericUtils
     }
 
     // Usage: bool e = GloNumericUtils.EqualsWithinTolerance(5.0f, 5.0001f);
-    public static bool EqualsWithinTolerance(float a,  float b)  => EqualsWithinTolerance(a, b, GloConsts.ArbitrarySmallFloat);
+    public static bool EqualsWithinTolerance(float a, float b) => EqualsWithinTolerance(a, b, GloConsts.ArbitrarySmallFloat);
     public static bool EqualsWithinTolerance(double a, double b) => EqualsWithinTolerance(a, b, GloConsts.ArbitrarySmallDouble);
 
     public static T ArbitrarySmallValue<T>() where T : INumber<T>
     {
-        if (typeof(T) == typeof(float))  return (T)(object)GloConsts.ArbitrarySmallFloat;
+        if (typeof(T) == typeof(float)) return (T)(object)GloConsts.ArbitrarySmallFloat;
         if (typeof(T) == typeof(double)) return (T)(object)GloConsts.ArbitrarySmallDouble;
         throw new NotSupportedException($"Type {typeof(T)} is not supported.");
     }
@@ -85,7 +85,7 @@ public static class GloNumericUtils
         return wrappedvalue + rangemin;
     }
 
-    public static T WrapToRange<T>(T val, GloNumericRange<T> range) where T : INumber<T> =>  WrapToRange(val, range.Min, range.Max);
+    public static T WrapToRange<T>(T val, GloNumericRange<T> range) where T : INumber<T> => WrapToRange(val, range.Min, range.Max);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -144,5 +144,23 @@ public static class GloNumericUtils
     }
 
     // ---------------------------------------------------------------------------------------------
+
+    // Usage: T e = GloNumericUtils.Min3(1, 2, 3);
+    public static T Min3<T>(T a, T b, T c) where T : INumber<T>
+    {
+        T min = a;
+        if (b < min) min = b;
+        if (c < min) min = c;
+        return min;
+    }
+
+    // Usage: T e = GloNumericUtils.Max3(1, 2, 3);
+    public static T Max3<T>(T a, T b, T c) where T : INumber<T>
+    {
+        T max = a;
+        if (b > max) max = b;
+        if (c > max) max = c;
+        return max;
+    }
 
 }

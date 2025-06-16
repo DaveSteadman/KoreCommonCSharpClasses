@@ -128,11 +128,11 @@ public static partial class GloValueUtils
         inval = LimitToRange(inval, inrangemin, inrangemax);
 
         // determine the different ranges to multiply the values by
-        double indiff  = inrangemax  - inrangemin;
+        double indiff = inrangemax - inrangemin;
         double outdiff = outrangemax - outrangemin;
 
         // check in range and out range are not too small to function
-        if (Math.Abs(indiff)  < GloConsts.ArbitraryMinDouble) throw new ArgumentException("ScaleVal input range too small", nameof(indiff));
+        if (Math.Abs(indiff) < GloConsts.ArbitraryMinDouble) throw new ArgumentException("ScaleVal input range too small", nameof(indiff));
         if (Math.Abs(outdiff) < GloConsts.ArbitraryMinDouble) throw new ArgumentException("ScaleVal output range too small", nameof(outdiff));
 
         double diffratio = outdiff / indiff;
@@ -203,5 +203,27 @@ public static partial class GloValueUtils
         return rangeList;
     }
 
+    // --------------------------------------------------------------------------------------------
+
+    // Usage: GloValueUtils.Min3(1.0, 2.0, 3.0) // Returns 1.0
+    public static double Min3(double a, double b, double c)
+    {
+        double min = a;
+        if (b < min) min = b;
+        if (c < min) min = c;
+        return min;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    public static double Max3(double a, double b, double c)
+    {
+        double max = a;
+        if (b > max) max = b;
+        if (c > max) max = c;
+        return max;
+    }
+
+    // --------------------------------------------------------------------------------------------
 
 }
