@@ -12,10 +12,12 @@ public static class GloXYPolygonOperations
 
         for (int i = 0; i < polygon.Vertices.Count; i++)
         {
-            GloXYPoint? intersection = GloXYLineOperations.Intersection(line, new GloXYLine(polygon.Vertices[i], polygon.Vertices[(i + 1) % polygon.Vertices.Count]));
+            // Check if the line intersects with the polygon edge
+            GloXYLine curredge = new GloXYLine(polygon.Vertices[i], polygon.Vertices[(i + 1) % polygon.Vertices.Count]);
 
-            if (intersection != null)
+            if (GloXYLineOperations.TryIntersect(line, curredge, out GloXYPoint intersection))
             {
+                // If we found an intersection, we can use it
                 if (p1 == null)
                 {
                     p1 = intersection;
