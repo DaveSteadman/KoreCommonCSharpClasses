@@ -32,6 +32,7 @@ public class GloNumericRange<T> where T : INumber<T>
     public static readonly GloNumericRange<T> ZeroTo360Degrees     = new GloNumericRange<T>(T.CreateChecked(0),    T.CreateChecked(360), RangeBehavior.Wrap);
     public static readonly GloNumericRange<T> Minus180To180Degrees = new GloNumericRange<T>(T.CreateChecked(-180), T.CreateChecked(180), RangeBehavior.Wrap);
     public static readonly GloNumericRange<T> ZeroToTwoPiRadians   = new GloNumericRange<T>(T.CreateChecked(0),    GloConsts<T>.kTwoPi,  RangeBehavior.Wrap);
+    public static readonly GloNumericRange<T> ZeroToPiRadians      = new GloNumericRange<T>(T.CreateChecked(0),    GloConsts<T>.kPi,     RangeBehavior.Wrap);
     public static readonly GloNumericRange<T> MinusPiToPiRadians   = new GloNumericRange<T>(-GloConsts<T>.kPi,     GloConsts<T>.kPi,     RangeBehavior.Limit);
 
     // --------------------------------------------------------------------------------------------

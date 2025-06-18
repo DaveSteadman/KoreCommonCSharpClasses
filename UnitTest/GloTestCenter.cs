@@ -11,6 +11,7 @@ public static class GloTestCenter
             GloTestMath.RunTests(testLog);
             GloTestXYZVector.RunTests(testLog);
             GloTestLine.RunTests(testLog);
+            GloTestTriangle.RunTests(testLog);
 
             GloTestPosition.RunTests(testLog);
             GloTestPositionLLA.RunTests(testLog);
