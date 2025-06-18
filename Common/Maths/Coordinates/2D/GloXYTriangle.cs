@@ -17,22 +17,14 @@ public struct GloXYTriangle
     // MARK: Angle Properties
     // -------------------------------------------------------------------------------
 
-    private static double InternalAngle(GloXYPoint prev, GloXYPoint vertex, GloXYPoint next)
-    {
-        double angle = GloXYPointOperations.AngleBetweenRads(prev, vertex, next);
-        if (angle > Math.PI)
-            angle = (2 * Math.PI) - angle; // convert reflex angle to internal
-        return GloDoubleRange.ZeroToPiRadians.Apply(angle);
-    }
-
     // Internal angle at the corner formed by AB -> BC
-    public double InternalAngleABRads() => InternalAngle(A, B, C);
+    public double InternalAngleABRads() => GloXYPointOperations.AngleBetweenRads(A, B, C);
 
     // Internal angle at the corner formed by BC -> CA
-    public double InternalAngleBCRads() => InternalAngle(B, C, A);
+    public double InternalAngleBCRads() => GloXYPointOperations.AngleBetweenRads(B, C, A);
 
     // Internal angle at the corner formed by CA -> AB
-    public double InternalAngleCARads() => InternalAngle(C, A, B);
+    public double InternalAngleCARads() => GloXYPointOperations.AngleBetweenRads(C, A, B);
 
     // --------------------------------------------------------------------------------------------
     // MARK: Constructors
@@ -64,10 +56,11 @@ public struct GloXYTriangle
     // Returns true if the triangle is degenerate (area is zero or nearly zero).
     public bool IsDegenerate() => Area() < 1e-10;
 
+    // A bounding box rectangle formed from the max and min X and Y coordinates of the triangle's vertices.
     public GloXYRect AABB()
     {
-        GloXYPoint topLeft     = new GloXYPoint( GloNumericUtils.Min3(A.X, B.X, C.X), GloNumericUtils.Min3(A.Y, B.Y, C.Y) );
-        GloXYPoint bottomRight = new GloXYPoint( GloNumericUtils.Min3(A.X, B.X, C.X), GloNumericUtils.Min3(A.Y, B.Y, C.Y) );
+        GloXYPoint topLeft     = new GloXYPoint(GloNumericUtils.Min3(A.X, B.X, C.X), GloNumericUtils.Min3(A.Y, B.Y, C.Y));
+        GloXYPoint bottomRight = new GloXYPoint(GloNumericUtils.Max3(A.X, B.X, C.X), GloNumericUtils.Max3(A.Y, B.Y, C.Y));
         return new GloXYRect(topLeft, bottomRight);
     }
 

@@ -41,10 +41,9 @@ public static class GloXYPointOperations
     // --------------------------------------------------------------------------------------------
 
 
-    // Given 3 points ABC representing two lines AB and BC, return the clockwise
-    // angle from BA to BC in radians. The result is normalized to the range
-    // [0, 2π).
-
+    // Given 3 points ABC representing two lines AB and BC, return the smallest angle
+    // between BA and BC in radians. The result is always in the range [0, pi] (0 to 180 degrees).
+    // This is the geometric angle between the two lines at point B.
     public static double AngleBetweenRads(GloXYPoint a, GloXYPoint b, GloXYPoint c)
     {
         double dx1 = a.X - b.X;
@@ -55,13 +54,9 @@ public static class GloXYPointOperations
         double angle1Rads = Math.Atan2(dy1, dx1);
         double angle2Rads = Math.Atan2(dy2, dx2);
 
-        double angleRads = angle2Rads - angle1Rads;
-        if (angleRads < 0)
-        {
-            angleRads += 2 * Math.PI;
-        }
-
-        return angleRads;
+        double angleRads = Math.Abs(angle2Rads - angle1Rads);
+        // Clamp to [0, π] using GloDoubleRange.ZeroToPiRadians.Apply
+        return GloDoubleRange.ZeroToPiRadians.Apply(angleRads);
     }
 
     // Given 3 points, ABC forming to lines AB and BC, find a point D that is equally inset between AB and BC

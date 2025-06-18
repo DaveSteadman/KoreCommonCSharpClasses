@@ -1,4 +1,5 @@
 using System;
+using System.Data.Entity.Hierarchy;
 
 public static class GloTestPositionLLA
 {
@@ -8,7 +9,7 @@ public static class GloTestPositionLLA
         {
             TestGloLLAPointCreation(testLog);
             TestGloLLAPointMovement(testLog);
-            TestGloLLAPointDelta(testLog);
+            TestGloLLAPoint_RangeBearing(testLog);
         }
         catch (Exception ex)
         {
@@ -52,7 +53,7 @@ public static class GloTestPositionLLA
         testLog.AddResult("GloLLAPoint PolarOffset RoundTrip", sameLat && sameLon && sameAlt);
     }
 
-    private static void TestGloLLAPointDelta(GloTestLog testLog)
+    private static void TestGloLLAPoint_RangeBearing(GloTestLog testLog)
     {
         // Setup two points with non-trivial lat/lon/alt values
         var first  = new GloLLAPoint() { LatDegs = 50.0, LonDegs = -1.0, AltMslM = 0.0 };
@@ -81,3 +82,5 @@ public static class GloTestPositionLLA
         testLog.AddComment($"GloLLAPoint Delta RangeBearing: {rbStr}");
     }
 }
+
+
