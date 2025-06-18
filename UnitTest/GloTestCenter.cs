@@ -10,6 +10,7 @@ public static class GloTestCenter
         {
             GloTestMath.RunTests(testLog);
             GloTestXYZVector.RunTests(testLog);
+            GloTestLine.RunTests(testLog);
 
             GloTestPosition.RunTests(testLog);
             //GloTestPlotter.RunTests(testLog);
