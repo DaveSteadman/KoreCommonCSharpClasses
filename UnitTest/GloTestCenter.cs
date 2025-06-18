@@ -13,6 +13,7 @@ public static class GloTestCenter
             GloTestLine.RunTests(testLog);
 
             GloTestPosition.RunTests(testLog);
+            GloTestPositionLLA.RunTests(testLog);
             //GloTestPlotter.RunTests(testLog);
             GloTestList1D.RunTests(testLog);
             GloTestList2D.RunTests(testLog);
