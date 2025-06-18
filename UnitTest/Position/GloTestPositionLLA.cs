@@ -54,18 +54,30 @@ public static class GloTestPositionLLA
 
     private static void TestGloLLAPointDelta(GloTestLog testLog)
     {
-        var first = new GloLLAPoint() { LatDegs = 50.0, LonDegs = -1.0, AltMslM = 0.0 };
+        // Setup two points with non-trivial lat/lon/alt values
+        var first  = new GloLLAPoint() { LatDegs = 50.0, LonDegs = -1.0, AltMslM = 0.0 };
         var second = new GloLLAPoint() { LatDegs = 50.1, LonDegs = -0.9, AltMslM = 0.0 };
 
-        var delta = first.StraightLinePolarOffsetTo(second);
-        var moved = first.PlusPolarOffset(delta);
+        // Determine the delta between the two points
+        GloRangeBearing pointRangeBearing = first.RangeBearingTo(second);
+
+        // Apply the range-bearing to the first point to get a new point, validating that the way we calculate it and the way we
+        // apply it to a point are consistent.
+        var moved = first.PlusRangeBearing(pointRangeBearing);
 
         bool sameLat = GloValueUtils.EqualsWithinTolerance(moved.LatDegs, second.LatDegs, 0.0005);
         bool sameLon = GloValueUtils.EqualsWithinTolerance(moved.LonDegs, second.LonDegs, 0.0005);
-        bool sameAlt = GloValueUtils.EqualsWithinTolerance(moved.AltMslM, second.AltMslM, 15.0);
+        bool sameAlt = GloValueUtils.EqualsWithinTolerance(moved.AltMslM, second.AltMslM, 1.0);
 
-        testLog.AddResult("GloLLAPoint Delta Lat", sameLat);
-        testLog.AddResult("GloLLAPoint Delta Lon", sameLon);
-        testLog.AddResult("GloLLAPoint Delta Alt", sameAlt);
+        // create strings of all the comparisons, to expose some details of the checks.
+        string latCompareStr = $"Lat: {first.LatDegs:F5} -> {second.LatDegs:F5}";
+        string lonCompareStr = $"Lon: {first.LonDegs:F5} -> {second.LonDegs:F5}";
+        string altCompareStr = $"Alt: {first.AltMslM:F1} -> {second.AltMslM:F1}";
+        string rbStr = $"Range: {pointRangeBearing.RangeM:F1}m, Bearing: {pointRangeBearing.BearingDegs:F1}°";
+
+        testLog.AddResult("GloLLAPoint Delta Lat", sameLat, latCompareStr);
+        testLog.AddResult("GloLLAPoint Delta Lon", sameLon, lonCompareStr);
+        testLog.AddResult("GloLLAPoint Delta Alt", sameAlt, altCompareStr);
+        testLog.AddComment($"GloLLAPoint Delta RangeBearing: {rbStr}");
     }
 }
