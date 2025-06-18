@@ -238,5 +238,12 @@ public static class GloXYZPointOperations
         return origin + offset;
     }
 
+    // --------------------------------------------------------------------------------------------
 
+    public static bool EqualsWithinTolerance(GloXYZPoint a, GloXYZPoint b, double tolerance = GloConsts.ArbitraryMinDouble)
+    {
+        return GloValueUtils.EqualsWithinTolerance(a.X, b.X, tolerance)
+            && GloValueUtils.EqualsWithinTolerance(a.Y, b.Y, tolerance)
+            && GloValueUtils.EqualsWithinTolerance(a.Z, b.Z, tolerance);
+    }
 }

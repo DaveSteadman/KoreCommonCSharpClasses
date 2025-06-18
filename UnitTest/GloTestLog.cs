@@ -154,6 +154,21 @@ public class GloTestLog
         return sb.ToString();
     }
 
+    // --------------------------------------------------------------------------------------------
+
+    public string FailReport()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        foreach (var entry in ResultList)
+        {
+            if (entry.EntryType == GloTestLogEntryType.Test && entry.Result == GloTestLogResult.Fail)
+            {
+                sb.AppendLine($"TEST: FAIL // {entry.Name} // {entry.Comment}");
+            }
+        }
+        return sb.ToString();
+    }
 
     // --------------------------------------------------------------------------------------------
 

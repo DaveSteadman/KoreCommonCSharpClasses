@@ -11,6 +11,12 @@ public struct GloXYVector
     public double X { get; }
     public double Y { get; }
 
+    public double Length => Math.Sqrt(X * X + Y * Y);
+    public double Magnitude => Length;
+
+    public GloXYVector Normalized => Length == 0 ? new GloXYVector(0, 0) : new GloXYVector(X / Length, Y / Length);
+    public GloXYVector UnitVector => Normalized; // Alias for Normalized
+
     // --------------------------------------------------------------------------------------------
     // Constructor
     // --------------------------------------------------------------------------------------------

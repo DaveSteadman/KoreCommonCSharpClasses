@@ -6,7 +6,7 @@ using System;
 // Point = a position, absolute.
 // Vector = an offset, relative, scalable.
 
-public class GloXYPoint
+public struct GloXYPoint
 {
     public double X { get; }
     public double Y { get; }
@@ -30,6 +30,11 @@ public class GloXYPoint
     public static GloXYPoint Zero
     {
         get { return new GloXYPoint(0, 0); }
+    }
+
+    public override string ToString()
+    {
+        return $"GloXYPoint(X: {X:F3}, Y: {Y:F3})";
     }
 
     // --------------------------------------------------------------------------------------------

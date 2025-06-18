@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-// MagSphere - A sphere where the radius of each point is defined by an input array of floats.
+// MagSphere - A sphere where the radius of each point is defined by an input array of numbers.
 // The radius is the distance from the center of the sphere to the point on the surface of the sphere.
 // The radius is defined in spherical coordinates, with the azimuth and elevation angles defining the position of the point on the sphere.
 // The color of a point is the magnitude of the radius, defined by an input color range.

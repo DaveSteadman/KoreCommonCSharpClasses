@@ -20,10 +20,14 @@ class Program
         // Get the test reports
         // Add default statements if no tests passed or failed
         string fullReport = testres.FullReport();
+        string failReport = testres.FailReport();
 
 
         Console.WriteLine("------------------------------------------------------------------------");
-        Console.WriteLine(fullReport);
+        if (testres.OverallPass())
+            Console.WriteLine(fullReport);
+        else
+            Console.WriteLine(failReport);
         Console.WriteLine("------------------------------------------------------------------------");
         Console.WriteLine(testres.OneLineReport());
         Console.WriteLine("------------------------------------------------------------------------");

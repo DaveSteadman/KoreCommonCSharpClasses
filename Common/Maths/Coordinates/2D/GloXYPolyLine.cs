@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class GloXYPolyLine : GloXY
+public class GloXYPolyLine
 {
     public List<GloXYPoint> Points { get; }
 

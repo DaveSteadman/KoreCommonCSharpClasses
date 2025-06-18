@@ -1,12 +1,12 @@
 using System;
 
-public class GloXYLine : GloXY
+public struct GloXYLine : IEquatable<GloXYLine>
 {
     public GloXYPoint P1 { get; }
     public GloXYPoint P2 { get; }
 
     // --------------------------------------------------------------------------------------------
-    // Read only / derived attributes
+    // MARK: attributes
     // --------------------------------------------------------------------------------------------
 
     public double     Length    => P1.DistanceTo(P2);
@@ -21,7 +21,16 @@ public class GloXYLine : GloXY
     }
 
     // --------------------------------------------------------------------------------------------
-    // Constructor
+    // MARK: IEquatable implementation
+    // --------------------------------------------------------------------------------------------
+
+    public bool Equals(GloXYLine other)
+    {
+        return P1.Equals(other.P1) && P2.Equals(other.P2);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: Constructor
     // --------------------------------------------------------------------------------------------
 
     public GloXYLine(double x1, double y1, double x2, double y2)
@@ -43,7 +52,7 @@ public class GloXYLine : GloXY
     }
 
     // --------------------------------------------------------------------------------------------
-    // Position methods
+    // MARK: Position methods
     // --------------------------------------------------------------------------------------------
 
     // Get the centre point of the line
@@ -69,20 +78,26 @@ public class GloXYLine : GloXY
         return new GloXYPoint(newX, newY);
     }
 
-    // Extrapolate the line by a distance. -ve is back from P1, +ve is forward from P2
-    public GloXYPoint ExtrapolateDistance(double distance)
+    // --------------------------------------------------------------------------------------------
+    // MARK: Vector methods
+    // --------------------------------------------------------------------------------------------
+
+    public GloXYVector VectorTo(GloXYPoint P2)
     {
-        double dx = P2.X - P1.X;
-        double dy = P2.Y - P1.Y;
+        // Return a vector from P1 to P2
+        return new GloXYVector(P2.X - P1.X, P2.Y - P1.Y);
+    }
 
-        double newX = P1.X + (dx * distance / Length);
-        double newY = P1.Y + (dy * distance / Length);
-
-        return new GloXYPoint(newX, newY);
+    public GloXYVector UnitVectorTo(GloXYPoint P2)
+    {
+        // Return a unit vector from P1 to P2
+        GloXYVector vector = VectorTo(P2);
+        if (vector.Length == 0) return new GloXYVector(0, 0);
+        return vector * (1 / vector.Length);
     }
 
     // --------------------------------------------------------------------------------------------
-    // Line methods
+    // MARK: Move methods
     // --------------------------------------------------------------------------------------------
 
     // Return a new line object, will all points offset by an XY amount.
@@ -98,7 +113,7 @@ public class GloXYLine : GloXY
     }
 
     // --------------------------------------------------------------------------------------------
-    // Misc methods
+    // MARK: Misc methods
     // --------------------------------------------------------------------------------------------
 
     public override string ToString()

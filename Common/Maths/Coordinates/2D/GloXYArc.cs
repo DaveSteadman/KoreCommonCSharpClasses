@@ -7,7 +7,7 @@ using System;
 // Design Decisions:
 // - Zero angle is "east" (3 o'clock) and angles increase anti-clockwise.
 
-public class GloXYArc : GloXY
+public struct GloXYArc
 {
     public GloXYPoint Center     { get; }
     public double Radius         { get; }

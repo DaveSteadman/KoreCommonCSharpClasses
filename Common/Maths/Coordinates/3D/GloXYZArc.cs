@@ -5,7 +5,7 @@
 // - Elevation angle is zero on the horizontal plane and increases upwards.
 // - Class will be immutable, as operations will return new instances.
 
-public class GloXYZArc : GloXYZ
+public struct GloXYZArc
 {
     public GloXYZPoint Origin        { get; }
     public double Radius             { get; }

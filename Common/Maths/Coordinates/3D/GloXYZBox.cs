@@ -1,6 +1,6 @@
 using System;
 
-public class GloXYZBox : GloXYZ
+public struct GloXYZBox
 {
     public GloXYZPoint Center { get; set; } = GloXYZPoint.Zero;
 

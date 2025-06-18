@@ -17,14 +17,20 @@ public static class GloTestLine
         }
     }
 
+    // Simple creation and attribute checks
     private static void TestCreateSimpleLine(GloTestLog testLog)
     {
         var line = new GloXYLine(new GloXYPoint(0, 0), new GloXYPoint(3, 4));
+
+        // 3,4,5 triangle check
         testLog.AddResult("GloXYLine Length", GloValueUtils.EqualsWithinTolerance(line.Length, 5.0));
+
+        // midpoint check
         var mid = line.MidPoint();
         testLog.AddResult("GloXYLine MidPoint", GloXYPoint.EqualsWithinTolerance(mid, new GloXYPoint(1.5, 2.0)));
     }
 
+    // Offset the line by a vector (2,3) and check the new points
     private static void TestOffsetLine(GloTestLog testLog)
     {
         var line = new GloXYLine(new GloXYPoint(0, 0), new GloXYPoint(1, 1));
@@ -40,12 +46,18 @@ public static class GloTestLine
         var half = line.Fraction(0.5);
         testLog.AddResult("GloXYLine Fraction 0.5", GloXYPoint.EqualsWithinTolerance(half, new GloXYPoint(1, 0)));
 
-        var extr = line.ExtrapolateDistance(3);
-        testLog.AddResult("GloXYLine ExtrapolateDistance 3", GloXYPoint.EqualsWithinTolerance(extr, new GloXYPoint(3, 0)));
+        // A positive extrapolation distance adds to the end of the line, so 2 + new 3 = 5
+        GloXYPoint extr = GloXYLineOperations.ExtrapolateDistance(line, 3);
+        testLog.AddResult("GloXYLine ExtrapolateDistance 3", GloXYPoint.EqualsWithinTolerance(extr, new GloXYPoint(5, 0)), extr.ToString());
+
+        GloXYPoint extr2 = GloXYLineOperations.ExtrapolateDistance(line, -2);
+        testLog.AddResult("GloXYLine ExtrapolateDistance -2", GloXYPoint.EqualsWithinTolerance(extr2, new GloXYPoint(-2, 0)), extr2.ToString());
 
         var extended = GloXYLineOperations.ExtendLine(line, 1, 1);
         bool p1 = GloXYPoint.EqualsWithinTolerance(extended.P1, new GloXYPoint(-1, 0));
         bool p2 = GloXYPoint.EqualsWithinTolerance(extended.P2, new GloXYPoint(3, 0));
         testLog.AddResult("GloXYLineOperations ExtendLine", p1 && p2 && GloValueUtils.EqualsWithinTolerance(extended.Length, 4.0));
     }
+
+
 }

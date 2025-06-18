@@ -6,7 +6,7 @@ using System;
 // - Zero angle is "east" (3 o'clock) and angles increase anti-clockwise.
 // - Object is immutable
 
-public class GloXYPolarOffset : GloXY
+public struct GloXYPolarOffset
 {
     // Main attributes
     public double AngleRads { get; }

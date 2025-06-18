@@ -1,6 +1,6 @@
 using System;
 
-public class GloXYZHeightmapSphere : GloXYZ
+public class GloXYZHeightmapSphere
 {
     public GloXYZPoint Center { get; private set; }
 

@@ -6,7 +6,7 @@
 // - Anything beyond the core responsibilities will be in a separate "operations" class.
 // - Class will be immutable, as operations will return new instances.
 
-public class GloXYZSphereWedge : GloXYZ
+public struct GloXYZSphereWedge
 {
     public GloXYZPoint Center { get; set; }
     public double InnerRadius { get; set; }

@@ -1,6 +1,6 @@
 using System;
 
-public class GloXYCircle : GloXY
+public struct GloXYCircle
 {
     public GloXYPoint Center { get; }
     public double     Radius { get; }

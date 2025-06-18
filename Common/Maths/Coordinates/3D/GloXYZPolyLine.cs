@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class GloXYZPolyLine : GloXYZ
+public class GloXYZPolyLine
 {
     public List<GloXYZPoint> Points { get; }
 

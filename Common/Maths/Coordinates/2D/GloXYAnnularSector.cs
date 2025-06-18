@@ -6,7 +6,7 @@
 // - Anything beyond the core responibilites will be in a separate "operations" class.
 // - Class will be immutable, as operations will return new instances.
 
-public class GloXYAnnularSector : GloXY
+public struct GloXYAnnularSector
 {
     public GloXYPoint Center { get; }
     public double InnerRadius { get; }

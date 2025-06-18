@@ -176,6 +176,32 @@ public static class GloXYLineOperations
     }
 
     // --------------------------------------------------------------------------------------------
+
+    // Extrapolate the line by a distance. -ve is back from P1, +ve is forward from P2
+    // Usage: GloXYPoint extrapolatedPoint = GloXYLineOperations.ExtrapolateDistance(line, distance);
+    public static GloXYPoint ExtrapolateDistance(GloXYLine line, double distance)
+    {
+        double dx = line.P2.X - line.P1.X;
+        double dy = line.P2.Y - line.P1.Y;
+        double len = line.Length;
+
+        if (distance >= 0)
+        {
+            // Extend from P2
+            double newX = line.P2.X + (dx * distance / len);
+            double newY = line.P2.Y + (dy * distance / len);
+            return new GloXYPoint(newX, newY);
+        }
+        else
+        {
+            // Backtrack from P1
+            double newX = line.P1.X + (dx * distance / len);
+            double newY = line.P1.Y + (dy * distance / len);
+            return new GloXYPoint(newX, newY);
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
     // Usage: GloXYLineOperations.InsetLine(line, insetDist);
     public static GloXYLine InsetLine(GloXYLine line, double insetDist)
     {
@@ -196,6 +222,7 @@ public static class GloXYLineOperations
 
         return new GloXYLine(new GloXYPoint(p1x, p1y), new GloXYPoint(p2x, p2y));
     }
+
     // --------------------------------------------------------------------------------------------
 
     public static GloXYLine? ClipLineToRect(GloXYLine line, GloXYRect rect)

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// with an implicit final line connecting the last and first points. There's no need
 /// to repeat the first point at the end of the vertices list.
 /// </summary>
-public class GloXYPolygon : GloXY
+public struct GloXYPolygon
 {
     public IReadOnlyList<GloXYPoint> Vertices { get; }
 

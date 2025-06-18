@@ -94,4 +94,12 @@ public static class GloXYPointOperations
 
         return new GloXYPoint(xInset, yInset);
     }
+
+    // --------------------------------------------------------------------------------------------
+
+    public static bool EqualsWithinTolerance(GloXYPoint a, GloXYPoint b, double tolerance = GloConsts.ArbitraryMinDouble)
+    {
+        return GloValueUtils.EqualsWithinTolerance(a.X, b.X, tolerance)
+            && GloValueUtils.EqualsWithinTolerance(a.Y, b.Y, tolerance);
+    }
 }
