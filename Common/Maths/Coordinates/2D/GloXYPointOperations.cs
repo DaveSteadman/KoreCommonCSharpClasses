@@ -41,7 +41,9 @@ public static class GloXYPointOperations
     // --------------------------------------------------------------------------------------------
 
 
-    // Given 3 points, ABC forming to lines AB and BC, find the angle between them.
+    // Given 3 points ABC representing two lines AB and BC, return the clockwise
+    // angle from BA to BC in radians. The result is normalized to the range
+    // [0, 2π).
 
     public static double AngleBetweenRads(GloXYPoint a, GloXYPoint b, GloXYPoint c)
     {
