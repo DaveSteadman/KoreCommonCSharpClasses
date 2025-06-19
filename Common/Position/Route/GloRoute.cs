@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 public class GloRoute
 {
-    private List<IGloRouteLeg> Legs;
+    public List<IGloRouteLeg> Legs;
 
     // --------------------------------------------------------------------------------------------
     // MARK: Constructors
@@ -39,12 +39,12 @@ public class GloRoute
     // MARK: Complex Methods
     // --------------------------------------------------------------------------------------------
 
-    public double GetDistanceM()
+    public double GetStraightLineDistanceM()
     {
         double distanceM = 0;
         foreach (IGloRouteLeg leg in Legs)
         {
-            distanceM += leg.GetDistanceM();
+            distanceM += leg.GetStraightLineDistanceM();
         }
         return distanceM;
     }

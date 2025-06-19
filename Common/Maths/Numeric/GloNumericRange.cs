@@ -35,6 +35,9 @@ public class GloNumericRange<T> where T : INumber<T>
     public static readonly GloNumericRange<T> ZeroToPiRadians      = new GloNumericRange<T>(T.CreateChecked(0),    GloConsts<T>.kPi,     RangeBehavior.Wrap);
     public static readonly GloNumericRange<T> MinusPiToPiRadians   = new GloNumericRange<T>(-GloConsts<T>.kPi,     GloConsts<T>.kPi,     RangeBehavior.Limit);
 
+    // Usage Examples:
+    // - double newRads = GloNumericRange.ZeroToTwoPiRadians.Apply(oldRads);
+
     // --------------------------------------------------------------------------------------------
     // MARK: Range Checking
     // --------------------------------------------------------------------------------------------

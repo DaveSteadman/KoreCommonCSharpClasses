@@ -35,7 +35,10 @@ public interface IGloRouteLeg
     // --------------------------------------------------------------------------------------------
 
     public GloLLAPoint PositionAtLegTime(double legtimeS) => GloLLAPoint.Zero;
-    public float       GetDistanceM() => 0f;
+    public double      GetStraightLineDistanceM() => 0f;
+
+    public double GetCalculatedDistanceM() => GetStraightLineDistanceM();
+
 
     // --------------------------------------------------------------------------------------------
     // MARK: Time
