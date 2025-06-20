@@ -1,69 +1,74 @@
+using System;
 
-// Route legs are the building blocks of a route. They are the segments of the route that connect two points.
-// We need operations to establish the entry and exit crietia of each leg and the position/attitude along it to
-// control the platform.
-
-// *TIME*: A route leg calculates its duration. Time for overall route position is the route class responsibility,
-// not the leg. So all times are for a zero start time duration, not an overall scenario or route time.
-
-public interface IGloRouteLeg
+// Abstract base class for route legs. Provides common properties and helper
+// functions that can be used by all leg types.
+public abstract class IGloRouteLeg
 {
-    // --------------------------------------------------------------------------------------------
-    // MARK: Properties around the ends of a leg
-    // --------------------------------------------------------------------------------------------
-
-    // Position Operations
+    // End points
     public GloLLAPoint StartPoint { get; set; }
     public GloLLAPoint EndPoint   { get; set; }
 
-    // Course Operations
-    public GloCourse StartCourse { get; }
-    public GloCourse EndCourse   { get; }
+    // Course information
+    public GloCourse StartCourse { get; protected set; } = GloCourse.Zero;
+    public GloCourse EndCourse   { get; protected set; } = GloCourse.Zero;
 
-    // Attitude Operations
-    public GloAttitude StartAttitude { get; }
-    public GloAttitude EndAttitude   { get; }
+    // Attitude information
+    public GloAttitude StartAttitude { get; protected set; } = GloAttitude.Zero;
+    public GloAttitude EndAttitude   { get; protected set; } = GloAttitude.Zero;
 
-    // Attitude Delta Operations
-    public GloAttitudeDelta StartAttitudeDelta { get; }
-    public GloAttitudeDelta EndAttitudeDelta   { get; }
+    // Attitude delta information
+    public GloAttitudeDelta StartAttitudeDelta { get; protected set; } = GloAttitudeDelta.Zero;
+    public GloAttitudeDelta EndAttitudeDelta   { get; protected set; } = GloAttitudeDelta.Zero;
 
-    // Methods ordered by increasing derivatives, starting with position, velocity, acceleration, and so on.
+    // ---------------------------------------------------------------------
+    // MARK: Distances
+    // ---------------------------------------------------------------------
 
-    // --------------------------------------------------------------------------------------------
-    // MARK: Position and Distance
-    // --------------------------------------------------------------------------------------------
+    // Straight line distance between the start and end points
+    public virtual double GetStraightLineDistanceM() => StartPoint.CurvedDistanceToM(EndPoint);
 
-    public GloLLAPoint PositionAtLegTime(double legtimeS) => GloLLAPoint.Zero;
-    public double      GetStraightLineDistanceM() => 0f;
+    // Calculated distance along the leg path. Default is straight line distance.
+    public virtual double GetCalculatedDistanceM() => GetStraightLineDistanceM();
 
-    public double GetCalculatedDistanceM() => GetStraightLineDistanceM();
-
-
-    // --------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
     // MARK: Time
-    // --------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
-    public float GetDurationS() => 0f;
+    public abstract double GetDurationS();
 
-    // --------------------------------------------------------------------------------------------
-    // MARK: Course
-    // --------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // MARK: Position and derivatives
+    // ---------------------------------------------------------------------
 
-    public GloCourse CourseAtLegTime(double legtimeS) => GloCourse.Zero;
+    public abstract GloLLAPoint PositionAtLegTime(double legtimeS);
 
-    // --------------------------------------------------------------------------------------------
-    // MARK: Attitude
-    // --------------------------------------------------------------------------------------------
+    public virtual GloLLAPoint PositionAtLegFraction(double fraction)
+    {
+        double t = GetDurationS() * GloDoubleRange.ZeroToOne.Apply(fraction);
+        return PositionAtLegTime(t);
+    }
 
-    public GloAttitude AttitudeAtLegTime(double legtimeS) => GloAttitude.Zero;
+    public virtual GloCourse CourseAtLegTime(double legtimeS) => StartCourse;
 
-    // --------------------------------------------------------------------------------------------
-    // MARK: Attitude Delta
-    // --------------------------------------------------------------------------------------------
+    public virtual GloCourse CourseAtLegFraction(double fraction)
+    {
+        double t = GetDurationS() * GloDoubleRange.ZeroToOne.Apply(fraction);
+        return CourseAtLegTime(t);
+    }
 
-    public GloAttitudeDelta AttitudeDeltaAtLegTime(double legtimeS) => GloAttitudeDelta.Zero;
+    public virtual GloAttitude AttitudeAtLegTime(double legtimeS) => StartAttitude;
 
+    public virtual GloAttitude AttitudeAtLegFraction(double fraction)
+    {
+        double t = GetDurationS() * GloDoubleRange.ZeroToOne.Apply(fraction);
+        return AttitudeAtLegTime(t);
+    }
+
+    public virtual GloAttitudeDelta AttitudeDeltaAtLegTime(double legtimeS) => StartAttitudeDelta;
+
+    public virtual GloAttitudeDelta AttitudeDeltaAtLegFraction(double fraction)
+    {
+        double t = GetDurationS() * GloDoubleRange.ZeroToOne.Apply(fraction);
+        return AttitudeDeltaAtLegTime(t);
+    }
 }
-
-

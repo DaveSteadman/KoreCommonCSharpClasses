@@ -15,6 +15,7 @@ public static class GloTestCenter
 
             GloTestPosition.RunTests(testLog);
             GloTestPositionLLA.RunTests(testLog);
+            GloTestRoute.RunTests(testLog);
             //GloTestPlotter.RunTests(testLog);
             GloTestList1D.RunTests(testLog);
             GloTestList2D.RunTests(testLog);
