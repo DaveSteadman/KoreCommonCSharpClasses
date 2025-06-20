@@ -4,20 +4,7 @@ using System;
 
 public class GloRouteLegLine : IGloRouteLeg
 {
-    public GloLLAPoint StartPoint { get; set; }
-    public GloLLAPoint EndPoint   { get; set; }
-
-    // Course Operations
-    public GloCourse StartCourse { get; private set; }
-    public GloCourse EndCourse   { get; private set; }
-
-    // Attitude Operations
-    public GloAttitude StartAttitude { get; private set; }
-    public GloAttitude EndAttitude   { get; private set; }
-
-    // Attitude Delta Operations
-    public GloAttitudeDelta StartAttitudeDelta { get; private set; }
-    public GloAttitudeDelta EndAttitudeDelta   { get; private set; }
+    private readonly double speedMps;
 
     // --------------------------------------------------------------------------------------------
     // Constructors
@@ -27,6 +14,8 @@ public class GloRouteLegLine : IGloRouteLeg
     {
         StartPoint = startPoint;
         EndPoint   = endPoint;
+        speedMps   = speedMPS;
+        SetupRoute(speedMPS);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -60,21 +49,20 @@ public class GloRouteLegLine : IGloRouteLeg
     // Public Methods
     // --------------------------------------------------------------------------------------------
 
-    public double GetDistanceM()
+    public override double GetCalculatedDistanceM() => StartPoint.CurvedDistanceToM(EndPoint);
+
+    public override double GetDurationS()
     {
-        return StartPoint.CurvedDistanceToM(EndPoint);
+        double dist = GetCalculatedDistanceM();
+        return (speedMps < GloConsts.ArbitraryMinDouble) ? 0 : dist / speedMps;
     }
 
-    public double GetDurationS()
+    public override GloLLAPoint PositionAtLegTime(double legtimeS)
     {
-        return GetDistanceM() / StartCourse.SpeedMps;
-    }
-
-    public GloLLAPoint CurrentPosition(double timeS)
-    {
-        double distanceM = StartCourse.SpeedMps * timeS;
-        double fraction = distanceM / GetDistanceM();
-        return GloLLAPointOperations.RhumbLineInterpolation(StartPoint, EndPoint, fraction);
+        double dist = speedMps * legtimeS;
+        double frac = (GetCalculatedDistanceM() > 0) ? dist / GetCalculatedDistanceM() : 0;
+        frac = GloDoubleRange.ZeroToOne.Apply(frac);
+        return GloLLAPointOperations.RhumbLineInterpolation(StartPoint, EndPoint, frac);
     }
 }
 
