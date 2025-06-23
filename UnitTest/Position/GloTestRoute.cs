@@ -54,9 +54,9 @@ public static class GloTestRoute
         double turnRadiusM = 5000; // radius of the turn arc
         double turnAngleRads = 90 * GloConsts.DegsToRadsMultiplier; // +ve (right) 90 degrees
 
-        GloLLAPoint turnCentre = GloRouteSimpleTurn.FindTurnPoint(startPoint, startCourse, turnRadiusM, turnAngleRads);
+        GloLLAPoint turnCentre = GloRouteLegSimpleTurn.FindTurnPoint(startPoint, startCourse, turnRadiusM, turnAngleRads);
 
-        var turnLeg = new GloRouteSimpleTurn(startPoint, turnCentre, turnRadiusM, turnAngleRads);
+        var turnLeg = new GloRouteLegSimpleTurn(startPoint, turnCentre, turnRadiusM, turnAngleRads);
 
         // Now we can test various properties of the turn leg
         double testRouteLen = (2 * Math.PI * 5000) / 4; // quarter circle length at 5000m
@@ -79,7 +79,7 @@ public static class GloTestRoute
     //     double centreBearing = GloDoubleRange.ZeroToTwoPiRadians.Apply(leg1.EndCourse.HeadingRads + Math.PI / 2);
     //     GloLLAPoint centre = mid.PlusRangeBearing(new GloRangeBearing(500, centreBearing));
 
-    //     var turnLeg = new GloRouteSimpleTurn(mid, centre, Math.PI / 2, speed);
+    //     var turnLeg = new GloRouteLegSimpleTurn(mid, centre, Math.PI / 2, speed);
 
     //     var route = new GloRoute(new List<IGloRouteLeg>() { leg1, turnLeg });
 

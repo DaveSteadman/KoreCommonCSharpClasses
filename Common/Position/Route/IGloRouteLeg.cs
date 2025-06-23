@@ -20,6 +20,9 @@ public abstract class IGloRouteLeg
     public GloAttitudeDelta StartAttitudeDelta { get; protected set; } = GloAttitudeDelta.Zero;
     public GloAttitudeDelta EndAttitudeDelta   { get; protected set; } = GloAttitudeDelta.Zero;
 
+    // Speed in m/s
+    public double SpeedMps { get; set; } = GloConsts.ArbitraryMinDouble;
+
     // ---------------------------------------------------------------------
     // MARK: Distances
     // ---------------------------------------------------------------------
@@ -34,7 +37,7 @@ public abstract class IGloRouteLeg
     // MARK: Time
     // ---------------------------------------------------------------------
 
-    public abstract double GetDurationS();
+    public virtual double GetDurationS() => GetCalculatedDistanceM() / SpeedMps;
 
     // ---------------------------------------------------------------------
     // MARK: Position and derivatives

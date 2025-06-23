@@ -2,12 +2,14 @@ using System;
 
 // Simple turn leg following a circular arc defined by a start point,
 // a turn centre point and an angular change.
-public class GloRouteSimpleTurn : IGloRouteLeg
+public class GloRouteLegSimpleTurn : IGloRouteLeg
 {
+    // The pre-determined centre point of the turn arc. The distance from the start point to this point defines the turn radius.
     public GloLLAPoint TurnPoint { get; set; }
-    public double DeltaAngleRads { get; set; }
-    public double SpeedMps { get; set; }
 
+    // Delta angle. Positive for right turns, negative for left turns, from the perspective of the platform.
+    // Right turns are clockwise, left turns are counter-clockwise.
+    public double DeltaAngleRads { get; set; }
     public double DeltaAngleDegs
     {
         get => DeltaAngleRads * GloConsts.RadsToDegsMultiplier;
@@ -18,7 +20,7 @@ public class GloRouteSimpleTurn : IGloRouteLeg
     // MARK: Constructors
     // --------------------------------------------------------------------------------------------
 
-    public GloRouteSimpleTurn(GloLLAPoint startPoint, GloLLAPoint turnPoint, double deltaAngleRads, double speedMps)
+    public GloRouteLegSimpleTurn(GloLLAPoint startPoint, GloLLAPoint turnPoint, double deltaAngleRads, double speedMps)
     {
         StartPoint = startPoint;
         TurnPoint = turnPoint;
@@ -61,11 +63,26 @@ public class GloRouteSimpleTurn : IGloRouteLeg
 
     public double TurnDurationSecs() => (SpeedMps < GloConsts.ArbitraryMinDouble) ? 0 : TurnLengthM() / SpeedMps;
 
-    public override double GetCalculatedDistanceM() => TurnLengthM();
 
     public override double GetDurationS() => TurnDurationSecs();
 
-    // --------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // MARK: Distances
+    // ---------------------------------------------------------------------
+
+
+    public override double GetCalculatedDistanceM() => TurnLengthM();
+
+
+    // ---------------------------------------------------------------------
+    // MARK: Time
+    // ---------------------------------------------------------------------
+
+    //public override double GetDurationS() => GetCalculatedDistanceM() / SpeedMps;
+
+    // ---------------------------------------------------------------------
+    // MARK: Position and derivatives
+    // ---------------------------------------------------------------------
 
     private GloLLAPoint PositionAtTurnFraction(double fraction)
     {
@@ -95,23 +112,9 @@ public class GloRouteSimpleTurn : IGloRouteLeg
     // MARK: Static Helper Methods
     // --------------------------------------------------------------------------------------------
 
-    // Given a previous leg (start and end), a desired turn radius, and a delta angle (sign for left/right),
+    // Given a previous leg values (position and course), a desired turn radius, and a delta angle (sign for left/right),
     // compute the center point of the turn arc (the turn point).
     // public static GloLLAPoint FindTurnPoint(GloLLAPoint prevLegStartPoint, GloLLAPoint prevLegEndPoint, double turnRadiusM, double deltaAngleRads)
-    // {
-    //     // Calculate the leg direction (bearing from start to end of previous leg)
-    //     double legDirectionRads = prevLegStartPoint.BearingToRads(prevLegEndPoint);
-
-    //     // Determine the perpendicular direction for the turn center
-    //     double perpendicularAngleRads = (deltaAngleRads > 0) ? (Math.PI / 2) : -(Math.PI / 2);
-
-    //     // The bearing from the previous leg end point to the turn center
-    //     double endPointBearingToTurnPoint = GloDoubleRange.ZeroToTwoPiRadians.Apply(legDirectionRads + perpendicularAngleRads);
-
-    //     // The turn center is offset from the previous leg end point by the turn radius in the perpendicular direction
-    //     GloRangeBearing rbToTurnPoint = new GloRangeBearing(turnRadiusM, endPointBearingToTurnPoint);
-    //     return prevLegEndPoint.PlusRangeBearing(rbToTurnPoint);
-    // }
 
     public static GloLLAPoint FindTurnPoint(GloLLAPoint startPoint, GloCourse startCourse, double turnRadiusM, double deltaAngleRads)
     {
@@ -129,3 +132,5 @@ public class GloRouteSimpleTurn : IGloRouteLeg
     }
 
 }
+
+
