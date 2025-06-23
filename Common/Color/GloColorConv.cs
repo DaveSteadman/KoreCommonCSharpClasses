@@ -65,5 +65,16 @@ public static class GloColorConv
 
         return new GloColorRGB((byte)(r * 255), (byte)(g * 255), (byte)(b * 255), (byte)(hsv.A * 255));
     }
+
+    // --------------------------------------------------------------------------------------------
+
+    public static GloColorGreyscale RGBtoGreyscale(GloColorRGB rgb)
+    {
+        // Using the luminosity method for greyscale conversion
+        byte v = (byte)(0.299 * rgb.R + 0.587 * rgb.G + 0.114 * rgb.B);
+        return new GloColorGreyscale(v);
+    }
+
+
 }
 
