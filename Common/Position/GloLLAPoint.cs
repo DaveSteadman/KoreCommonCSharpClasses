@@ -277,7 +277,13 @@ public struct GloLLAPoint
         double a = Math.Pow(Math.Sin(dLat / 2), 2) +
                 Math.Cos(lat1) * Math.Cos(lat2) * Math.Pow(Math.Sin(dLon / 2), 2);
 
-        double distanceM = 2 * GloWorldConsts.EarthRadiusM * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a)); // in meters
+        // Use the mean radius of the two points so that the returned range is
+        // consistent with PlusRangeBearing() which operates at the point's
+        // altitude.  Using the plain earth radius here caused small errors when
+        // the caller expected altitude to be taken into account.
+        double calcRadius = (this.RadiusM + destPos.RadiusM) / 2.0;
+
+        double distanceM = 2 * calcRadius * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
         // Calculate bearing
         double y = Math.Sin(dLon) * Math.Cos(lat2);
