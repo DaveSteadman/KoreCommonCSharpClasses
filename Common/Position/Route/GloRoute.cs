@@ -78,30 +78,6 @@ public class GloRoute
     // MARK: Complex Methods
     // --------------------------------------------------------------------------------------------
 
-    public double GetStraightLineDistanceM()
-    {
-        double distanceM = 0;
-        foreach (IGloRouteLeg leg in Legs)
-        {
-            distanceM += leg.GetStraightLineDistanceM();
-        }
-        return distanceM;
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
-    public double GetDurationSeconds()
-    {
-        double durationS = 0;
-        foreach (IGloRouteLeg leg in Legs)
-        {
-            durationS += leg.GetDurationS();
-        }
-        return durationS;
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
     public GloLLAPoint PositionAtRouteTime(double timeS)
     {
         // Setup the start time for the first leg

@@ -35,6 +35,9 @@ public static class GloTestRoute
         double checkDuration = checkDistance / legSpeed; // duration in seconds
         double checkBearingRads = GloNumericRange<double>.ZeroToTwoPiRadians.Apply(p1.BearingToRads(p2));
         double checkBearingDegs = checkBearingRads * GloConsts.RadsToDegsMultiplier;
+        GloRangeBearing rbLeg = p1.RangeBearingTo(p2);
+
+        // - - - - - -
 
         // Create a simple route leg with a straight line
         var leg1 = new GloRouteLegLine(p1, p2, legSpeed);
@@ -52,8 +55,7 @@ public static class GloTestRoute
             GloValueUtils.EqualsWithinTolerance(leg1.StartCourse.HeadingRads, checkBearingRads, 0.001),
             $"Expected: {checkBearingRads:F3} rad {checkBearingDegs:F3} deg, Actual: {leg1.StartCourse.HeadingRads:F3} rad {leg1.StartCourse.HeadingRads * GloConsts.RadsToDegsMultiplier:F3} deg");
 
-
-        GloRangeBearing rbLeg = p1.RangeBearingTo(p2);
+        // - - - - - -
 
         // Create a second leg using other constructor params
         var leg2 = new GloRouteLegLine(p1, rbLeg, legSpeed);

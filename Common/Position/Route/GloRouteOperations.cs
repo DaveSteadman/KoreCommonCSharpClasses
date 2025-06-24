@@ -4,7 +4,6 @@
 
 public static class GloRouteOperations
 {
-
     // --------------------------------------------------------------------------------------------
     // MARK Append
     // --------------------------------------------------------------------------------------------
@@ -33,5 +32,27 @@ public static class GloRouteOperations
         route.AppendLeg(newLineLeg);
         return true;
     }
+
+    // --------------------------------------------------------------------------------------------
+
+    public static GloRoute StraightLineRouteFromPoints(List<GloLLAPoint> points, double speedMps)
+    {
+        if (points == null || points.Count < 2)
+            throw new ArgumentException("At least two points are required to create a route.");
+
+        GloRoute route = new GloRoute();
+
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            GloLLAPoint startPoint = points[i];
+            GloLLAPoint endPoint = points[i + 1];
+            GloRouteLegLine leg = new GloRouteLegLine(startPoint, endPoint, speedMps);
+            route.AppendLeg(leg);
+        }
+
+        return route;
+    }
+
+    // --------------------------------------------------------------------------------------------
 
 }
