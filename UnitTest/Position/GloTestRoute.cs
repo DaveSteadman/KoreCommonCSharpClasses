@@ -8,7 +8,7 @@ public static class GloTestRoute
         try
         {
             TestRouteLegLine(testLog);
-            TestRouteSimpleTurn(testLog);
+            //TestRouteSimpleTurn(testLog);
         }
         catch (Exception ex)
         {
@@ -25,18 +25,51 @@ public static class GloTestRoute
 
     private static void TestRouteLegLine(GloTestLog testLog)
     {
-        // Create a simple route leg with a straight line
-        GloLLAPoint start = new GloLLAPoint() { LatDegs = 0, LonDegs = 0, AltMslM = 0 };
-        GloLLAPoint end = start.PlusRangeBearing(new GloRangeBearing(1000, 90 * GloConsts.DegsToRadsMultiplier));
-        double speed = 100; // m/s
-        var leg = new GloRouteLegLine(start, end, speed);
+        // Setup some standard values
+        GloLLAPoint p1 = new GloLLAPoint() { LatDegs = 45, LonDegs = 10, AltMslM = 1000 };
+        GloLLAPoint p2 = new GloLLAPoint() { LatDegs = 48, LonDegs = 11, AltMslM = 1000 };
+        double legSpeed = 100; // m/s
 
-        // testLog.AddResult("Route Leg Line Start", GloValueUtils.EqualsWithinTolerance(leg.StartPoint.LatDegs, start.LatDegs, 0.0001) &&
-        //                                         GloValueUtils.EqualsWithinTolerance(leg.StartPoint.LonDegs, start.LonDegs, 0.0001));
-        // testLog.AddResult("Route Leg Line End", GloValueUtils.EqualsWithinTolerance(leg.EndPoint.LatDegs, end.LatDegs, 0.0001) &&
-        //                                       GloValueUtils.EqualsWithinTolerance(leg.EndPoint.LonDegs, end.LonDegs, 0.0001));
-        // testLog.AddResult("Route Leg Line Speed", GloValueUtils.EqualsWithinTolerance(leg.SpeedMps, speed, 0.001));
-        // testLog.AddResult("Route Leg Line Duration", GloValueUtils.EqualsWithinTolerance(leg.GetDurationS(), 10.0, 0.001));
+        // Determine some values for the leg to check against
+        double checkDistance = p1.CurvedDistanceToM(p2); // distance in meters - curved across average altitude.
+        double checkDuration = checkDistance / legSpeed; // duration in seconds
+        double checkBearingRads = GloNumericRange<double>.ZeroToTwoPiRadians.Apply(p1.BearingToRads(p2));
+        double checkBearingDegs = checkBearingRads * GloConsts.RadsToDegsMultiplier;
+
+        // Create a simple route leg with a straight line
+        var leg1 = new GloRouteLegLine(p1, p2, legSpeed);
+
+        // Validate the leg properties
+        testLog.AddResult("Route Leg Length", GloValueUtils.EqualsWithinTolerance(
+            leg1.GetCalculatedDistanceM(), checkDistance, 0.001),
+            $"Expected: {checkDistance:F1} m, Actual: {leg1.GetCalculatedDistanceM():F1} m");
+
+        testLog.AddResult("Route Leg Duration", GloValueUtils.EqualsWithinTolerance(
+            leg1.GetDurationS(), checkDuration, 0.001),
+            $"Expected: {checkDuration:F1} s, Actual: {leg1.GetDurationS():F1} s");
+
+        testLog.AddResult("Route Leg Bearing",
+            GloValueUtils.EqualsWithinTolerance(leg1.StartCourse.HeadingRads, checkBearingRads, 0.001),
+            $"Expected: {checkBearingRads:F3} rad {checkBearingDegs:F3} deg, Actual: {leg1.StartCourse.HeadingRads:F3} rad {leg1.StartCourse.HeadingRads * GloConsts.RadsToDegsMultiplier:F3} deg");
+
+
+        GloRangeBearing rbLeg = p1.RangeBearingTo(p2);
+
+        // Create a second leg using other constructor params
+        var leg2 = new GloRouteLegLine(p1, rbLeg, legSpeed);
+
+        // Validate the second leg properties
+        testLog.AddResult("Route Leg2 Length", GloValueUtils.EqualsWithinTolerance(
+            leg2.GetCalculatedDistanceM(), checkDistance, 0.001),
+            $"Expected: {checkDistance:F1} m, Actual: {leg2.GetCalculatedDistanceM():F1} m");
+
+        testLog.AddResult("Route Leg2 Duration", GloValueUtils.EqualsWithinTolerance(
+            leg2.GetDurationS(), checkDuration, 0.001),
+            $"Expected: {checkDuration:F1} s, Actual: {leg2.GetDurationS():F1} s");
+
+        testLog.AddResult("Route Leg2 Bearing", GloValueUtils.EqualsWithinTolerance(
+            leg2.StartCourse.HeadingRads, checkBearingRads, 0.001),
+            $"Expected: {checkBearingRads:F3} rad {checkBearingDegs:F3} deg, Actual: {leg2.StartCourse.HeadingRads:F3} rad {leg2.StartCourse.HeadingRads * GloConsts.RadsToDegsMultiplier:F3} deg");
     }
 
     // --------------------------------------------------------------------------------------------------

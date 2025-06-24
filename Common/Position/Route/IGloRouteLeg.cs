@@ -43,35 +43,19 @@ public abstract class IGloRouteLeg
     // MARK: Position and derivatives
     // ---------------------------------------------------------------------
 
+    public double LegTimeForFraction(double fraction) => GloDoubleRange.ZeroToOne.Apply(fraction) * GetDurationS();
+
     public abstract GloLLAPoint PositionAtLegTime(double legtimeS);
 
-    public virtual GloLLAPoint PositionAtLegFraction(double fraction)
-    {
-        double t = GetDurationS() * GloDoubleRange.ZeroToOne.Apply(fraction);
-        return PositionAtLegTime(t);
-    }
+    public GloLLAPoint PositionAtLegFraction(double fraction) => PositionAtLegTime(LegTimeForFraction(fraction));
 
     public virtual GloCourse CourseAtLegTime(double legtimeS) => StartCourse;
-
-    public virtual GloCourse CourseAtLegFraction(double fraction)
-    {
-        double t = GetDurationS() * GloDoubleRange.ZeroToOne.Apply(fraction);
-        return CourseAtLegTime(t);
-    }
+    public virtual GloCourse CourseAtLegFraction(double fraction) => CourseAtLegTime(LegTimeForFraction(fraction));
 
     public virtual GloAttitude AttitudeAtLegTime(double legtimeS) => StartAttitude;
-
-    public virtual GloAttitude AttitudeAtLegFraction(double fraction)
-    {
-        double t = GetDurationS() * GloDoubleRange.ZeroToOne.Apply(fraction);
-        return AttitudeAtLegTime(t);
-    }
+    public virtual GloAttitude AttitudeAtLegFraction(double fraction) => AttitudeAtLegTime(LegTimeForFraction(fraction));
 
     public virtual GloAttitudeDelta AttitudeDeltaAtLegTime(double legtimeS) => StartAttitudeDelta;
-
-    public virtual GloAttitudeDelta AttitudeDeltaAtLegFraction(double fraction)
-    {
-        double t = GetDurationS() * GloDoubleRange.ZeroToOne.Apply(fraction);
-        return AttitudeDeltaAtLegTime(t);
-    }
+    public virtual GloAttitudeDelta AttitudeDeltaAtLegFraction(double fraction) => AttitudeDeltaAtLegTime(LegTimeForFraction(fraction));
 }
+

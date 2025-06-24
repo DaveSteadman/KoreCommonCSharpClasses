@@ -50,6 +50,20 @@ public class GloRouteLegSimpleTurn : IGloRouteLeg
     }
 
     // --------------------------------------------------------------------------------------------
+    // MARK: Setup Calls
+    // --------------------------------------------------------------------------------------------
+
+    // Functions to take a few defining parameters and create the rest of the leg object
+
+    public void SetupRoute(GloLLAPoint startPoint, double turnRadiusM, double deltaAngleRads, double speedMps)
+    {
+        StartPoint = startPoint;
+        TurnPoint = FindTurnPoint(startPoint, new GloCourse() { SpeedMps = speedMps, HeadingRads = StartPoint.BearingToRads(EndPoint) }, turnRadiusM, deltaAngleRads);
+        DeltaAngleRads = deltaAngleRads;
+        SpeedMps = speedMps;
+        Setup();
+    }
+
 
     // Radius from centre to start
     public double TurnRadiusM() => TurnPoint.CurvedDistanceToM(StartPoint);
