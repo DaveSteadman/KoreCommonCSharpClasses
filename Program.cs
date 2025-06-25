@@ -6,21 +6,29 @@
 // dotnet new console
 
 
+using KoreCommon;
+using KoreCommon.UnitTest;
+
+
 class Program
 {
+
     static void Main()
     {
-        Console.WriteLine("CSharpCommonClasses");
-
-        GloTestLog testres = GloTestCenter.RunCoreTests();
+        // Uncomment to run the bulk rename (use with caution!)
+        // RenameKoreToKoreInFiles(".");
+        KoreTestLog testres = KoreTestCenter.RunCoreTests();
 
         // Adhoc tests - a function designed to be reworked to consider issues-of-the-day
-        //GloTestLog testres = GloTestCenter.RunAdHocTests();
+        //KoreTestLog testres = KoreTestCenter.RunAdHocTests();
 
         // Get the test reports
         // Add default statements if no tests passed or failed
         string fullReport = testres.FullReport();
         string failReport = testres.FailReport();
+
+
+
 
 
         Console.WriteLine("------------------------------------------------------------------------");
@@ -31,5 +39,13 @@ class Program
         Console.WriteLine("------------------------------------------------------------------------");
         Console.WriteLine(testres.OneLineReport());
         Console.WriteLine("------------------------------------------------------------------------");
+
+
+
+
+
     }
+
+
+
 }
