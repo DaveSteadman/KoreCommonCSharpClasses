@@ -326,6 +326,40 @@ public struct KoreLLAPoint
     }
 
     // --------------------------------------------------------------------------------------------
+    // MARK: Range Bearing Alt
+    // --------------------------------------------------------------------------------------------
+
+    public KoreRangeBearingAlt RangeBearingAltTo(KoreLLAPoint destPos)
+    {
+        // Calculate the range and bearing to the destination point
+        KoreRangeBearing rb = this.RangeBearingTo(destPos);
+
+        // Calculate the altitude difference
+        double altDeltaM = destPos.AltMslM - this.AltMslM;
+
+        // Return a new KoreRangeBearingAlt with the calculated values
+        return new KoreRangeBearingAlt(rb.RangeM, rb.BearingRads, altDeltaM);
+    }
+
+    public KoreLLAPoint PlusRangeBearingAlt(KoreRangeBearingAlt inputRBAlt)
+    {
+        // Create a KoreRangeBearing from the input KoreRangeBearingAlt
+        KoreRangeBearing rb = new KoreRangeBearing
+        {
+            RangeM = inputRBAlt.RangeM,
+            BearingRads = inputRBAlt.BearingRads
+        };
+
+        // Use the existing PlusRangeBearing method to calculate the new position
+        KoreLLAPoint newPos = this.PlusRangeBearing(rb);
+
+        // Adjust the altitude based on the altitude difference in the input KoreRangeBearingAlt
+        newPos.RadiusM += inputRBAlt.AltDeltaM;
+
+        return newPos;
+    }
+
+    // --------------------------------------------------------------------------------------------
 
     public KoreLLAPoint PlusDeltaForTime(KoreCourse course, double timeSecs)
     {
