@@ -25,7 +25,7 @@ public static class KoreTestLangStrings
     {
         // Test the retrieval of strings in different languages
         {
-            KoreLangStrings.Initialize("./Common/CoreApp/LangStrings.txt");
+            KoreLangStrings.Initialize("./KoreCommon/CoreApp/LangStrings.txt");
 
             KoreLangStrings.Instance.SetActiveLanguage("English");
             testLog.AddComment($"KoreLangStrings Get (English) Hello: {KoreLangStrings.Instance.Get("Hello")}");
@@ -36,7 +36,6 @@ public static class KoreTestLangStrings
             var languages = KoreLangStrings.Instance.GetAvailableLanguages();
             testLog.AddComment("KoreLangStrings Languages: " + string.Join(", ", languages));
         }
-
     }
 }
 
