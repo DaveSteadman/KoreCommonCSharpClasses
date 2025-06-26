@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace KoreCommon;
 
+#nullable enable
 
 public static class KoreFileOps
 {
