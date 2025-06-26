@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+#nullable enable
+
 namespace KoreCommon;
 
 // Functions to serialize and deserialize KoreMeshData to/from JSON format.

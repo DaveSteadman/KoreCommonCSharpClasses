@@ -44,9 +44,29 @@ public class KoreRoute
     // MARK: Route traversal
     // --------------------------------------------------------------------------------------------
 
-    public double TotalStraightLineDistanceM() => Legs.Sum(leg => leg.GetStraightLineDistanceM());
-    public double TotalCalculatedDistanceM() => Legs.Sum(leg => leg.GetCalculatedDistanceM());
-    public double TotalDurationSeconds() => Legs.Sum(leg => leg.GetDurationS());
+    public double TotalStraightLineDistanceM()
+    {
+        double summedDistanceM = 0;
+        foreach (IKoreRouteLeg leg in Legs)
+            summedDistanceM += leg.GetStraightLineDistanceM();
+        return summedDistanceM;
+    }
+
+    public double TotalCalculatedDistanceM()
+    {
+        double summedCalculatedDistanceM = 0;
+        foreach (IKoreRouteLeg leg in Legs)
+            summedCalculatedDistanceM += leg.GetCalculatedDistanceM();
+        return summedCalculatedDistanceM;
+    }
+
+    public double TotalDurationSeconds()
+    {
+        double summedDurationSeconds = 0;
+        foreach (IKoreRouteLeg leg in Legs)
+            summedDurationSeconds += leg.GetDurationS();
+        return summedDurationSeconds;
+    }
 
     // ------------------------------------------------------------------------------------------------
 

@@ -1,9 +1,9 @@
-
-
-namespace KoreCommon;
-
 using System;
 using System.Numerics;
+
+#nullable enable
+
+namespace KoreCommon;
 
 public enum RangeBehavior { Wrap, Limit }
 
