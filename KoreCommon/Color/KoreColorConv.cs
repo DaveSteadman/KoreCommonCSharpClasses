@@ -69,6 +69,8 @@ public static class KoreColorConv
     }
 
     // --------------------------------------------------------------------------------------------
+    // MARK: RGB Greyscale
+    // --------------------------------------------------------------------------------------------
 
     public static KoreColorGreyscale RGBtoGreyscale(KoreColorRGB rgb)
     {
@@ -77,6 +79,11 @@ public static class KoreColorConv
         return new KoreColorGreyscale(v);
     }
 
+    public static KoreColorRGB GreyscaleToRGB(KoreColorGreyscale greyscale)
+    {
+        // Convert greyscale to RGB by setting R, G, B to the same value
+        return new KoreColorRGB(greyscale.V, greyscale.V, greyscale.V, 255);
+    }
 
 }
 

@@ -1,11 +1,11 @@
 using SkiaSharp;
 using System.Collections.Generic;
 
+using KoreCommon;
 namespace KoreCommon.SkiaSharp;
 
 public static class KoreSkiaSharpBitmapOps
 {
-
     // RotateAndScaleBitmap
     // - Maintains the centre of the bitmap as the anchor position.
     public static SKBitmap RotateAndScaleBitmap(SKBitmap originalBitmap, float angle, float scale)
@@ -36,7 +36,7 @@ public static class KoreSkiaSharpBitmapOps
 
     // --------------------------------------------------------------------------------------------
 
-    // Just resize the image
+    // Resize the image - simplify the interface to the action so we don't have to deal with the canvas
 
     public static SKBitmap ResizeImage(SKBitmap originalBitmap, int newWidth, int newHeight)
     {
@@ -74,10 +74,25 @@ public static class KoreSkiaSharpBitmapOps
     }
 
     // --------------------------------------------------------------------------------------------
+    // MARK: Load
+    // --------------------------------------------------------------------------------------------
+
+    // SKBitmap.Decode will handle PNG, WebP, JPEG, BMP, GIF, and several other common image formats, as long as SkiaSharp is
+    // built with support for those formats (which is true for standard SkiaSharp distributions).
+
+    public static SKBitmap LoadBitmap(string filePath)
+    {
+        using (var stream = File.OpenRead(filePath))
+        {
+            return SKBitmap.Decode(stream);
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
     // MARK: Save As
     // --------------------------------------------------------------------------------------------
 
-    // Usage: KoreSkiaSharpBitmapOps.SaveBitmapAsPng(SKBitmap, string)
+    // Usage: KoreSkiaSharpBitmapOps.SaveBitmapAsPng(myBitmap, string)
     public static void SaveBitmapAsPng(SKBitmap bitmap, string filePath)
     {
         using (var image = bitmap.Encode(SKEncodedImageFormat.Png, 100))
@@ -89,6 +104,7 @@ public static class KoreSkiaSharpBitmapOps
 
     // --------------------------------------------------------------------------------------------
 
+    // Usage: KoreSkiaSharpBitmapOps.SaveBitmapAsWebp(myBitmap, string)
     public static void SaveBitmapAsWebp(SKBitmap bitmap, string filePath)
     {
         using (var image = bitmap.Encode(SKEncodedImageFormat.Webp, 100))
@@ -104,11 +120,11 @@ public static class KoreSkiaSharpBitmapOps
 
     // Combine a 2D grid of bitmaps into a single bitmap:
     // - Traverses the two dimensions of the input array of bitmaps
-    // - Uses the size of the first image, and assumes all are the same size
+    // - Uses the size of the first image, and assumes all are present and the same size
     // - Creates a working image of a multiplied up size, the copies the child images into it
     // - Resizes the final image to the required size
 
-    public static SKBitmap CombineBitmaps(SKBitmap[,] bitmaps, Kore2DGridSize Size)
+    public static SKBitmap CombineBitmaps(SKBitmap[,] bitmaps, Kore2DGridSize requiredSize)
     {
         // Create the array axis sizes
         int rows = bitmaps.GetLength(0);
@@ -120,11 +136,11 @@ public static class KoreSkiaSharpBitmapOps
         // Get the size of the first bitmap to use as a reference, and the combined size
         int imgHeight = bitmaps[0, 0].Height;
         int imgWidth = bitmaps[0, 0].Width;
-        int totalWidth = imgWidth * cols;
-        int totalHeight = imgHeight * rows;
+        int combinedWidth = imgWidth * cols;
+        int combinedHeight = imgHeight * rows;
 
-        SKBitmap combined = new SKBitmap(totalWidth, totalHeight);
-        using (SKCanvas canvas = new SKCanvas(combined))
+        SKBitmap combinedImage = new SKBitmap(combinedWidth, combinedHeight);
+        using (SKCanvas canvas = new SKCanvas(combinedImage))
         {
             canvas.Clear(SKColors.Transparent);
 
@@ -145,8 +161,8 @@ public static class KoreSkiaSharpBitmapOps
         }
 
         // Resize the combined bitmap to the specified size - Clean up the original combined bitmap
-        SKBitmap resizedCombined = ResizeImage(combined, Size.Width, Size.Height);
-        combined.Dispose();
+        SKBitmap resizedCombined = ResizeImage(combinedImage, requiredSize.Width, requiredSize.Height);
+        combinedImage.Dispose();
 
         // Return the resized combined bitmap
         return resizedCombined;
@@ -161,30 +177,30 @@ public static class KoreSkiaSharpBitmapOps
     // - dispose of the original bitmap to free up memory
     // - return the 2D array of bitmaps
 
-    public static SKBitmap[,] DivideBitmap(SKBitmap bitmap, Kore2DGridSize gridSize, Kore2DGridSize imageSize)
+    public static SKBitmap[,] DivideBitmap(SKBitmap bitmap, Kore2DGridSize outputGridSize, Kore2DGridSize outputImageSize)
     {
         // Calc the ideal image size based on the grid size and the image size
-        int imageWidth = gridSize.Width * imageSize.Width;
-        int imageHeight = gridSize.Height * imageSize.Height;
+        int imageWidth = outputGridSize.Width * outputImageSize.Width;
+        int imageHeight = outputGridSize.Height * outputImageSize.Height;
 
         // Use SKSamplingOptions instead of obsolete SKFilterQuality
         SKSamplingOptions sampling = new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear);
         SKBitmap resized = bitmap.Resize(new SKImageInfo(imageWidth, imageHeight), sampling);
 
         // Create the 2D array to hold the divided bitmaps
-        SKBitmap[,] result = new SKBitmap[gridSize.Height, gridSize.Width];
+        SKBitmap[,] result = new SKBitmap[outputGridSize.Height, outputGridSize.Width];
 
         // Copy the pixels from the resized bitmap into the 2D array
-        for (int row = 0; row < gridSize.Height; row++)
+        for (int row = 0; row < outputGridSize.Height; row++)
         {
-            for (int col = 0; col < gridSize.Width; col++)
+            for (int col = 0; col < outputGridSize.Width; col++)
             {
-                int x = col * imageSize.Width;
-                int y = row * imageSize.Height;
-                SKBitmap cell = new SKBitmap(imageSize.Width, imageSize.Height);
+                int x = col * outputImageSize.Width;
+                int y = row * outputImageSize.Height;
+                SKBitmap cell = new SKBitmap(outputImageSize.Width, outputImageSize.Height);
                 using (SKCanvas canvas = new SKCanvas(cell))
                 {
-                    canvas.DrawBitmap(resized, new SKRect(x, y, x + imageSize.Width, y + imageSize.Height));
+                    canvas.DrawBitmap(resized, new SKRect(x, y, x + outputImageSize.Width, y + outputImageSize.Height));
                 }
                 result[row, col] = cell;
             }

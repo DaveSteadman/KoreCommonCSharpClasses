@@ -16,6 +16,7 @@ namespace KoreCommon;
 
 public class KoreInt2DArray : KoreNumeric2DArray<int>
 {
+    public KoreInt2DArray() : base(0, 0) { } // Default constructor for empty array
     public KoreInt2DArray(int width, int height) : base(width, height) { }
     public KoreInt2DArray(int[,] initialData) : base(initialData) { }
     public KoreInt2DArray(KoreNumeric2DArray<int> other) : base(other) { }
@@ -23,6 +24,7 @@ public class KoreInt2DArray : KoreNumeric2DArray<int>
 
 public class KoreFloat2DArray : KoreNumeric2DArray<float>
 {
+    public KoreFloat2DArray() : base(0, 0) { } // Default constructor for empty array
     public KoreFloat2DArray(int width, int height) : base(width, height) { }
     public KoreFloat2DArray(float[,] initialData) : base(initialData) { }
     public KoreFloat2DArray(KoreNumeric2DArray<float> other) : base(other) { }
@@ -30,6 +32,7 @@ public class KoreFloat2DArray : KoreNumeric2DArray<float>
 
 public class KoreDouble2DArray : KoreNumeric2DArray<double>
 {
+    public KoreDouble2DArray() : base(0, 0) { } // Default constructor for empty array
     public KoreDouble2DArray(int width, int height) : base(width, height) { }
     public KoreDouble2DArray(double[,] initialData) : base(initialData) { }
     public KoreDouble2DArray(KoreNumeric2DArray<double> other) : base(other) { }
