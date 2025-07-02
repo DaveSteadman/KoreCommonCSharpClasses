@@ -1,4 +1,3 @@
-
 // global using KoreFloat2DArray  = KoreNumeric2DArray<float>;
 // global using KoreDouble2DArray = KoreNumeric2DArray<double>;
 
@@ -7,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Xml;
 
 namespace KoreCommon;
 
@@ -42,7 +42,9 @@ public class KoreDouble2DArray : KoreNumeric2DArray<double>
 
 public partial class KoreNumeric2DArray<T> where T : struct, INumber<T>
 {
+    // Note that is all design and accesses 0,0 is considered a top-left corner.
     private T[,] Data;
+
     public int Width { get; }
     public int Height { get; }
 
@@ -208,7 +210,7 @@ public partial class KoreNumeric2DArray<T> where T : struct, INumber<T>
     // --------------------------------------------------------------------------------------------
 
     // Get value from the grid, based on x,y fractions interpolated around the surrounding
-    // values.
+    // values. Corners are named for clarity: topLeft, topRight, bottomLeft, bottomRight.
 
     public T InterpolatedValue(T fractionx, T fractiony)
     {
@@ -225,19 +227,61 @@ public partial class KoreNumeric2DArray<T> where T : struct, INumber<T>
         T fx = fractionx * scaleX - T.CreateChecked(x);
         T fy = fractiony * scaleY - T.CreateChecked(y);
 
-        // Get surrounding values
-        T v00 = Data[x, y];
-        T v10 = Data[Math.Clamp(x + 1, 0, Width - 1), y];
-        T v01 = Data[x, Math.Clamp(y + 1, 0, Height - 1)];
-        T v11 = Data[Math.Clamp(x + 1, 0, Width - 1), Math.Clamp(y + 1, 0, Height - 1)];
+        // Get surrounding values (corners)
+        int minX = x;
+        int minY = y;
+        int maxX = Math.Clamp(x + 1, 0, Width - 1);
+        int maxY = Math.Clamp(y + 1, 0, Height - 1);
+        T topLeft     = Data[minX, minY];
+        T topRight    = Data[maxX, minY];
+        T bottomLeft  = Data[minX, maxY];
+        T bottomRight = Data[maxX, maxY];
 
         // Perform bilinear interpolation
-        T interpolatedValue = (T.One - fx) * (T.One - fy) * v00
-                            + fx * (T.One - fy) * v10
-                            + (T.One - fx) * fy * v01
-                            + fx * fy * v11;
+        T interpolatedValue = (T.One - fx) * (T.One - fy) * topLeft
+                            + fx * (T.One - fy) * topRight
+                            + (T.One - fx) * fy * bottomLeft
+                            + fx * fy * bottomRight;
 
         return interpolatedValue;
+    }
+
+    // Return a list of the values that would be used in the interpolation of a point.
+    // - This allows us to see, and importantly validate, the values that would be used for interpolation.
+
+    public List<T> InterpolationValues(T fractionx, T fractiony)
+    {
+        List<T> interpolatedValues = new List<T>();
+
+        // Calculate indices
+        T scaleX = T.CreateChecked(Width - 1);
+        T scaleY = T.CreateChecked(Height - 1);
+        int x = int.CreateChecked(fractionx * scaleX);
+        int y = int.CreateChecked(fractiony * scaleY);
+
+        x = Math.Clamp(x, 0, Width - 1);
+        y = Math.Clamp(y, 0, Height - 1);
+
+        // Calculate fractions for interpolation
+        T fx = fractionx * scaleX - T.CreateChecked(x);
+        T fy = fractiony * scaleY - T.CreateChecked(y);
+
+        // Get surrounding values (corners)
+        int minX = x;
+        int minY = y;
+        int maxX = Math.Clamp(x + 1, 0, Width - 1);
+        int maxY = Math.Clamp(y + 1, 0, Height - 1);
+        T topLeft     = Data[minX, minY];
+        T topRight    = Data[maxX, minY];
+        T bottomLeft  = Data[minX, maxY];
+        T bottomRight = Data[maxX, maxY];
+
+        interpolatedValues.Add(topLeft);
+        interpolatedValues.Add(topRight);
+        interpolatedValues.Add(bottomLeft);
+        interpolatedValues.Add(bottomRight);
+
+        return interpolatedValues;
     }
 
     // --------------------------------------------------------------------------------------------
