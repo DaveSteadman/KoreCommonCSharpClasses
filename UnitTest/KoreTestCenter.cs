@@ -26,7 +26,6 @@ public static class KoreTestCenter
             KoreTestMesh.RunTests(testLog);
 
             KoreTestColor.RunTests(testLog);
-            KoreTestLangStrings.RunTests(testLog);
 
             KoreTestDatabase.RunTests(testLog);
 

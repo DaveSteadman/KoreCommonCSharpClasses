@@ -93,7 +93,9 @@ public static class KoreWorldOps
     // MARK: Earth Radius
     // --------------------------------------------------------------------------------------------
 
-    public static double RadiusForLatitude(double latDegs)
+    // | Function to return the Earth's radius at a given latitude in meters.
+    // Usage: double surfaceRadius = KoreWorldOps.EllipsoidRadiusForLatitude(45.0);
+    public static double EllipsoidRadiusForLatitude(double latDegs)
     {
         // Get the absolute value of the latitude in degrees.
         double absLatDegs = Math.Abs(latDegs);

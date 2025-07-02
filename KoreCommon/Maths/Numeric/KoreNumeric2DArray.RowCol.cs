@@ -154,5 +154,6 @@ public partial class KoreNumeric2DArray<T> where T : struct, INumber<T>
         }
     }
 
-
 }
+
+

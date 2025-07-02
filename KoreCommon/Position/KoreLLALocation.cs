@@ -14,11 +14,14 @@ public struct KoreLLALocation
 
     public double LatRads { get; set; }
     public double LonRads { get; set; }
-    public double HeightM { get; set; } // Alt above EarthCentre
+    public double AltM { get; set; } // Alt - dependent on AltType Value
 
-    public enum HeightType { MSL, AGL, AGLMSL, AGLMSLAVG };
-    public HeightType HeightTypeValue { get; set; } = HeightType.MSL;
-
+    public enum AltType
+    {
+        MSL, // Mean Sea Level - default
+        AGL  // Above Ground Level
+    }
+    public AltType AltTypeValue { get; set; } = AltType.MSL;
 
     // --------------------------------------------------------------------------------------------
     // Additional simple accessors - adding units
@@ -34,6 +37,28 @@ public struct KoreLLALocation
         get { return LonRads * KoreConsts.RadsToDegsMultiplier; }
         set { LonRads = value * KoreConsts.DegsToRadsMultiplier; }
     }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: Altitude Accessors
+    // --------------------------------------------------------------------------------------------
+
+    // An altitude is made up of up to three components
+    // - Distance from Earth center to MSL - calculated from latitude
+    // - Distance from MSL to AGL - Sourced from a terrain elevation function
+    // - Distance from AGL to the point - The AltM value
+
+    private double EllipsoidMslAltM()
+    {
+        double surfaceRadius = KoreWorldOps.EllipsoidRadiusForLatitude(LatDegs);
+
+        if (AltTypeValue == AltType.MSL)
+            return surfaceRadius + AltM;
+        else
+            throw new InvalidOperationException("Cannot calculate MSL altitude when AltType is not MSL.");
+    }
+
+    private double EllipsoidRadiusM => KoreWorldOps.EllipsoidRadiusForLatitude(LatDegs);
+
     // public double AltMslKm // Alt above MSL
     // {
     //     get { return (RadiusM - KoreWorldConsts.EarthRadiusM) * KoreWorldConsts.MetresToKmMultiplier; }
@@ -50,10 +75,6 @@ public struct KoreLLALocation
     //     set { RadiusM = (value * KoreWorldConsts.KmToMetresMultiplier); }
     // }
 
-    public override string ToString()
-    {
-        return string.Format($"({LatDegs:F2}, {LonDegs:F2}, {HeightM:F2})");
-    }
 
     // --------------------------------------------------------------------------------------------
     // MARK: Constructors - different options and units
@@ -66,19 +87,19 @@ public struct KoreLLALocation
     {
         this.LatRads = laRads;
         this.LonRads = loRads;
-        this.HeightM = altM;
+        this.AltM = altM;
     }
 
     public KoreLLALocation(double laRads, double loRads)
     {
         this.LatRads = laRads;
         this.LonRads = loRads;
-        this.HeightM = 0;
+        this.AltM = 0;
     }
 
     public static KoreLLALocation Zero
     {
-        get { return new KoreLLALocation { LatRads = 0.0, LonRads = 0.0, HeightM = 0.0 }; }
+        get { return new KoreLLALocation { LatRads = 0.0, LonRads = 0.0, AltM = 0.0 }; }
     }
 
     // Function to return an LLA position on the ground, either using the default MSL value, or an optional elevation above MSL in metres.
@@ -87,23 +108,29 @@ public struct KoreLLALocation
     {
         double newRadiusM = 0;
 
-        switch(HeightTypeValue)
+        switch (AltTypeValue)
         {
-            case HeightType.MSL:
-                newRadiusM = KoreWorldConsts.EarthRadiusM + HeightM;
+            case AltType.MSL:
+                newRadiusM = KoreWorldConsts.EarthRadiusM + AltM;
                 break;
-            case HeightType.AGL:
-                newRadiusM = KoreWorldConsts.EarthRadiusM + HeightM;
-                break;
-            case HeightType.AGLMSL:
-                newRadiusM = KoreWorldConsts.EarthRadiusM + HeightM;
+            case AltType.AGL:
+                newRadiusM = KoreWorldConsts.EarthRadiusM + AltM;
                 break;
             default:
-                newRadiusM = KoreWorldConsts.EarthRadiusM + HeightM;
+                newRadiusM = KoreWorldConsts.EarthRadiusM + AltM;
                 break;
         }
 
         return new KoreLLAPoint(LatRads, LonRads) { RadiusM = newRadiusM };
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: Utility
+    // --------------------------------------------------------------------------------------------
+
+    public override string ToString()
+    {
+        return string.Format($"({LatDegs:F3}, {LonDegs:F3}, {AltM:F2})");
     }
 
 }
