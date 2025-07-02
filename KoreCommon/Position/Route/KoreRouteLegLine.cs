@@ -6,7 +6,7 @@ namespace KoreCommon;
 
 public class KoreRouteLegLine : IKoreRouteLeg
 {
-    private readonly double speedMps;
+    //private readonly double speedMps;
 
     // --------------------------------------------------------------------------------------------
     // MARK: Constructors
