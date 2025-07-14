@@ -19,10 +19,6 @@ public static class KoreStringListOps
     public static List<string> RemoveAfterLast(List<string> list, string after) => list.Select(item => item.Contains(after)  ? item.Substring(0, item.LastIndexOf(after)) : item).ToList();
     public static List<string> RemoveBefore(List<string> list, string before)   => list.Select(item => item.Contains(before) ? item.Substring(item.IndexOf(before) + before.Length) : item).ToList();
 
-    // Extract content after or before the last occurrence of a specified string (e.g. getting file extensions with "." or filenames from paths with "/" or "\\")
-    public static List<string> StringAfterLast(List<string> list, string after) => list.Select(item => item.Contains(after) ? item.Substring(item.LastIndexOf(after) + after.Length) : item).ToList();
-    public static List<string> StringBeforeLast(List<string> list, string before) => list.Select(item => item.Contains(before) ? item.Substring(0, item.LastIndexOf(before)) : item).ToList();
-
     // --------------------------------------------------------------------------------------------
     // MARK: Replace
     // --------------------------------------------------------------------------------------------
