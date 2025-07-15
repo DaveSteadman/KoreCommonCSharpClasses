@@ -79,6 +79,7 @@ public struct KoreXYVector
     public static KoreXYVector Diff(KoreXYVector a, KoreXYVector b) => new KoreXYVector(a.X - b.X, a.Y - b.Y);
     public static KoreXYVector Scale(KoreXYVector a, double b) => new KoreXYVector(a.X * b, a.Y * b);
 
+    // Usage: bool matching = KoreXYVector.EqualsWithinTolerance(a, b, tolerance)
     public static bool EqualsWithinTolerance(KoreXYVector a, KoreXYVector b, double tolerance = KoreConsts.ArbitraryMinDouble)
     {
         return KoreValueUtils.EqualsWithinTolerance(a.X, b.X, tolerance) && KoreValueUtils.EqualsWithinTolerance(a.Y, b.Y, tolerance);

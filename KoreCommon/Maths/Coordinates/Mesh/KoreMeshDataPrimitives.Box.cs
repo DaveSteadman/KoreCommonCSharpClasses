@@ -16,14 +16,14 @@ public static partial class KoreMeshDataPrimitives
         var mesh = new KoreMeshData();
 
         // Define the vertices of the cube
-        int v0 = mesh.AddPoint(new KoreXYZVector(-size, -size, -size), null, color);
-        int v1 = mesh.AddPoint(new KoreXYZVector(size, -size, -size), null, color);
-        int v2 = mesh.AddPoint(new KoreXYZVector(size, size, -size), null, color);
-        int v3 = mesh.AddPoint(new KoreXYZVector(-size, size, -size), null, color);
-        int v4 = mesh.AddPoint(new KoreXYZVector(-size, -size, size), null, color);
-        int v5 = mesh.AddPoint(new KoreXYZVector(size, -size, size), null, color);
-        int v6 = mesh.AddPoint(new KoreXYZVector(size, size, size), null, color);
-        int v7 = mesh.AddPoint(new KoreXYZVector(-size, size, size), null, color);
+        int v0 = mesh.AddVertex(new KoreXYZVector(-size, -size, -size), null, color);
+        int v1 = mesh.AddVertex(new KoreXYZVector(size, -size, -size), null, color);
+        int v2 = mesh.AddVertex(new KoreXYZVector(size, size, -size), null, color);
+        int v3 = mesh.AddVertex(new KoreXYZVector(-size, size, -size), null, color);
+        int v4 = mesh.AddVertex(new KoreXYZVector(-size, -size, size), null, color);
+        int v5 = mesh.AddVertex(new KoreXYZVector(size, -size, size), null, color);
+        int v6 = mesh.AddVertex(new KoreXYZVector(size, size, size), null, color);
+        int v7 = mesh.AddVertex(new KoreXYZVector(-size, size, size), null, color);
 
         // Lines
         mesh.AddLine(v0, v1, color, color);
@@ -64,16 +64,16 @@ public static partial class KoreMeshDataPrimitives
 
         // Define 8 unique vertices for the rectangular box
         // Front face vertices:
-        int v0 = mesh.AddPoint(new KoreXYZVector(-sizeLeft, -sizeDown, -sizeFront), null, color); // Lower left front
-        int v1 = mesh.AddPoint(new KoreXYZVector(sizeRight, -sizeDown, -sizeFront), null, color); // Lower right front
-        int v2 = mesh.AddPoint(new KoreXYZVector(sizeRight, sizeUp, -sizeFront), null, color); // Upper right front
-        int v3 = mesh.AddPoint(new KoreXYZVector(-sizeLeft, sizeUp, -sizeFront), null, color); // Upper left front
+        int v0 = mesh.AddVertex(new KoreXYZVector(-sizeLeft, -sizeDown, -sizeFront), null, color); // Lower left front
+        int v1 = mesh.AddVertex(new KoreXYZVector(sizeRight, -sizeDown, -sizeFront), null, color); // Lower right front
+        int v2 = mesh.AddVertex(new KoreXYZVector(sizeRight, sizeUp, -sizeFront), null, color); // Upper right front
+        int v3 = mesh.AddVertex(new KoreXYZVector(-sizeLeft, sizeUp, -sizeFront), null, color); // Upper left front
 
         // Back face vertices:
-        int v4 = mesh.AddPoint(new KoreXYZVector(-sizeLeft, -sizeDown, sizeBack), null, color); // Lower left back
-        int v5 = mesh.AddPoint(new KoreXYZVector(sizeRight, -sizeDown, sizeBack), null, color); // Lower right back
-        int v6 = mesh.AddPoint(new KoreXYZVector(sizeRight, sizeUp, sizeBack), null, color); // Upper right back
-        int v7 = mesh.AddPoint(new KoreXYZVector(-sizeLeft, sizeUp, sizeBack), null, color); // Upper left back
+        int v4 = mesh.AddVertex(new KoreXYZVector(-sizeLeft, -sizeDown, sizeBack), null, color); // Lower left back
+        int v5 = mesh.AddVertex(new KoreXYZVector(sizeRight, -sizeDown, sizeBack), null, color); // Lower right back
+        int v6 = mesh.AddVertex(new KoreXYZVector(sizeRight, sizeUp, sizeBack), null, color); // Upper right back
+        int v7 = mesh.AddVertex(new KoreXYZVector(-sizeLeft, sizeUp, sizeBack), null, color); // Upper left back
 
         // Define edges (lines)
         // Lines

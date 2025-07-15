@@ -37,7 +37,7 @@ public static partial class KoreMeshDataPrimitives
                 var vertex = new KoreXYZVector(x, y, z);
                 var normal = (radius != 0) ? vertex / radius : new KoreXYZVector(0, 1, 0);
 
-                int idx = mesh.AddPoint(vertex, normal, color);
+                int idx = mesh.AddVertex(vertex, normal, color);
                 indexMap.Add(idx);
             }
         }

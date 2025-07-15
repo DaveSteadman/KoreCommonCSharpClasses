@@ -36,8 +36,8 @@ public static partial class KoreMeshDataPrimitives
         KoreXYZVector perp2 = KoreXYZVector.CrossProduct(axisDir, perp1).Normalize();
 
         // Add apex and base center points
-        int idxApex = mesh.AddPoint(apexPoint, null, color);
-        int idxBaseCenter = mesh.AddPoint(baseCenterPoint, null, color);
+        int idxApex = mesh.AddVertex(apexPoint, null, color);
+        int idxBaseCenter = mesh.AddVertex(baseCenterPoint, null, color);
 
         // Generate base points in the plane perpendicular to axisDir
         List<int> basePointIndices = new List<int>();
@@ -46,7 +46,7 @@ public static partial class KoreMeshDataPrimitives
             double angle = 2 * Math.PI * i / numRadialPoints;
             KoreXYZVector offset = (perp1 * (baseRadius * Math.Cos(angle))) + (perp2 * (baseRadius * Math.Sin(angle)));
             KoreXYZVector basePoint = baseCenterPoint + offset;
-            int idx = mesh.AddPoint(basePoint, null, color);
+            int idx = mesh.AddVertex(basePoint, null, color);
             basePointIndices.Add(idx);
         }
 

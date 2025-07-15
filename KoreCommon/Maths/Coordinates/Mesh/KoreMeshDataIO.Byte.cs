@@ -20,25 +20,35 @@ public static partial class KoreMeshDataIO
 
         // Vertices
         bw.Write((int)mesh.Vertices.Count);
-        foreach (var v in mesh.Vertices)
+        foreach (var kvp in mesh.Vertices)
         {
+            int vertexId = kvp.Key;
+            KoreXYZVector v = kvp.Value;
+            
+            bw.Write((int)vertexId);
             bw.Write((double)v.X);
             bw.Write((double)v.Y);
             bw.Write((double)v.Z);
         }
-
+    
         // Lines
         bw.Write((int)mesh.Lines.Count);
-        foreach (var l in mesh.Lines)
+        foreach (var kvp in mesh.Lines)
         {
+            int lineId = kvp.Key;
+            KoreMeshLine l = kvp.Value;
+            bw.Write((int)lineId);
             bw.Write((int)l.A);
             bw.Write((int)l.B);
         }
 
         // Triangles
         bw.Write((int)mesh.Triangles.Count);
-        foreach (var t in mesh.Triangles)
+        foreach (var kvp in mesh.Triangles)
         {
+            int triangleId = kvp.Key;
+            KoreMeshTriangle t = kvp.Value;
+            bw.Write((int)triangleId);
             bw.Write((int)t.A);
             bw.Write((int)t.B);
             bw.Write((int)t.C);
@@ -46,8 +56,11 @@ public static partial class KoreMeshDataIO
 
         // Normals
         bw.Write((int)mesh.Normals.Count);
-        foreach (var n in mesh.Normals)
+        foreach (var kvp in mesh.Normals)
         {
+            int normalId = kvp.Key;
+            KoreXYZVector n = kvp.Value;
+            bw.Write((int)normalId);
             bw.Write((double)n.X);
             bw.Write((double)n.Y);
             bw.Write((double)n.Z);
@@ -55,31 +68,46 @@ public static partial class KoreMeshDataIO
 
         // UVs
         bw.Write((int)mesh.UVs.Count);
-        foreach (var uv in mesh.UVs)
+        foreach (var kvp in mesh.UVs)
         {
+            int uvId = kvp.Key;
+            KoreXYVector uv = kvp.Value;
+            bw.Write((int)uvId);
             bw.Write((double)uv.X);
             bw.Write((double)uv.Y);
         }
 
         // Vertex colors
         bw.Write((int)mesh.VertexColors.Count);
-        foreach (var c in mesh.VertexColors)
-            WriteColor(bw, c);
+        foreach (var kvp in mesh.VertexColors)
+        {
+            int vertexId = kvp.Key;
+            KoreColorRGB color = kvp.Value;
 
+            bw.Write((int)vertexId);
+            WriteColor(bw, color);
+        }
+        
         // Line colors
         bw.Write((int)mesh.LineColors.Count);
-        foreach (var lc in mesh.LineColors)
+        foreach (var kvp in mesh.LineColors)
         {
-            bw.Write((int)lc.Index);
+            int lineId = kvp.Key;
+            KoreMeshLineColour lc = kvp.Value;
+            
+            bw.Write((int)lineId);
             WriteColor(bw, lc.StartColor);
             WriteColor(bw, lc.EndColor);
         }
 
         // Triangle colors
         bw.Write((int)mesh.TriangleColors.Count);
-        foreach (var tc in mesh.TriangleColors)
+        foreach (var kvp in mesh.TriangleColors)
         {
-            bw.Write((int)tc.Index);
+            int triangleId = kvp.Key;
+            KoreMeshTriangleColour tc = kvp.Value;
+            
+            bw.Write((int)triangleId);
             WriteColor(bw, tc.Color);
         }
 
@@ -101,55 +129,58 @@ public static partial class KoreMeshDataIO
         int vCount = br.ReadInt32();
         for (int i = 0; i < vCount; i++)
         {
+            int vertexId = br.ReadInt32();
             double x = br.ReadDouble();
             double y = br.ReadDouble();
             double z = br.ReadDouble();
-            mesh.Vertices.Add(new KoreXYZVector(x, y, z));
+            mesh.Vertices[vertexId] = new KoreXYZVector(x, y, z);
         }
 
         // Lines
         int lCount = br.ReadInt32();
         for (int i = 0; i < lCount; i++)
         {
+            int lineId = br.ReadInt32();
             int a = br.ReadInt32();
             int b = br.ReadInt32();
-            mesh.AddLine(a, b);
+            mesh.Lines[lineId] = new KoreMeshLine(a, b);
         }
 
         // Triangles
         int tCount = br.ReadInt32();
         for (int i = 0; i < tCount; i++)
         {
+            int triangleId = br.ReadInt32();
             int a = br.ReadInt32();
             int b = br.ReadInt32();
             int c = br.ReadInt32();
-            mesh.AddTriangle(a, b, c);
+            mesh.Triangles[triangleId] = new KoreMeshTriangle(a, b, c);
         }
 
         // Normals
         int nCount = br.ReadInt32();
         for (int i = 0; i < nCount; i++)
-            mesh.AddNormal(new KoreXYZVector(br.ReadDouble(), br.ReadDouble(), br.ReadDouble()));
+            mesh.Normals[br.ReadInt32()] = new KoreXYZVector(br.ReadDouble(), br.ReadDouble(), br.ReadDouble());
 
         // UVs
         int uvCount = br.ReadInt32();
         for (int i = 0; i < uvCount; i++)
-            mesh.AddUV(new KoreXYVector(br.ReadDouble(), br.ReadDouble()));
+            mesh.UVs[br.ReadInt32()] = new KoreXYVector(br.ReadDouble(), br.ReadDouble());
 
         // Vertex colors
         int vcCount = br.ReadInt32();
         for (int i = 0; i < vcCount; i++)
-            mesh.VertexColors.Add(ReadColor(br));
+            mesh.VertexColors[br.ReadInt32()] = ReadColor(br);
 
         // Line colors
         int lcCount = br.ReadInt32();
         for (int i = 0; i < lcCount; i++)
-            mesh.SetLineColor(br.ReadInt32(), ReadColor(br), ReadColor(br));
+            mesh.LineColors[br.ReadInt32()] = new KoreMeshLineColour(ReadColor(br), ReadColor(br));
 
         // Triangle colors
         int tcCount = br.ReadInt32();
         for (int i = 0; i < tcCount; i++)
-            mesh.SetTriangleColor(br.ReadInt32(), ReadColor(br));
+            mesh.TriangleColors[br.ReadInt32()] = new KoreMeshTriangleColour(ReadColor(br));
 
         return mesh;
     }

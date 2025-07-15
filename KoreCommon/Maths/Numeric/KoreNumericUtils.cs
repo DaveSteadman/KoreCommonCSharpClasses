@@ -164,5 +164,12 @@ public static class KoreNumericUtils
         if (c > max) max = c;
         return max;
     }
+    
+    public static T Mid3<T>(T a, T b, T c) where T : INumber<T>
+    {
+        if ((a < b && a > c) || (a > b && a < c)) return a;
+        if ((b < a && b > c) || (b > a && b < c)) return b;
+        return c; // if neither is mid, then c must be mid
+    }
 
 }

@@ -52,8 +52,8 @@ public static partial class KoreMeshDataPrimitives
                 double radiusFraction = (radius - minRadius) / (maxRadius - minRadius);
                 var color = colorRange.GetColor((float)radiusFraction);
 
-                int idx = mesh.AddPoint(worldPosition, normal, color);
-                mesh.AddUV(new KoreXYVector(uvX, uvY));
+                int idx = mesh.AddVertex(worldPosition, normal, color);
+                mesh.SetUV(idx, new KoreXYVector(uvX, uvY));
 
                 vertexIndices.Add(idx);
             }

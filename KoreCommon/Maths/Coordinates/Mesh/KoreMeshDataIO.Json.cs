@@ -68,59 +68,59 @@ public static partial class KoreMeshDataIO
         var root = doc.RootElement;
 
         // --- Vertices ---
-        if (root.TryGetProperty("vertices", out var vertsProp) && vertsProp.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("vertices", out var vertsProp) && vertsProp.ValueKind == JsonValueKind.Object)
         {
-            foreach (var v in vertsProp.EnumerateArray())
-                mesh.AddPoint(Vector3Converter.ReadVector3(v));
+            foreach (var v in vertsProp.EnumerateObject())
+                mesh.Vertices[int.Parse(v.Name)] = Vector3Converter.ReadVector3(v.Value);
         }
 
         // --- Lines ---
-        if (root.TryGetProperty("lines", out var linesProp) && linesProp.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("lines", out var linesProp) && linesProp.ValueKind == JsonValueKind.Object)
         {
-            foreach (var l in linesProp.EnumerateArray())
-                mesh.AddLine(LineConverter.ReadLine(l));
+            foreach (var l in linesProp.EnumerateObject())
+                mesh.Lines[int.Parse(l.Name)] = LineConverter.ReadLine(l.Value);
         }
 
         // --- Triangles ---
-        if (root.TryGetProperty("triangles", out var trisProp) && trisProp.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("triangles", out var trisProp) && trisProp.ValueKind == JsonValueKind.Object)
         {
-            foreach (var tri in trisProp.EnumerateArray())
-                mesh.AddTriangle(TriangleConverter.ReadTriangle(tri));
+            foreach (var tri in trisProp.EnumerateObject())
+                mesh.Triangles[int.Parse(tri.Name)] = TriangleConverter.ReadTriangle(tri.Value);
         }
 
         // --- Normals ---
-        if (root.TryGetProperty("normals", out var normalsProp) && normalsProp.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("normals", out var normalsProp) && normalsProp.ValueKind == JsonValueKind.Object)
         {
-            foreach (var n in normalsProp.EnumerateArray())
-                mesh.AddNormal(Vector3Converter.ReadVector3(n));
+            foreach (var n in normalsProp.EnumerateObject())
+                mesh.Normals[int.Parse(n.Name)] = Vector3Converter.ReadVector3(n.Value);
         }
 
         // --- UVs ---
-        if (root.TryGetProperty("uvs", out var uvsProp) && uvsProp.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("uvs", out var uvsProp) && uvsProp.ValueKind == JsonValueKind.Object)
         {
-            foreach (var uv in uvsProp.EnumerateArray())
-                mesh.AddUV(Vector2Converter.ReadVector2(uv));
+            foreach (var uv in uvsProp.EnumerateObject())
+                mesh.UVs[int.Parse(uv.Name)] = Vector2Converter.ReadVector2(uv.Value);
         }
 
         // --- VertexColors ---
-        if (root.TryGetProperty("vertexColors", out var colorsProp) && colorsProp.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("vertexColors", out var colorsProp) && colorsProp.ValueKind == JsonValueKind.Object)
         {
-            foreach (var c in colorsProp.EnumerateArray())
-                mesh.AddVertexColor(ColorConverter.ReadColor(c));
+            foreach (var c in colorsProp.EnumerateObject())
+                mesh.VertexColors[int.Parse(c.Name)] = ColorConverter.ReadColor(c.Value);
         }
 
         // --- LineColors ---
-        if (root.TryGetProperty("lineColors", out var lineColorsProp) && lineColorsProp.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("lineColors", out var lineColorsProp) && lineColorsProp.ValueKind == JsonValueKind.Object)
         {
-            foreach (var c in lineColorsProp.EnumerateArray())
-                mesh.SetLineColor(KoreMeshLineColourConverter.ReadLineColour(c));
+            foreach (var c in lineColorsProp.EnumerateObject())
+                mesh.LineColors[int.Parse(c.Name)] = KoreMeshLineColourConverter.ReadLineColour(c.Value);
         }
 
         // --- TriangleColors ---
-        if (root.TryGetProperty("triangleColors", out var triangleColorsProp) && triangleColorsProp.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("triangleColors", out var triangleColorsProp) && triangleColorsProp.ValueKind == JsonValueKind.Object)
         {
-            foreach (var c in triangleColorsProp.EnumerateArray())
-                mesh.SetTriangleColor(KoreMeshTriangleColourConverter.ReadTriangleColour(c));
+            foreach (var c in triangleColorsProp.EnumerateObject())
+                mesh.TriangleColors[int.Parse(c.Name)] = KoreMeshTriangleColourConverter.ReadTriangleColour(c.Value);
         }
 
         return mesh;
@@ -302,7 +302,7 @@ public static partial class KoreMeshDataIO
 
         public override void Write(Utf8JsonWriter writer, KoreMeshLineColour value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue($"{idName}: {value.Index}, {startColorName}: {KoreColorIO.RBGtoHexStringShort(value.StartColor)}, {endColorName}: {KoreColorIO.RBGtoHexStringShort(value.EndColor)}");
+            writer.WriteStringValue($"{startColorName}: {KoreColorIO.RBGtoHexStringShort(value.StartColor)}, {endColorName}: {KoreColorIO.RBGtoHexStringShort(value.EndColor)}");
         }
 
         public static KoreMeshLineColour ReadLineColour(JsonElement el)
@@ -314,20 +314,19 @@ public static partial class KoreMeshDataIO
             if (!string.IsNullOrEmpty(str))
             {
                 var parts = str.Split(',');
-                if (parts.Length != 3) throw new FormatException($"Invalid KoreMeshLineColour string format. {parts}.");
-
-                int lineIndex = int.Parse(parts[0].Split(':')[1].Trim());
-                string startColorStr = parts[1].Split(':')[1].Trim();
-                string endColorStr = parts[2].Split(':')[1].Trim();
+                if (parts.Length != 2) throw new FormatException($"Invalid KoreMeshLineColour string format. {str}.");
+    
+                string startColorStr = parts[0].Split(':')[1].Trim();
+                string endColorStr   = parts[1].Split(':')[1].Trim();
 
                 //Console.WriteLine($"KoreMeshLineColourConverter: ReadLineColour: lineIndex: {lineIndex}, startColorStr: {startColorStr}, endColorStr: {endColorStr}");
 
                 KoreColorRGB startColor = KoreColorIO.HexStringToRGB(startColorStr);
-                KoreColorRGB endColor = KoreColorIO.HexStringToRGB(endColorStr);
+                KoreColorRGB endColor   = KoreColorIO.HexStringToRGB(endColorStr);
 
-                return new KoreMeshLineColour(lineIndex, startColor, endColor);
+                return new KoreMeshLineColour(startColor, endColor);
             }
-            return new KoreMeshLineColour(0, KoreColorRGB.White, KoreColorRGB.White);
+            return new KoreMeshLineColour(KoreColorRGB.White, KoreColorRGB.White);
         }
     }
 
@@ -345,7 +344,7 @@ public static partial class KoreMeshDataIO
 
         public override void Write(Utf8JsonWriter writer, KoreMeshTriangleColour value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue($"{idName}: {value.Index}, {colorName}: {KoreColorIO.RBGtoHexStringShort(value.Color)}");
+            writer.WriteStringValue($"{colorName}: {KoreColorIO.RBGtoHexStringShort(value.Color)}");
         }
 
         public static KoreMeshTriangleColour ReadTriangleColour(JsonElement el)
@@ -356,17 +355,19 @@ public static partial class KoreMeshDataIO
             // split by comma
             if (!string.IsNullOrEmpty(str))
             {
-                var parts = str.Split(',');
-                if (parts.Length != 2) throw new FormatException("Invalid KoreMeshTriangle string format.");
+                var parts = str.Split(':');
+                // if (parts.Length != 2) throw new FormatException("Invalid KoreMeshTriangle string format.");
 
-                int triIndex = int.Parse(parts[0].Split(':')[1].Trim());
-                string triColorStr = parts[1].Split(':')[1].Trim();
+                if (parts[0] != colorName)
+                    throw new FormatException($"Invalid KoreMeshTriangleColour string format. Expected '{colorName}' but got '{parts[0]}'.");
+                    
+                string triColorStr = parts[1].Trim();
 
                 KoreColorRGB triColor = KoreColorIO.HexStringToRGB(triColorStr);
 
-                return new KoreMeshTriangleColour(triIndex, triColor);
+                return new KoreMeshTriangleColour(triColor);
             }
-            return new KoreMeshTriangleColour(0, KoreColorRGB.White);
+            return new KoreMeshTriangleColour(KoreColorRGB.White);
         }
     }
 }

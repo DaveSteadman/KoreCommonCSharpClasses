@@ -28,25 +28,14 @@ class Program
         string fullReport = testres.FullReport();
         string failReport = testres.FailReport();
 
-
-
-
-
         Console.WriteLine("------------------------------------------------------------------------");
         if (testres.OverallPass())
             Console.WriteLine(fullReport);
         else
-            Console.WriteLine(failReport);
+            Console.WriteLine(fullReport);
         Console.WriteLine("------------------------------------------------------------------------");
         Console.WriteLine(testres.OneLineReport());
         Console.WriteLine("------------------------------------------------------------------------");
 
-
-
-
-
     }
-
-
-
 }
