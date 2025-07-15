@@ -131,6 +131,9 @@ public partial class KoreMeshData
     // Function to examine the vertex list, and remove any orphaned or duplicate lines, triangles, and colors.
     public void MakeValid()
     {
+        RemoveOrphanedPoints();
+        RemoveDuplicatePoints();
+
         RemoveOrphanedLines();
         RemoveDuplicateLines();
 
@@ -218,61 +221,6 @@ public partial class KoreMeshData
 
     // --------------------------------------------------------------------------------------------
 
-    public void RemoveOrphanedLines()
-    {
-        // Remove lines that reference vertices that no longer exist
-        Lines.RemoveAll(line => line.A < 0 || line.A >= Vertices.Count || line.B < 0 || line.B >= Vertices.Count);
-    }
-
-    public void RemoveDuplicateLines()
-    {
-        // Remove duplicate lines based on their vertex indices
-        var uniqueLines = new HashSet<(int, int)>();
-        Lines.RemoveAll(line => !uniqueLines.Add((Math.Min(line.A, line.B), Math.Max(line.A, line.B))));
-    }
-
-    public void RemoveOrphanedTriangles()
-    {
-        // Remove triangles that reference vertices that no longer exist
-        Triangles.RemoveAll(triangle => triangle.A < 0 || triangle.A >= Vertices.Count ||
-                                          triangle.B < 0 || triangle.B >= Vertices.Count ||
-                                          triangle.C < 0 || triangle.C >= Vertices.Count);
-    }
-
-    public void RemoveDuplicateTriangles()
-    {
-        // Remove duplicate triangles based on their vertex indices
-        var uniqueTriangles = new HashSet<(int, int, int)>();
-        Triangles.RemoveAll(triangle => !uniqueTriangles.Add((Math.Min(triangle.A, Math.Min(triangle.B, triangle.C)),
-                                                              Math.Max(Math.Min(triangle.A, triangle.B), Math.Min(triangle.B, triangle.C)),
-                                                              Math.Max(triangle.A, Math.Max(triangle.B, triangle.C)))));
-    }
-
-    public void RemoveOrphanedLineColors()
-    {
-        // Remove line colors that reference lines that no longer exist
-        LineColors.RemoveAll(lineColor => lineColor.Index < 0 || lineColor.Index >= Lines.Count);
-    }
-
-    public void RemoveDuplicateLineColors()
-    {
-        // Remove duplicate line colors based on their index
-        var uniqueLineColors = new HashSet<int>();
-        LineColors.RemoveAll(lineColor => !uniqueLineColors.Add(lineColor.Index));
-    }
-
-    public void RemoveOrphanedTriangleColors()
-    {
-        // Remove triangle colors that reference triangles that no longer exist
-        TriangleColors.RemoveAll(triangleColor => triangleColor.Index < 0 || triangleColor.Index >= Triangles.Count);
-    }
-
-    public void RemoveDuplicateTriangleColors()
-    {
-        // Remove duplicate triangle colors based on their index
-        var uniqueTriangleColors = new HashSet<int>();
-        TriangleColors.RemoveAll(triangleColor => !uniqueTriangleColors.Add(triangleColor.Index));
-    }
 
     // --------------------------------------------------------------------------------------------
     // MARK: Points
