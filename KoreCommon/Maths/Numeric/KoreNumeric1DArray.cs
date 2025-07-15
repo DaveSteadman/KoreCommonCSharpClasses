@@ -135,6 +135,8 @@ public class KoreNumeric1DArray<T> : IEnumerable<T> where T : struct, INumber<T>
         _data[Length - 1] = value;
     }
 
+    public void Add(T value) => Append(value);
+
     public void RemoveAtIndex(int index)
     {
         if (index < 0 || index >= Length)

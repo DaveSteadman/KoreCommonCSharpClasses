@@ -97,7 +97,7 @@ public static class KoreTestMath
 
     public static void TestFloat1DArray_Basics(KoreTestLog testLog)
     {
-        KoreFloat1DArray array = new KoreFloat1DArray(5);
+        KoreNumeric1DArray<float> array = new KoreNumeric1DArray<float>(5);
         array[0] = 1.0f;
         array[1] = 2.0f;
         array[2] = 3.0f;
