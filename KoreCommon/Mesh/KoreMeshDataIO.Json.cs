@@ -14,7 +14,6 @@ namespace KoreCommon;
 
 public static partial class KoreMeshDataIO
 {
-    static string idName         = "id";
     static string startColorName = "start";
     static string endColorName   = "end";
     static string colorName      = "color";

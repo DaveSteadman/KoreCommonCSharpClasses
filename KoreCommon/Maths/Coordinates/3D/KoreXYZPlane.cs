@@ -5,7 +5,7 @@ namespace KoreCommon;
 public struct KoreXYZPlane
 {
     // Three points defining the plane
-    public KoreXYZPoint PntOrigin { get; }
+    public KoreXYZPoint  PntOrigin { get; }
     public KoreXYZVector VecNormal { get; }
     public KoreXYZVector VecX { get; }
     public KoreXYZVector VecY { get; }
@@ -19,8 +19,8 @@ public struct KoreXYZPlane
     {
         PntOrigin = pO;
         VecNormal = vN;
-        VecX = vX;
-        VecY = vY;
+        VecX      = vX;
+        VecY      = vY;
     }
 
     // ---------------------------------------------------------------------------------------------
