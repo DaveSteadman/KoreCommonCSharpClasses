@@ -112,7 +112,7 @@ public partial class KoreMeshData
         }
 
         // Now loop through the vertices and remove any that are not in the used set
-        foreach (var key in Vertices.Keys.ToList())
+        foreach (var key in Vertices.Keys)
         {
             if (!used.Contains(key))
                 Vertices.Remove(key);
@@ -145,7 +145,7 @@ public partial class KoreMeshData
         // Loop through the Normals dictionary
         foreach (var kvp in Normals)
         {
-            int           normalId = kvp.Key;
+            int normalId = kvp.Key;
             //KoreXYZVector normal   = kvp.Value;
 
             if (!Vertices.ContainsKey(normalId))
@@ -174,7 +174,51 @@ public partial class KoreMeshData
                 Normals[vertexId] = fallback;
         }
     }
-    
+
+    // Create a normal for a vertex based on the first triangle that contains that vertex
+    public void SetNormalFromFirstTriangle(int vertexId)
+    {
+        // Check if the vertex exists
+        if (!Vertices.ContainsKey(vertexId))
+            return;
+
+        // Find the first triangle that contains this vertex
+        foreach (var kvp in Triangles)
+        {
+            int triangleId = kvp.Key;
+            KoreMeshTriangle triangle = kvp.Value;
+
+            // Check if this triangle contains our vertex
+            if (triangle.A == vertexId || triangle.B == vertexId || triangle.C == vertexId)
+            {
+                // Get the three vertices of this triangle
+                if (!Vertices.ContainsKey(triangle.A) || 
+                    !Vertices.ContainsKey(triangle.B) || 
+                    !Vertices.ContainsKey(triangle.C))
+                    continue; // Skip broken triangles
+
+                KoreXYZVector a = Vertices[triangle.A];
+                KoreXYZVector b = Vertices[triangle.B];
+                KoreXYZVector c = Vertices[triangle.C];
+
+                // Calculate the face normal using cross product (same as AddIsolatedTriangle)
+                KoreXYZVector ab = b - a;  // Vector from A to B
+                KoreXYZVector ac = c - a;  // Vector from A to C
+                
+                // Cross product gives us the face normal (right-hand rule)
+                KoreXYZVector faceNormal = KoreXYZVector.CrossProduct(ab, ac);
+                
+                // Normalize and invert the face normal (matching AddIsolatedTriangle behavior)
+                faceNormal = faceNormal.Normalize();
+                faceNormal = faceNormal.Invert();
+
+                // Set the normal for this vertex
+                Normals[vertexId] = faceNormal;
+                return; // We found the first triangle, so we're done
+            }
+        }
+    }
+
     // --------------------------------------------------------------------------------------------
     // MARK: UVs
     // --------------------------------------------------------------------------------------------
@@ -385,5 +429,6 @@ public partial class KoreMeshData
             }
         }
     }
+
 
 }

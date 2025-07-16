@@ -280,6 +280,32 @@ public partial class KoreMeshData
         return triId;
     }
 
+    // Add an isolated triangle with automatically calculated normals for sharp edges.
+    // Creates three separate vertices (no sharing) with proper face normals for crisp rendering.
+    public int AddIsolatedTriangle(KoreXYZVector a, KoreXYZVector b, KoreXYZVector c, 
+        KoreColorRGB? vertexColor = null, KoreColorRGB? triangleColor = null)
+    {
+        // Calculate the face normal using cross product
+        KoreXYZVector ab = b - a;  // Vector from A to B
+        KoreXYZVector ac = c - a;  // Vector from A to C
+        
+        // Cross product gives us the face normal (right-hand rule)
+        KoreXYZVector faceNormal = KoreXYZVector.CrossProduct(ab, ac);
+        
+        // Normalize the face normal using the built-in method
+        faceNormal = faceNormal.Normalize();
+        faceNormal = faceNormal.Invert();
+
+        // Add three separate vertices with the same face normal for sharp edges
+        int idxA = AddVertex(a, faceNormal, vertexColor);
+        int idxB = AddVertex(b, faceNormal, vertexColor);
+        int idxC = AddVertex(c, faceNormal, vertexColor);
+
+        // Add the triangle
+        int triId = AddTriangle(idxA, idxB, idxC, triangleColor);
+        return triId;
+    }
+
 
     // --------------------------------------------------------------------------------------------
     // MARK: Triangle Colors
