@@ -219,6 +219,8 @@ public partial class KoreMeshData
         }
     }
 
+    public void SetNormalsFromTriangles(List<int> vertexIds) => vertexIds.ForEach(SetNormalFromFirstTriangle);
+
     // --------------------------------------------------------------------------------------------
     // MARK: UVs
     // --------------------------------------------------------------------------------------------

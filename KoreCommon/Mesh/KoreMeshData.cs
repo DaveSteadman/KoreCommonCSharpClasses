@@ -242,8 +242,10 @@ public partial class KoreMeshData
     {
         int id = _nextTriangleId++;
         Triangles[id] = new KoreMeshTriangle(vertexIdA, vertexIdB, vertexIdC);
+
         if (color.HasValue)
             TriangleColors[id] = new KoreMeshTriangleColour(color.Value);
+
         return id;
     }
 
