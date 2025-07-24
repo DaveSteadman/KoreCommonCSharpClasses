@@ -1,5 +1,5 @@
 using System;
-using Godot;
+//using Godot;
 
 // Static class to convert color structs
 namespace KoreCommon;
@@ -73,8 +73,8 @@ public static class KoreColorOps
 
 
         KoreColorRGB newColor = new KoreColorRGB(rf, gf, bf, color.Af);
-        
-        GD.Print($"ColorWithRGBNoise: Original: {KoreColorIO.RBGtoDecimalString(color)}, Noise: ({rfnoise:F2}, {gfnoise:F2}, {bfnoise:F2}), New: {KoreColorIO.RBGtoDecimalString(newColor)}");
+
+        //GD.Print($"ColorWithRGBNoise: Original: {KoreColorIO.RBGtoDecimalString(color)}, Noise: ({rfnoise:F2}, {gfnoise:F2}, {bfnoise:F2}), New: {KoreColorIO.RBGtoDecimalString(newColor)}");
 
         return newColor;
     }

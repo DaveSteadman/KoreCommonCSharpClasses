@@ -91,6 +91,9 @@ public static partial class KoreMeshDataPrimitives
             }
         }
 
+        // Calculate normals for the mesh
+        mesh.SetNormalsFromTriangles();
+
         return mesh;
     }
 }

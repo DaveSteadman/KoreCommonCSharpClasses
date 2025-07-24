@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using Godot;
+//using Godot;
 
 namespace KoreCommon;
 
@@ -267,7 +267,7 @@ public static partial class KoreMeshDataPrimitives
     private static List<KoreXYZPoint> CalculateBezier3Points(KoreXYZPoint p1, KoreXYZPoint p2, KoreXYZPoint p3, int divisions, double tStart = 0.0, double tEnd = 1.0)
     {
         var points = new List<KoreXYZPoint>();
-        
+
         KoreNumeric1DArray<double> xValues = new KoreNumeric1DArray<double>(3);
         KoreNumeric1DArray<double> yValues = new KoreNumeric1DArray<double>(3);
         KoreNumeric1DArray<double> zValues = new KoreNumeric1DArray<double>(3);
@@ -283,7 +283,7 @@ public static partial class KoreMeshDataPrimitives
             double x = KoreNumeric1DArrayOps<double>.CalculateBezierPoint(t, xValues);
             double y = KoreNumeric1DArrayOps<double>.CalculateBezierPoint(t, yValues);
             double z = KoreNumeric1DArrayOps<double>.CalculateBezierPoint(t, zValues);
-            
+
             points.Add(new KoreXYZPoint(x, y, z));
         }
 
@@ -294,7 +294,7 @@ public static partial class KoreMeshDataPrimitives
     private static List<KoreXYZPoint> CalculateBezier4Points(KoreXYZPoint p1, KoreXYZPoint p2, KoreXYZPoint p3, KoreXYZPoint p4, int divisions, double tStart = 0.0, double tEnd = 1.0)
     {
         var points = new List<KoreXYZPoint>();
-        
+
         KoreNumeric1DArray<double> xValues = new KoreNumeric1DArray<double>(4);
         KoreNumeric1DArray<double> yValues = new KoreNumeric1DArray<double>(4);
         KoreNumeric1DArray<double> zValues = new KoreNumeric1DArray<double>(4);
@@ -310,7 +310,7 @@ public static partial class KoreMeshDataPrimitives
             double x = KoreNumeric1DArrayOps<double>.CalculateBezierPoint(t, xValues);
             double y = KoreNumeric1DArrayOps<double>.CalculateBezierPoint(t, yValues);
             double z = KoreNumeric1DArrayOps<double>.CalculateBezierPoint(t, zValues);
-            
+
             points.Add(new KoreXYZPoint(x, y, z));
         }
 
