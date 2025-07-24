@@ -29,6 +29,9 @@ public static partial class KoreMeshDataPrimitives
         // Generate circle points for both ends
         var p1Circle = new List<KoreXYZVector>();
         var p2Circle = new List<KoreXYZVector>();
+        var leftUVs  = new List<KoreXYVector>();
+        var rightUVs = new List<KoreXYVector>();
+        
         double angleStep = Math.Tau / sides;
 
         for (int i = 0; i < sides; i++)
@@ -37,45 +40,29 @@ public static partial class KoreMeshDataPrimitives
             KoreXYZVector offset = (Math.Cos(angle) * side + Math.Sin(angle) * forward);
             p1Circle.Add(p1 + offset * p1radius);
             p2Circle.Add(p2 + offset * p2radius);
+            
+            // Generate UVs for ribbon (u = angle progress, v = height progress)
+            double u = (double)i / sides;
+            leftUVs.Add(new KoreXYVector(u, 0.0));   // p1 end
+            rightUVs.Add(new KoreXYVector(u, 1.0));  // p2 end
         }
 
-        // Side faces (quads split into triangles)
-        for (int i = 0; i < sides; i++)
-        {
-            int next = (i + 1) % sides;
-            // First triangle
-            mesh.AddTriangle(p1Circle[i], p2Circle[i], p2Circle[next]);
-            // Second triangle
-            mesh.AddTriangle(p1Circle[i], p2Circle[next], p1Circle[next]);
-        }
+        // Create the cylindrical surface using Ribbon
+        KoreMeshData ribbonMesh = Ribbon(p1Circle, leftUVs, p2Circle, rightUVs, true);
+        mesh = KoreMeshData.BasicAppendMesh(mesh, ribbonMesh);
 
-        // End caps
+        // Add end caps using Fan
         if (endsClosed)
         {
-            // p1 cap
-            for (int i = 1; i < sides - 1; i++)
-                mesh.AddTriangle(p1, p1Circle[i], p1Circle[i + 1]);
+            // p1 cap (bottom)
+            KoreMeshData p1CapMesh = Fan(p1, p1Circle, true);
+            mesh = KoreMeshData.BasicAppendMesh(mesh, p1CapMesh);
 
-            // p2 cap
-            for (int i = 1; i < sides - 1; i++)
-                mesh.AddTriangle(p2, p2Circle[i + 1], p2Circle[i]);
-        }
-
-        // --- Add lines for wireframe ---
-        KoreColorRGB lineColor = new KoreColorRGB(200, 200, 200); // Or choose as needed
-
-        // Longitudinal lines
-        for (int i = 0; i < sides; i++)
-        {
-            mesh.AddLine(p1Circle[i], p2Circle[i], lineColor, lineColor);
-        }
-
-        // Rings at each end
-        for (int i = 0; i < sides; i++)
-        {
-            int next = (i + 1) % sides;
-            mesh.AddLine(p1Circle[i], p1Circle[next], lineColor, lineColor);
-            mesh.AddLine(p2Circle[i], p2Circle[next], lineColor, lineColor);
+            // p2 cap (top) - reverse the order for proper winding
+            var p2CircleReversed = new List<KoreXYZVector>(p2Circle);
+            p2CircleReversed.Reverse();
+            KoreMeshData p2CapMesh = Fan(p2, p2CircleReversed, true);
+            mesh = KoreMeshData.BasicAppendMesh(mesh, p2CapMesh);
         }
 
         return mesh;

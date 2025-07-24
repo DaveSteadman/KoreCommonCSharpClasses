@@ -23,6 +23,7 @@ public static partial class KoreMeshDataIO
     // --------------------------------------------------------------------------------------------
 
     // Save KoreMeshData to JSON (triangles as 3 points, lines as native structure)
+    // Usage: string jsonStr = KoreMeshDataIO.ToJson(mesh, dense: true);
     public static string ToJson(KoreMeshData mesh, bool dense = false)
     {
         var obj = new
@@ -169,7 +170,7 @@ public static partial class KoreMeshDataIO
         }
         public override void Write(Utf8JsonWriter writer, KoreXYVector value, JsonSerializerOptions options)
         {
-            string str = KoreXYVectorIO.ToString(value);
+            string str = KoreXYVectorIO.ToStringWithDP(value, 4);
             writer.WriteStringValue(str);
         }
         public static KoreXYVector ReadVector2(JsonElement el)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Godot;
 
 #nullable enable
 
@@ -8,6 +9,23 @@ namespace KoreCommon;
 
 public partial class KoreMeshData
 {
+    // --------------------------------------------------------------------------------------------
+    // MARK: Populate: Max Ids
+    // --------------------------------------------------------------------------------------------
+
+    // Reset the Next IDs, looking for the max values in the current lists - Note that after numerous
+    // operations, the IDs can be non-sequential, so we need to find the max value in each list.
+
+    public void ResetMaxIDs()
+    {
+        // Reset the next IDs based on the current max values in the dictionaries
+        NextVertexId   = Vertices.Count  > 0 ? Vertices.Keys.Max()  + 1 : 0;
+        NextLineId     = Lines.Count     > 0 ? Lines.Keys.Max()     + 1 : 0;
+        NextTriangleId = Triangles.Count > 0 ? Triangles.Keys.Max() + 1 : 0;
+        
+        GD.Print($"ResetMaxIDs: NextVertexId={NextVertexId}, NextLineId={NextLineId}, NextTriangleId={NextTriangleId}");
+    }
+
     // --------------------------------------------------------------------------------------------
     // MARK: Validity Ops
     // --------------------------------------------------------------------------------------------
@@ -44,46 +62,38 @@ public partial class KoreMeshData
     }
 
     // --------------------------------------------------------------------------------------------
-    // MARK: Populate: Max Ids
+    // MARK: Bounding Box
     // --------------------------------------------------------------------------------------------
-
-    // Reset the Next IDs, looking for the max values in the current lists - Note that after numerous
-    // operations, the IDs can be non-sequential, so we need to find the max value in each list.
-
-    public void ResetMaxIDs()
+  
+    // Loop through the vertices, recording the max/min X, Y, Z values. Then return a KoreXYZBox
+    
+    public KoreXYZBox GetBoundingBox()
     {
-        // Reset the next IDs based on the current max values in the dictionaries
-        NextVertexId   = Vertices.Count  > 0 ? Vertices.Keys.Max()  + 1 : 0;
-        NextLineId     = Lines.Count     > 0 ? Lines.Keys.Max()     + 1 : 0;
-        NextTriangleId = Triangles.Count > 0 ? Triangles.Keys.Max() + 1 : 0;
-    }
+        if (Vertices.Count == 0)
+            return KoreXYZBox.Zero;
 
-    // --------------------------------------------------------------------------------------------
-    // MARK: Populate: LineId
-    // --------------------------------------------------------------------------------------------
+        double minX = double.MaxValue, maxX = double.MinValue;
+        double minY = double.MaxValue, maxY = double.MinValue;
+        double minZ = double.MaxValue, maxZ = double.MinValue;
 
-        // Functions to fill out the population of the lists based on a line ID.
-
-    public void CreateMissingLineColors(KoreColorRGB? defaultColor = null)
-    {
-        // Define the default color to pad the LineColors list if it doesn't match the lines count.
-        KoreColorRGB fallback = defaultColor ?? new KoreColorRGB(1, 1, 1);
-
-        // Loop through the lines dictionary
-        foreach (var kvp in Lines)
+        foreach (var kvp in Vertices)
         {
-            int lineId = kvp.Key;
-            KoreMeshLine line = kvp.Value;
-
-            // If the line colors dictionary does not contain this ID, add it with the fallback color
-            if (!LineColors.ContainsKey(lineId))
-                LineColors[lineId] = new KoreMeshLineColour(fallback, fallback);
+            KoreXYZVector vertex = kvp.Value;
+            if (vertex.X < minX) minX = vertex.X;
+            if (vertex.X > maxX) maxX = vertex.X;
+            if (vertex.Y < minY) minY = vertex.Y;
+            if (vertex.Y > maxY) maxY = vertex.Y;
+            if (vertex.Z < minZ) minZ = vertex.Z;
+            if (vertex.Z > maxZ) maxZ = vertex.Z;
         }
+
+        KoreXYZPoint center = new KoreXYZPoint((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2);
+        double width = maxX - minX;
+        double height = maxY - minY;
+        double length = maxZ - minZ;
+
+        return new KoreXYZBox(center, width, height, length);
     }
-
-
-
-
 
     // -----------------------------------------------------------------------------
     // MARK: Vertices
@@ -372,6 +382,25 @@ public partial class KoreMeshData
             {
                 LineColors.Remove(lineId);
             }
+        }
+    }
+
+    // Functions to fill out the population of the lists based on a line ID.
+
+    public void CreateMissingLineColors(KoreColorRGB? defaultColor = null)
+    {
+        // Define the default color to pad the LineColors list if it doesn't match the lines count.
+        KoreColorRGB fallback = defaultColor ?? new KoreColorRGB(1, 1, 1);
+
+        // Loop through the lines dictionary
+        foreach (var kvp in Lines)
+        {
+            int lineId = kvp.Key;
+            KoreMeshLine line = kvp.Value;
+
+            // If the line colors dictionary does not contain this ID, add it with the fallback color
+            if (!LineColors.ContainsKey(lineId))
+                LineColors[lineId] = new KoreMeshLineColour(fallback, fallback);
         }
     }
 
