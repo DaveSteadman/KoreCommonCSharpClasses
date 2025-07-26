@@ -6,6 +6,10 @@
 // dotnet add package SkiaSharp
 // dotnet new console
 
+// Environment update:
+// dotnet list package --outdated
+// dotnet workload update
+
 
 using KoreCommon;
 using KoreCommon.UnitTest;
