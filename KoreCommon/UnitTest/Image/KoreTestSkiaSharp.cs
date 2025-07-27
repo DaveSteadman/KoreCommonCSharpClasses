@@ -4,13 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 
 using KoreCommon;
-
 using KoreCommon.SkiaSharp;
 using SkiaSharp;
 
 namespace KoreCommon.UnitTest;
-
-
 
 public static class KoreTestSkiaSharp
 {
@@ -42,7 +39,7 @@ public static class KoreTestSkiaSharp
         // Test Lines - Various line widths and colors
         int xStart = 10;
         int yStart = 10;
-        int yEnd = 100;
+        int yEnd   = 100;
 
         KoreXYPoint startPnt = new KoreXYPoint(xStart, yStart);
         KoreXYPoint endPnt   = new KoreXYPoint(xStart, yEnd);
@@ -71,6 +68,7 @@ public static class KoreTestSkiaSharp
         // Save the image to a file
         string filePath = "testcard.png";
         imagePlotter.Save(filePath);
-
     }
 }
+
+
