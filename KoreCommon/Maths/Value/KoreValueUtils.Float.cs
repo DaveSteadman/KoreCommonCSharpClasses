@@ -11,7 +11,7 @@ public static partial class KoreValueUtils
 
     public static float Modulo(float value, float rangesize)
     {
-        if (Math.Abs(rangesize) < KoreConsts.ArbitraryMinFloat)
+        if (Math.Abs(rangesize) < KoreConsts.ArbitrarySmallFloat)
             throw new ArgumentException("rangeSize too small", nameof(rangesize));
 
         float wrappedvalue = value - rangesize * (float)Math.Floor(value / rangesize);
@@ -82,6 +82,7 @@ public static partial class KoreValueUtils
 
     // --------------------------------------------------------------------------------------------
 
+    // Usage: float myVal = KoreValueUtils.ScaleVal(inval, inrangemin, inrangemax, outrangemin, outrangemax)
     public static float ScaleVal(float inval, float inrangemin, float inrangemax, float outrangemin, float outrangemax)
     {
         // Check in the input value is in range
@@ -92,8 +93,8 @@ public static partial class KoreValueUtils
         float outdiff = outrangemax - outrangemin;
 
         // check in range and out range are not too small to function
-        if (Math.Abs(indiff) < KoreConsts.ArbitraryMinDouble) throw new ArgumentException("ScaleVal input range too small", nameof(indiff));
-        if (Math.Abs(outdiff) < KoreConsts.ArbitraryMinDouble) throw new ArgumentException("ScaleVal output range too small", nameof(outdiff));
+        if (Math.Abs(indiff) < KoreConsts.ArbitrarySmallDouble) throw new ArgumentException("ScaleVal input range too small", nameof(indiff));
+        if (Math.Abs(outdiff) < KoreConsts.ArbitrarySmallDouble) throw new ArgumentException("ScaleVal output range too small", nameof(outdiff));
 
         float diffratio = outdiff / indiff;
 
@@ -121,10 +122,13 @@ public static partial class KoreValueUtils
     // --------------------------------------------------------------------------------------------
     // Useful way to test floating point numbers.
 
-    public static bool EqualsWithinTolerance(float val, float matchval, float tolerance = KoreConsts.ArbitraryMinFloat)
+    public static bool EqualsWithinTolerance(float val, float matchval, float tolerance = KoreConsts.ArbitrarySmallFloat)
     {
         return Math.Abs(val - matchval) <= tolerance;
     }
 
+    // more shorthand comparisons
+    // Usage: KoreValueUtils.IsEqual(val, matchval, tolerance)
+    public static bool IsEqual(float val, float matchval, float tolerance = KoreConsts.ArbitrarySmallFloat) => EqualsWithinTolerance(val, matchval, tolerance);
 
 }

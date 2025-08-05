@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace KoreCommon;
 
+#nullable enable
+
 // Namespace encapulating the network comms classes and functionality.
 // - The rest of the application should be able to deal solely with messages.
 
@@ -200,7 +202,7 @@ public class KoreNetworkHub
 
         if (!messageSent)
         {
-            Console.WriteLine("SEND FAIL:" + connName + " // " + msgData);
+            KoreCentralLog.AddEntry("SEND FAIL:" + connName + " // " + msgData);
         }
     }
 
@@ -280,7 +282,7 @@ public class KoreNetworkHub
 
                     if (currConnTcp != null && !currConnTcp.connected)
                     {
-                        Console.WriteLine("Watchdog starting: " + currConnTcp.connectionDetailsString());
+                        KoreCentralLog.AddEntry("Watchdog starting: " + currConnTcp.connectionDetailsString());
                         currConnTcp.startConnection();
                     }
                 }

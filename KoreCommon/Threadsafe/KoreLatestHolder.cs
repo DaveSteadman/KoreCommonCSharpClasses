@@ -4,32 +4,26 @@
 
 namespace KoreCommon;
 
+using System;
+using System.Threading;
 
-public class KoreLatestHolder<T> where T : notnull
+#nullable enable
+
+public class KoreLatestHolder<T> where T : class
 {
-    private T _latestValue;
-    private readonly object _lock = new object();
+    private T? _latestValue;
 
-    public KoreLatestHolder(T initialValue)
+    public KoreLatestHolder(T? initialValue = null)
     {
         _latestValue = initialValue;
     }
 
-    public T LatestValue
+    public T? LatestValue
     {
-        get
-        {
-            lock (_lock)
-            {
-                return _latestValue;
-            }
-        }
-        set
-        {
-            lock (_lock)
-            {
-                _latestValue = value;
-            }
-        }
+        get => Interlocked.CompareExchange(ref _latestValue, null, null);
+        set => Interlocked.Exchange(ref _latestValue, value);
     }
+    
+    public bool HasValue => _latestValue != null;
 }
+
