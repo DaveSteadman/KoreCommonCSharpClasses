@@ -100,16 +100,6 @@ public static partial class KoreMeshDataIO
             WriteColor(bw, lc.EndColor);
         }
 
-        // Triangle colors
-        bw.Write((int)mesh.TriangleColors.Count);
-        foreach (var kvp in mesh.TriangleColors)
-        {
-            int triangleId = kvp.Key;
-            KoreMeshTriangleColour tc = kvp.Value;
-            
-            bw.Write((int)triangleId);
-            WriteColor(bw, tc.Color);
-        }
 
         bw.Flush();
         return ms.ToArray();
@@ -177,11 +167,6 @@ public static partial class KoreMeshDataIO
         for (int i = 0; i < lcCount; i++)
             mesh.LineColors[br.ReadInt32()] = new KoreMeshLineColour(ReadColor(br), ReadColor(br));
 
-        // Triangle colors
-        int tcCount = br.ReadInt32();
-        for (int i = 0; i < tcCount; i++)
-            mesh.TriangleColors[br.ReadInt32()] = new KoreMeshTriangleColour(ReadColor(br));
-
         return mesh;
     }
 
@@ -204,6 +189,28 @@ public static partial class KoreMeshDataIO
             // If we hit an error, return false and the mesh object will remain in whatever state it reached.
             return false;
         }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: Material
+    // --------------------------------------------------------------------------------------------
+
+    private static void WriteMaterial(BinaryWriter bw, KoreMeshMaterial material)
+    {
+        bw.Write(material.Name);                     // Write name as string
+        WriteColor(bw, material.BaseColor);          // BaseColor already includes alpha
+        bw.Write((float)material.Metallic);
+        bw.Write((float)material.Roughness);
+    }
+
+    private static KoreMeshMaterial ReadMaterial(BinaryReader br)
+    {
+        string name = br.ReadString();               // Read name
+        KoreColorRGB baseColor = ReadColor(br);      // BaseColor already includes alpha
+        float metallic = br.ReadSingle();
+        float roughness = br.ReadSingle();
+        
+        return new KoreMeshMaterial(name, baseColor, metallic, roughness);
     }
 
     // --------------------------------------------------------------------------------------------
