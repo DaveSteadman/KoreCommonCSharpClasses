@@ -15,7 +15,7 @@ public static partial class KoreMeshDataPrimitives
     {
         var mesh = new KoreMeshData();
 
-        int matId = mesh.IdForMaterial(mat);
+        mesh.AddMaterial(mat);
         KoreColorRGB color = mat.BaseColor;
 
         KoreColorRGB linecolor = KoreColorRGB.White;
@@ -53,7 +53,7 @@ public static partial class KoreMeshDataPrimitives
         mesh.AddTriangle(v0, v5, v1); mesh.AddTriangle(v0, v4, v5); // bottom
 
         mesh.AddAllTrianglesToGroup("DefaultMaterial");
-        mesh.SetGroupMaterialId("DefaultMaterial", matId);
+        mesh.SetGroupMaterialName("DefaultMaterial", mat.Name);
 
         mesh.MakeValid();
         return mesh;
@@ -64,9 +64,9 @@ public static partial class KoreMeshDataPrimitives
     {
         var mesh = new KoreMeshData();
 
-        int matId = mesh.IdForMaterial(mat);
+        mesh.AddMaterial(mat);
         KoreColorRGB color = mat.BaseColor;
-        
+
         // Create 24 vertices (4 per face) with proper face normals for sharp edges
         // Each face gets its own 4 vertices with the correct normal
 
@@ -170,7 +170,7 @@ public static partial class KoreMeshDataPrimitives
     {
         var mesh = new KoreMeshData();
 
-        int matId = mesh.IdForMaterial(mat);
+        mesh.AddMaterial(mat);
         KoreColorRGB color = mat.BaseColor;
 
         // Define the 8 corner vertices manually outside of the mesh
@@ -187,7 +187,7 @@ public static partial class KoreMeshDataPrimitives
         // Using the EXACT same triangle winding as the working BasicCube function
         // Each triangle automatically calculates and assigns the correct face normal
 
-        float noiseFactor = 0.1f; // Adjust noise factor as needed
+        //float noiseFactor = 0.1f; // Adjust noise factor as needed
 
         // Copy the triangulation from BasicCube (which works perfectly)
         mesh.AddTriangleToGroup(mesh.AddTriangle(v0, v1, v2), "sharpcube");

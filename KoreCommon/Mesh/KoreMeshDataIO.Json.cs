@@ -16,7 +16,7 @@ public static partial class KoreMeshDataIO
 {
     static string startColorName = "start";
     static string endColorName   = "end";
-    static string colorName      = "color";
+    //static string colorName      = "color";
 
     // --------------------------------------------------------------------------------------------
     // MARK: ToJson
@@ -119,10 +119,26 @@ public static partial class KoreMeshDataIO
         }
 
         // --- Materials ---
-        if (root.TryGetProperty("materials", out var materialsProp) && materialsProp.ValueKind == JsonValueKind.Object)
+        if (root.TryGetProperty("materials", out var materialsProp))
         {
-            foreach (var m in materialsProp.EnumerateObject())
-                mesh.Materials[int.Parse(m.Name)] = KoreMeshMaterialConverter.ReadMaterial(m.Value);
+            if (materialsProp.ValueKind == JsonValueKind.Array)
+            {
+                // New format: array of materials
+                foreach (var m in materialsProp.EnumerateArray())
+                {
+                    var material = KoreMeshMaterialConverter.ReadMaterial(m);
+                    mesh.AddMaterial(material);
+                }
+            }
+            else if (materialsProp.ValueKind == JsonValueKind.Object)
+            {
+                // Legacy format: object with material IDs (backwards compatibility)
+                foreach (var m in materialsProp.EnumerateObject())
+                {
+                    var material = KoreMeshMaterialConverter.ReadMaterial(m.Value);
+                    mesh.AddMaterial(material);
+                }
+            }
         }
 
         // --- NamedTriangleGroups ---
@@ -324,7 +340,7 @@ public static partial class KoreMeshDataIO
             {
                 var parts = str.Split(',');
                 if (parts.Length != 2) throw new FormatException($"Invalid KoreMeshLineColour string format. {str}.");
-    
+
                 string startColorStr = parts[0].Split(':')[1].Trim();
                 string endColorStr   = parts[1].Split(':')[1].Trim();
 
@@ -366,12 +382,12 @@ public static partial class KoreMeshDataIO
             {
                 // Parse format: "name: Gold, baseColor: #FFD700, metallic: 1.0, roughness: 0.1"
                 var parts = str.Split(',');
-                if (parts.Length != 4) 
+                if (parts.Length != 4)
                     throw new FormatException($"Invalid KoreMeshMaterial string format. Expected 4 parts but got {parts.Length}: {str}");
 
                 // Parse name
                 string namePart = parts[0].Split(':')[1].Trim();
-                
+
                 // Parse base color (includes alpha)
                 string baseColorPart = parts[1].Split(':')[1].Trim();
                 KoreColorRGB baseColor = KoreColorIO.HexStringToRGB(baseColorPart);
@@ -386,7 +402,7 @@ public static partial class KoreMeshDataIO
 
                 return new KoreMeshMaterial(namePart, baseColor, metallic, roughness);
             }
-            
+
             return KoreMeshMaterialPalette.Find("White");
         }
     }
@@ -405,9 +421,9 @@ public static partial class KoreMeshDataIO
 
         public override void Write(Utf8JsonWriter writer, KoreMeshTriangleGroup value, JsonSerializerOptions options)
         {
-            // Format: "materialId: 0, triangleIds: [1,2,3,4]"
+            // Format: "materialName: Gold, triangleIds: [1,2,3,4]"
             string triangleIdsList = string.Join(",", value.TriangleIds);
-            writer.WriteStringValue($"materialId: {value.MaterialId}, triangleIds: [{triangleIdsList}]");
+            writer.WriteStringValue($"materialName: {value.MaterialName}, triangleIds: [{triangleIdsList}]");
         }
 
         public static KoreMeshTriangleGroup ReadTriangleGroup(JsonElement el)
@@ -416,19 +432,19 @@ public static partial class KoreMeshDataIO
 
             if (!string.IsNullOrEmpty(str))
             {
-                // Parse format: "materialId: 0, triangleIds: [1,2,3,4]"
+                // Parse format: "materialName: Gold, triangleIds: [1,2,3,4]"
                 var parts = str.Split(',');
                 if (parts.Length < 2)
                     throw new FormatException($"Invalid KoreMeshTriangleGroup string format. Expected at least 2 parts: {str}");
 
-                // Parse materialId
-                string materialIdPart = parts[0].Split(':')[1].Trim();
-                int materialId = int.Parse(materialIdPart);
+                // Parse materialName
+                string materialNamePart = parts[0].Split(':')[1].Trim();
+                string materialName = materialNamePart.Trim('"'); // Remove quotes if present
 
                 // Parse triangleIds - everything after "triangleIds: [" and before "]"
                 string triangleIdsPart = str.Substring(str.IndexOf('[') + 1);
                 triangleIdsPart = triangleIdsPart.Substring(0, triangleIdsPart.LastIndexOf(']'));
-                
+
                 var triangleIds = new List<int>();
                 if (!string.IsNullOrWhiteSpace(triangleIdsPart))
                 {
@@ -440,10 +456,10 @@ public static partial class KoreMeshDataIO
                     }
                 }
 
-                return new KoreMeshTriangleGroup(materialId, triangleIds);
+                return new KoreMeshTriangleGroup(materialName, triangleIds);
             }
-            
-            return new KoreMeshTriangleGroup(-1, new List<int>());
+
+            return new KoreMeshTriangleGroup("", new List<int>());
         }
     }
 }
