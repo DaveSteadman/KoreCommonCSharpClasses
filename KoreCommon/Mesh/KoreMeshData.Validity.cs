@@ -81,7 +81,7 @@ public partial class KoreMeshData
             if (vertex.Z > maxZ) maxZ = vertex.Z;
         }
 
-        KoreXYZPoint center = new KoreXYZPoint((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2);
+        KoreXYZVector center = new KoreXYZVector((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2);
         double width = maxX - minX;
         double height = maxY - minY;
         double length = maxZ - minZ;
@@ -159,7 +159,7 @@ public partial class KoreMeshData
             foreach (int earlierId in processedVertices)
             {
                 KoreXYZVector earlierVertex = Vertices[earlierId];
-                
+
                 if (currentVertex.IsEqualTo(earlierVertex, tolerance))
                 {
                     // Found a duplicate - map current ID to the earlier ID
@@ -199,10 +199,10 @@ public partial class KoreMeshData
         {
             int lineId = kvp.Key;
             KoreMeshLine line = kvp.Value;
-            
+
             int newA = remapping.ContainsKey(line.A) ? remapping[line.A] : line.A;
             int newB = remapping.ContainsKey(line.B) ? remapping[line.B] : line.B;
-            
+
             updatedLines[lineId] = new KoreMeshLine(newA, newB);
         }
         Lines = updatedLines;
@@ -213,11 +213,11 @@ public partial class KoreMeshData
         {
             int triangleId = kvp.Key;
             KoreMeshTriangle triangle = kvp.Value;
-            
+
             int newA = remapping.ContainsKey(triangle.A) ? remapping[triangle.A] : triangle.A;
             int newB = remapping.ContainsKey(triangle.B) ? remapping[triangle.B] : triangle.B;
             int newC = remapping.ContainsKey(triangle.C) ? remapping[triangle.C] : triangle.C;
-            
+
             updatedTriangles[triangleId] = new KoreMeshTriangle(newA, newB, newC);
         }
         Triangles = updatedTriangles;
@@ -233,7 +233,7 @@ public partial class KoreMeshData
         foreach (var kvp in Normals)
         {
             int normalId = kvp.Key;
-            
+
             // If we don't have a matching vertex ID, remove the normal
             if (!Vertices.ContainsKey(normalId))
                 Normals.Remove(normalId);

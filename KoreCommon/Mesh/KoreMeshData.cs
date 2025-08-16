@@ -90,7 +90,7 @@ public partial class KoreMeshData
     }
 
     // --------------------------------------------------------------------------------------------
-    // MARK: Points
+    // MARK: Vertices
     // --------------------------------------------------------------------------------------------
 
     public int AddVertex(KoreXYZVector vertex)
@@ -320,8 +320,8 @@ public partial class KoreMeshData
     public void AddDottedLineByDistance(int vertexIdA, int vertexIdB, KoreColorRGB colLine, double dotSpacing)
     {
         // Calculate the distance between the two vertices
-        KoreXYZPoint pntA = new KoreXYZPoint(Vertices[vertexIdA]);
-        KoreXYZPoint pntB = new KoreXYZPoint(Vertices[vertexIdB]);
+        KoreXYZVector pntA = new KoreXYZVector(Vertices[vertexIdA]);
+        KoreXYZVector pntB = new KoreXYZVector(Vertices[vertexIdB]);
 
         double distance = pntA.DistanceTo(pntB);
 
@@ -332,7 +332,7 @@ public partial class KoreMeshData
         {
             // Calculate the start point of this dot
             double tStart = currDist / distance;
-            KoreXYZPoint dotStart = new KoreXYZPoint(
+            KoreXYZVector dotStart = new KoreXYZVector(
                 pntA.X + (pntB.X - pntA.X) * tStart,
                 pntA.Y + (pntB.Y - pntA.Y) * tStart,
                 pntA.Z + (pntB.Z - pntA.Z) * tStart
@@ -341,7 +341,7 @@ public partial class KoreMeshData
             // Calculate the end point of this dot
             double dotEndDist = Math.Min(currDist + dotLength, distance);
             double tEnd = dotEndDist / distance;
-            KoreXYZPoint dotEnd = new KoreXYZPoint(
+            KoreXYZVector dotEnd = new KoreXYZVector(
                 pntA.X + (pntB.X - pntA.X) * tEnd,
                 pntA.Y + (pntB.Y - pntA.Y) * tEnd,
                 pntA.Z + (pntB.Z - pntA.Z) * tEnd

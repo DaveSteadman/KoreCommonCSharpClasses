@@ -37,6 +37,8 @@ public struct KoreXYZVector
         }
     }
 
+    public double Length => Magnitude;
+
     // --------------------------------------------------------------------------------------------
 
     public KoreXYZVector(double xm, double ym, double zm)
@@ -47,7 +49,7 @@ public struct KoreXYZVector
     }
 
     // Convenience constructor to create a vector from a point
-    public KoreXYZVector(KoreXYZPoint point)
+    public KoreXYZVector(KoreXYZVector point)
     {
         this.X = point.X;
         this.Y = point.Y;
@@ -103,6 +105,34 @@ public struct KoreXYZVector
     public KoreXYZVector XYZTo(KoreXYZVector remoteXYZ)
     {
         return new KoreXYZVector(remoteXYZ.X - X, remoteXYZ.Y - Y, remoteXYZ.Z - Z);
+    }
+
+    public double DistanceTo(KoreXYZVector inputXYZ)
+    {
+        double diffX = X - inputXYZ.X;
+        double diffY = Y - inputXYZ.Y;
+        double diffZ = Z - inputXYZ.Z;
+
+        return Math.Sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Polar Vectors
+    // --------------------------------------------------------------------------------------------
+
+    public KoreXYZPolarOffset PolarOffsetTo(KoreXYZVector p)
+    {
+        KoreXYZVector diff = XYZTo(p);
+
+        KoreXYZPolarOffset newOffset = KoreXYZPolarOffset.FromXYZ(diff);
+
+        return newOffset;
+    }
+
+    public KoreXYZVector PlusPolarOffset(KoreXYZPolarOffset offset)
+    {
+        KoreXYZVector diff = offset.ToXYZ();
+        return new KoreXYZVector(X + diff.X, Y + diff.Y, Z + diff.Z);
     }
 
     // --------------------------------------------------------------------------------------------
