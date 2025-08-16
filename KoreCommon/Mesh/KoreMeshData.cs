@@ -40,12 +40,12 @@ public partial class KoreMeshData
 
     // list of Material for this mesh
     public List<KoreMeshMaterial> Materials = new();
-    
+
     // Named groups, logical/useful sub-divisions of the mesh triangles, with a material.
     // - Non-exclusive inclusion of triangles allows for multiple uses and some manner of hierarchy
     public Dictionary<string, KoreMeshTriangleGroup> NamedTriangleGroups = new(); // Tags for grouping triangles
 
-    // Counters for unique IDs 
+    // Counters for unique IDs
     public int NextVertexId = 0;
     public int NextLineId = 0;
     public int NextTriangleId = 0;
@@ -499,11 +499,11 @@ public partial class KoreMeshData
             if (existingMaterial.Name == material.Name)
                 return; // existing material found, return without action
         }
-        
+
         // Material not found - add a new one using its name
         Materials.Add(material);
     }
-        
+
     // Get the material, or return the default material if not setup
     public KoreMeshMaterial GetMaterial(string materialName)
     {
@@ -581,7 +581,7 @@ public partial class KoreMeshData
         }
     }
 
-    
+
     public KoreMeshMaterial MaterialForGroup(string groupName)
     {
         if (NamedTriangleGroups.ContainsKey(groupName))
@@ -648,4 +648,45 @@ public partial class KoreMeshData
 
         return vertices;
     }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: Spatial Queries
+    // --------------------------------------------------------------------------------------------
+
+    // Find all vertices within a specified distance of a given point
+    // Useful for identifying a shared vertex location between triangles
+    public List<int> FindVerticesWithinDistance(KoreXYZVector targetPoint, double maxDistance)
+    {
+        List<int> nearbyVertices = new List<int>();
+        double maxDistanceSquared = maxDistance * maxDistance; // Use squared distance for performance
+
+        foreach (var kvp in Vertices)
+        {
+            int vertexId = kvp.Key;
+            KoreXYZVector vertex = kvp.Value;
+
+            // Calculate squared distance to avoid expensive sqrt operation
+            double deltaX = vertex.X - targetPoint.X;
+            double deltaY = vertex.Y - targetPoint.Y;
+            double deltaZ = vertex.Z - targetPoint.Z;
+            double distanceSquared = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+
+            if (distanceSquared <= maxDistanceSquared)
+            {
+                nearbyVertices.Add(vertexId);
+            }
+        }
+
+        return nearbyVertices;
+    }
+
+    // Find all vertices within a specified distance of a vertex by ID
+    public List<int> FindVerticesWithinDistance(int targetVertexId, double maxDistance)
+    {
+        if (!Vertices.ContainsKey(targetVertexId))
+            throw new ArgumentOutOfRangeException(nameof(targetVertexId), "Vertex ID is not found.");
+
+        return FindVerticesWithinDistance(Vertices[targetVertexId], maxDistance);
+    }
+
 }
