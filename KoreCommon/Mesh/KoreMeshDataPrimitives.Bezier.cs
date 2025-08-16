@@ -20,7 +20,6 @@ public static partial class KoreMeshDataPrimitives
     public static KoreMeshData Bezier3Line(
         KoreXYZVector p1, KoreXYZVector p2, KoreXYZVector p3, KoreColorRGB? lineColor = null, int divisions = 10)
     {
-
         KoreNumeric1DArray<double> xValues = new KoreNumeric1DArray<double>(3);
         KoreNumeric1DArray<double> yValues = new KoreNumeric1DArray<double>(3);
         KoreNumeric1DArray<double> zValues = new KoreNumeric1DArray<double>(3);

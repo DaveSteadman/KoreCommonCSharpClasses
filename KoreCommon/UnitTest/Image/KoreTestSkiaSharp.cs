@@ -67,7 +67,7 @@ public static class KoreTestSkiaSharp
         imagePlotter.DrawTextAtPosition("Yet Another Line of Text", markPoint3, KoreXYRectPosition.Center, 20);
 
         // Save the image to a file
-        string filePath = "testcard.png";
+        string filePath = "UnitTestArtefacts/testcard.png";
         imagePlotter.Save(filePath);
     }
 
@@ -117,7 +117,7 @@ public static class KoreTestSkiaSharp
         DrawTriangleWithCircumcircle(imagePlotter, triangle4, "Thin Triangle", new KoreXYVector(550, 350));
 
         // Save the test image
-        string filePath = "circumcircle_test.png";
+        string filePath = "UnitTestArtefacts/circumcircle_test.png";
         imagePlotter.Save(filePath);
 
         testLog.AddResult("Circumcircle test", true, "Test completed - check " + filePath);

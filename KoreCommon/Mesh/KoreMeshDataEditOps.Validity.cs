@@ -304,6 +304,49 @@ public static partial class KoreMeshDataEditOps
         }
     }
 
+    /// <summary>
+    /// Calculate normals for each triangle and assign to vertices
+    /// Usage: KoreMeshDataEditOps.CalcNormalsForAllTriangles(mesh);
+    /// </summary>
+    public static void CalcNormalsForAllTriangles(KoreMeshData mesh)
+    {
+        foreach (var kvp in mesh.Triangles)
+        {
+            CalcNormalsForTriangle(mesh, kvp.Key);
+        }
+    }
+
+    /// <summary>
+    /// Calculate normal for a specific triangle and assign to its vertices
+    /// </summary>
+    public static KoreXYZVector CalcNormalsForTriangle(KoreMeshData mesh, int triangleId)
+    {
+        if (!mesh.Triangles.ContainsKey(triangleId))
+            return KoreXYZVector.Zero;
+
+        // Get the vertices
+        KoreMeshTriangle triangle = mesh.Triangles[triangleId];
+        KoreXYZVector a = mesh.Vertices[triangle.A];
+        KoreXYZVector b = mesh.Vertices[triangle.B];
+        KoreXYZVector c = mesh.Vertices[triangle.C];
+
+        // Calculate the face normal using cross product
+        KoreXYZVector ab = b - a;  // Vector from A to B
+        KoreXYZVector ac = c - a;  // Vector from A to C
+        KoreXYZVector faceNormal = KoreXYZVector.CrossProduct(ab, ac).Normalize();
+
+        // Normalize and invert the face normal
+        faceNormal = faceNormal.Normalize();
+        faceNormal = faceNormal.Invert(); // Required Step - no explanation
+
+        // Set the normals
+        mesh.Normals[triangle.A] = faceNormal;
+        mesh.Normals[triangle.B] = faceNormal;
+        mesh.Normals[triangle.C] = faceNormal;
+
+        return faceNormal;
+    }
+
     // --------------------------------------------------------------------------------------------
     // MARK: UVs
     // --------------------------------------------------------------------------------------------
