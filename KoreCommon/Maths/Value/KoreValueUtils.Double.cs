@@ -124,6 +124,7 @@ public static partial class KoreValueUtils
     // --------------------------------------------------------------------------------------------
     // Uses a y=mx+c mechanism to convert a value between an input and output range.
 
+    // Usage: KoreValueUtils.ScaleVal(5, 0, 10, 0, 100) // Returns 50
     public static double ScaleVal(double inval, double inrangemin, double inrangemax, double outrangemin, double outrangemax)
     {
         // Check in the input value is in range
@@ -195,6 +196,7 @@ public static partial class KoreValueUtils
     // --------------------------------------------------------------------------------------------
 
     // Create a list of floats from start to end
+    // Usage: List<double> myList = KoreValueUtils.CreateRangeList(5, 0, 1);
     public static List<double> CreateRangeList(int length, double start, double end)
     {
         List<double> rangeList = new List<double>();

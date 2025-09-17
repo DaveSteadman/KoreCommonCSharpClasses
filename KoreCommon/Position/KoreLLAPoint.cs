@@ -63,11 +63,11 @@ public struct KoreLLAPoint
     // Note that fields can be set:
     //   KoreLLAPoint pos = new KoreLLAPoint() { latDegs = X, LonDegs = Y, AltMslM = Z };
 
-    public KoreLLAPoint(double laRads, double loRads, double altM)
+    public KoreLLAPoint(double laRads, double loRads, double radiusM)
     {
         this.LatRads = laRads;
         this.LonRads = loRads;
-        this.RadiusM = altM;
+        this.RadiusM = radiusM;
     }
 
     public KoreLLAPoint(double laRads, double loRads)
@@ -82,6 +82,13 @@ public struct KoreLLAPoint
         this.LatRads = llPoint.LatRads;
         this.LonRads = llPoint.LonRads;
         this.RadiusM = KoreWorldConsts.EarthRadiusM;
+    }
+
+    public KoreLLAPoint(KoreLLPoint llPoint, double radiusM)
+    {
+        this.LatRads = llPoint.LatRads;
+        this.LonRads = llPoint.LonRads;
+        this.RadiusM = radiusM;
     }
 
     public static KoreLLAPoint Zero
@@ -110,16 +117,30 @@ public struct KoreLLAPoint
         return new KoreLLAPoint(LatRads, LonRads, retElev);
     }
 
+    // Currently consider the wrapping of latitude and longitude values to be done by the caller, in case consistency over the dateline is desired.
+    public KoreLLAPoint WrapValues()
+    {
+        double newLonRads = KoreNumericRange<double>.MinusPiToPiRadians.Apply(LonRads);
+
+        return new KoreLLAPoint(LatRads, newLonRads, RadiusM);
+    }
+
+
     // --------------------------------------------------------------------------------------------
     // MARK: Conversion
     // --------------------------------------------------------------------------------------------
 
+    // Convert To/From XYZ coordinates
+    // - Where X = right to longitude 90� (East)
+    // -       Y = up to North Pole (lat 90�) and Y-ve to South Pole (lat -90�)
+    // -       Z = forward to zero lat/long and Z-ve to longitude 180 (date line)
+
     public KoreXYZVector ToXYZ()
     {
         KoreXYZVector retXYZ = new KoreXYZVector(
-            RadiusM * Math.Cos(LatRads) * Math.Cos(LonRads),
-            RadiusM * Math.Sin(LatRads),
-            RadiusM * Math.Cos(LatRads) * Math.Sin(LonRads));
+            RadiusM * Math.Cos(LatRads) * Math.Sin(LonRads),   // X = r.cos(lat).sin(lon) - to match +X=lon90
+            RadiusM * Math.Sin(LatRads),                       // Y = r.sin(lat)
+            RadiusM * Math.Cos(LatRads) * Math.Cos(LonRads));  // Z = r.cos(lat).cos(lon) - to match +Z=lon0
         return retXYZ;
     }
 
@@ -129,11 +150,11 @@ public struct KoreLLAPoint
         double radius = inputXYZ.Magnitude;
 
         // Protect against div0 radius
-        if (radius < KoreWorldConsts.MinCalculationRadiusM)
+        if (radius < KoreConsts.ArbitrarySmallDouble)
             return KoreLLAPoint.Zero;
 
         double latRads = Math.Asin(inputXYZ.Y / radius);
-        double lonRads = Math.Atan2(inputXYZ.Z, inputXYZ.X);
+        double lonRads = Math.Atan2(inputXYZ.X, inputXYZ.Z);  // Fixed to match comment: +Z=lon0, +X=lon90
         return new KoreLLAPoint(latRads, lonRads, radius);
     }
 

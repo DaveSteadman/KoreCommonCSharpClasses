@@ -3,10 +3,13 @@ using System.Collections.Generic;
 namespace KoreCommon;
 
 
-// Usage: KoreColorRGB myCol = KoreColorPalette.Colors["DarkYellow"];
+// Usage: KoreColorRGB myCol = KoreColorPalette.Colors["MutedCyan"];
 
 public static class KoreColorPalette
 {
+    public static KoreColorRGB DefaultColor = new KoreColorRGB(255, 255, 255); // KoreColorPalette.DefaultColor
+    public static string DefaultColorName = "White";
+
     public static readonly Dictionary<string, KoreColorRGB> Colors = new Dictionary<string, KoreColorRGB>
     {
         // Primary colors (1s & 0s)
@@ -109,4 +112,71 @@ public static class KoreColorPalette
         { "MutedSilver", new KoreColorRGB(153, 153, 153) },
         { "MutedBronze", new KoreColorRGB(179, 128,  77) }
     };
+
+    public static KoreColorRGB Find(string name)
+    {
+        // Case-insensitive search through the colors dictionary
+        foreach (var kvp in Colors)
+        {
+            if (string.Equals(kvp.Key, name, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return kvp.Value;
+            }
+        }
+
+        return DefaultColor; // Default color
+    }
+
+    public static KoreColorList ToColorList()
+    {
+        var list = new KoreColorList();
+        foreach (var col in Colors.Values)
+            list.AddColor(col);
+        return list;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    // Pick a random color from the palette
+    // Usage: KoreColorRGB randCol = KoreColorPalette.RandomColor();
+
+    public static KoreColorRGB RandomColor()
+    {
+        var rand = new System.Random();
+        int index = rand.Next(Colors.Count);
+        foreach (var color in Colors.Values)
+        {
+            if (index == 0)
+                return color;
+            index--;
+        }
+        return DefaultColor; // Fallback, should not reach here
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    // Get the name and color of the closest match in the palette to the given color
+    // Usage: (string name, KoreColorRGB col) = KoreColorPalette.ClosestColor(targetColor);
+
+    public static (string, KoreColorRGB) ClosestColor(KoreColorRGB targetColor)
+    {
+        // Initialise our working variables off the first list entry
+        float closestDist = KoreColorOps.ColorDistance(KoreColorPalette.Colors["White"], targetColor);
+        string closestName = KoreColorPalette.DefaultColorName;
+
+        foreach (var kvp in Colors)
+        {
+            string colorName = kvp.Key;
+            KoreColorRGB colorValue = kvp.Value;
+
+            float currDist = KoreColorOps.ColorDistance(colorValue, targetColor);
+            if (currDist < closestDist)
+            {
+                closestDist = currDist;
+                closestName = colorName;
+            }
+        }
+        return (closestName, Colors[closestName]);
+    }
+
 }

@@ -1,3 +1,5 @@
+// <fileheader>
+
 using System;
 
 // KoreXYZVector: A class to hold an XYZ vector. Units are abstract, for the consumer to decide the context.
@@ -99,6 +101,12 @@ public struct KoreXYZVector
                Math.Abs(Y - other.Y) < tolerance &&
                Math.Abs(Z - other.Z) < tolerance;
     }
+    
+    
+    public KoreXYZVector FlipX() { return new KoreXYZVector(-X, Y, Z); }
+    public KoreXYZVector FlipY() { return new KoreXYZVector(X, -Y, Z); }
+    public KoreXYZVector FlipZ() { return new KoreXYZVector(X, Y, -Z); }
+    
 
     // --------------------------------------------------------------------------------------------
 

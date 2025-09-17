@@ -1,5 +1,6 @@
 using System;
-
+using System.Collections.Generic;
+using System.Linq;
 using KoreCommon;
 namespace KoreCommon.UnitTest;
 
@@ -13,6 +14,7 @@ public static class KoreTestMath
             TestValueUtilsInt(testLog);
             TestValueUtilsFloat(testLog);
             TestFloat1DArray_Basics(testLog);
+            TestNumberRange(testLog);
         }
         catch (Exception ex)
         {
@@ -132,4 +134,16 @@ public static class KoreTestMath
         // testLog.Add("Array[5]", KoreValueUtils.EqualsWithinTolerance(array[5], /* expected value */));
     }
 
+    private static void TestNumberRange(KoreTestLog testLog)
+    {
+
+        {
+            List<double> testList = KoreValueUtils.CreateRangeList(10, -3, +3);
+
+            // concatenate the list into a CSV string, formatted F3
+            string csvStr = string.Join(", ", testList.Select(x => x.ToString("F3")));
+            testLog.AddComment($"Number Range: {csvStr}");
+        }
+
+    }
 }

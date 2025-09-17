@@ -2,13 +2,15 @@
 
 // Environment Creation:
 // dotnet new console -n UnitTest
-// dotnet add package System.Data.SQLite
+// dotnet add package Microsoft.Data.Sqlite
 // dotnet add package SkiaSharp
 // dotnet new console
 
 // Environment update:
 // dotnet list package --outdated
 // dotnet workload update
+
+// dotnet remove package System.Data.SQLite
 
 
 using KoreCommon;
