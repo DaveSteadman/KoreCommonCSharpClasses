@@ -8,9 +8,9 @@ using KoreCommon.UnitTest;
 
 #nullable enable
 
-public class KoreCliCmdCommonUnitTest : KoreCommand
+public class KoreCommandCommonUnitTest : KoreCommand
 {
-    public KoreCliCmdCommonUnitTest()
+    public KoreCommandCommonUnitTest()
     {
         Signature.Add("unittest");
         Signature.Add("common");
@@ -42,7 +42,7 @@ public class KoreCliCmdCommonUnitTest : KoreCommand
         }
         catch (System.Exception ex)
         {
-            sb.AppendLine($"KoreCliCmdFileRename: ERROR - Rename failed: {ex.Message}");
+            sb.AppendLine($"KoreCommandFileRename: ERROR - Rename failed: {ex.Message}");
         }
 
         return sb.ToString();

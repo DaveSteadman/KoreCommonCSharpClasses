@@ -84,7 +84,7 @@ public struct KoreLLPoint
             return KoreLLPoint.Zero;
 
         double latRads = Math.Asin(inputXYZ.Y / radius);
-        double lonRads = Math.Atan2(inputXYZ.X, inputXYZ.Z);  // Fixed to match comment: +Z=lon0�, +X=lon90�
+        double lonRads = Math.Atan2(inputXYZ.X, inputXYZ.Z);
         return new KoreLLPoint(latRads, lonRads);
     }
 

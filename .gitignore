@@ -4,3 +4,4 @@
 test_db.sqlite
 *.bak
 /UnitTestArtefacts
+*.uid
