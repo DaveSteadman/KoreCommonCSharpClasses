@@ -17,7 +17,9 @@ public partial class KoreGeoFeatureLibrary
 
     // Type-specific indexes for faster querying
     private Dictionary<string, KoreGeoPoint> points = new Dictionary<string, KoreGeoPoint>();
+    private Dictionary<string, KoreGeoMultiPoint> multiPoints = new Dictionary<string, KoreGeoMultiPoint>();
     private Dictionary<string, KoreGeoLine> lines = new Dictionary<string, KoreGeoLine>();
+    private Dictionary<string, KoreGeoMultiLineString> multiLines = new Dictionary<string, KoreGeoMultiLineString>();
     private Dictionary<string, KoreGeoPolygon> polygons = new Dictionary<string, KoreGeoPolygon>();
     private Dictionary<string, KoreGeoCircle> circles = new Dictionary<string, KoreGeoCircle>();
 
@@ -54,6 +56,14 @@ public partial class KoreGeoFeatureLibrary
             }
         }
 
+        foreach (var multiLine in multiLines.Values)
+        {
+            if (multiLine.LineStrings.Any(line => line.Any(p => bounds.Contains(p))))
+            {
+                result.Add(multiLine);
+            }
+        }
+
         // Add polygons with any point in bounds
         foreach (var polygon in polygons.Values)
         {
@@ -69,6 +79,14 @@ public partial class KoreGeoFeatureLibrary
             if (bounds.Contains(circle.Center))
             {
                 result.Add(circle);
+            }
+        }
+
+        foreach (var multiPoint in multiPoints.Values)
+        {
+            if (multiPoint.Points.Any(bounds.Contains))
+            {
+                result.Add(multiPoint);
             }
         }
 
@@ -108,9 +126,9 @@ public partial class KoreGeoFeatureLibrary
     /// <summary>
     /// Get the number of features by type
     /// </summary>
-    public (int Points, int Lines, int Polygons, int Circles) GetCountsByType()
+    public (int Points, int MultiPoints, int Lines, int MultiLineStrings, int Polygons, int Circles) GetCountsByType()
     {
-        return (points.Count, lines.Count, polygons.Count, circles.Count);
+        return (points.Count, multiPoints.Count, lines.Count, multiLines.Count, polygons.Count, circles.Count);
     }
 
     /// <summary>
@@ -135,6 +153,18 @@ public partial class KoreGeoFeatureLibrary
             maxLon = Math.Max(maxLon, point.Position.LonDegs);
         }
 
+        // Check all point collections
+        foreach (var multiPoint in multiPoints.Values)
+        {
+            foreach (var p in multiPoint.Points)
+            {
+                minLat = Math.Min(minLat, p.LatDegs);
+                maxLat = Math.Max(maxLat, p.LatDegs);
+                minLon = Math.Min(minLon, p.LonDegs);
+                maxLon = Math.Max(maxLon, p.LonDegs);
+            }
+        }
+
         // Check all line points
         foreach (var line in lines.Values)
         {
@@ -144,6 +174,20 @@ public partial class KoreGeoFeatureLibrary
                 maxLat = Math.Max(maxLat, p.LatDegs);
                 minLon = Math.Min(minLon, p.LonDegs);
                 maxLon = Math.Max(maxLon, p.LonDegs);
+            }
+        }
+
+        foreach (var multiLine in multiLines.Values)
+        {
+            foreach (var line in multiLine.LineStrings)
+            {
+                foreach (var p in line)
+                {
+                    minLat = Math.Min(minLat, p.LatDegs);
+                    maxLat = Math.Max(maxLat, p.LatDegs);
+                    minLon = Math.Min(minLon, p.LonDegs);
+                    maxLon = Math.Max(maxLon, p.LonDegs);
+                }
             }
         }
 

@@ -35,8 +35,14 @@ public partial class KoreGeoFeatureLibrary
             case KoreGeoPoint point:
                 points[feature.Name] = point;
                 break;
+            case KoreGeoMultiPoint multiPoint:
+                multiPoints[feature.Name] = multiPoint;
+                break;
             case KoreGeoLine line:
                 lines[feature.Name] = line;
+                break;
+            case KoreGeoMultiLineString multiLine:
+                multiLines[feature.Name] = multiLine;
                 break;
             case KoreGeoPolygon polygon:
                 polygons[feature.Name] = polygon;
@@ -68,7 +74,9 @@ public partial class KoreGeoFeatureLibrary
 
         features.Remove(name);
         points.Remove(name);
+        multiPoints.Remove(name);
         lines.Remove(name);
+        multiLines.Remove(name);
         polygons.Remove(name);
         circles.Remove(name);
 
@@ -82,7 +90,9 @@ public partial class KoreGeoFeatureLibrary
     {
         features.Clear();
         points.Clear();
+        multiPoints.Clear();
         lines.Clear();
+        multiLines.Clear();
         polygons.Clear();
         circles.Clear();
     }

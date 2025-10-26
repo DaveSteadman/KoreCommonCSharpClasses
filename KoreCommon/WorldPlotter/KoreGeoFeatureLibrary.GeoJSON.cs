@@ -101,6 +101,23 @@ public partial class KoreGeoFeatureLibrary
             });
         }
 
+        // Export all multi points
+        foreach (var multiPoint in GetAllMultiPoints())
+        {
+            var properties = BuildMultiPointProperties(multiPoint);
+
+            allFeatures.Add(new
+            {
+                type = "Feature",
+                properties,
+                geometry = new
+                {
+                    type = "MultiPoint",
+                    coordinates = multiPoint.Points.ConvertAll(p => new[] { p.LonDegs, p.LatDegs })
+                }
+            });
+        }
+
         // Export all lines
         foreach (var line in GetAllLines())
         {
@@ -114,6 +131,23 @@ public partial class KoreGeoFeatureLibrary
                 {
                     type = "LineString",
                     coordinates = line.Points.ConvertAll(p => new[] { p.LonDegs, p.LatDegs })
+                }
+            });
+        }
+
+        // Export all multi line strings
+        foreach (var multiLine in GetAllMultiLineStrings())
+        {
+            var properties = BuildMultiLineProperties(multiLine);
+
+            allFeatures.Add(new
+            {
+                type = "Feature",
+                properties,
+                geometry = new
+                {
+                    type = "MultiLineString",
+                    coordinates = multiLine.LineStrings.ConvertAll(line => line.ConvertAll(p => new[] { p.LonDegs, p.LatDegs }))
                 }
             });
         }
@@ -183,8 +217,14 @@ public partial class KoreGeoFeatureLibrary
             case "Point":
                 ImportPointFeature(featureElement, geometryElement);
                 break;
+            case "MultiPoint":
+                ImportMultiPointFeature(featureElement, geometryElement);
+                break;
             case "LineString":
                 ImportLineFeature(featureElement, geometryElement);
+                break;
+            case "MultiLineString":
+                ImportMultiLineStringFeature(featureElement, geometryElement);
                 break;
             case "Polygon":
                 ImportPolygonFeature(featureElement, geometryElement);
