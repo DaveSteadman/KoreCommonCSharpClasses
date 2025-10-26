@@ -46,7 +46,7 @@ public static class KoreTestWorldPlotter
                 int polygonCount = 0;
 
                 // Define base color for all countries
-                KoreColorRGB baseColor = new KoreColorRGB(230, 230, 220, 150);
+                KoreColorRGB baseColor = new KoreColorRGB(210, 210, 210, 150);
 
                 foreach (var geoPolygon in countriesLibrary.GetAllPolygons())
                 {
@@ -54,7 +54,7 @@ public static class KoreTestWorldPlotter
                     geoPolygon.StrokeWidth = 0.5;
 
                     // Apply random color variation to single polygons too
-                    KoreColorRGB noiseColor = KoreColorOps.ColorWithRGBNoise(baseColor, 0.1f);
+                    KoreColorRGB noiseColor = KoreColorOps.ColorWithRGBNoise(baseColor, 0.2f);
                     geoPolygon.FillColor = noiseColor;
 
                     worldPlotter.DrawGeoPolygon(geoPolygon);
@@ -371,7 +371,7 @@ public static class KoreTestWorldPlotter
                 airportsLibrary.LoadFromGeoJSON(airportsPath);
 
                 // Get all airports that have an ICAO code
-                var airportsWithIcao = airportsLibrary.GetFeaturesWithProperty("icao");
+                var airportsWithIcao = airportsLibrary.GetFeaturesWithPropertyName("icao");
 
                 int airportCount = 0;
                 foreach (var feature in airportsWithIcao)

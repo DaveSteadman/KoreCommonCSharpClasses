@@ -18,99 +18,29 @@ public partial class KoreGeoFeatureLibrary
     // MARK: Basic Queries
     // --------------------------------------------------------------------------------------------
 
-    public KoreGeoFeature? GetFeature(string name)
-    {
-        Features.TryGetValue(name, out var feature);
-        return feature;
-    }
+    public KoreGeoFeature? GetFeature(string name) { Features.TryGetValue(name, out var feature); return feature; }
+    public KoreGeoPoint? GetPoint(string name) { Points.TryGetValue(name, out var point); return point; }
+    public KoreGeoMultiPoint? GetMultiPoint(string name) { MultiPoints.TryGetValue(name, out var multiPoint); return multiPoint; }
+    public KoreGeoLineString? GetLineString(string name) { LineStrings.TryGetValue(name, out var lineString); return lineString; }
+    public KoreGeoMultiLineString? GetMultiLineString(string name) { MultiLines.TryGetValue(name, out var multiLine); return multiLine; }
+    public KoreGeoPolygon? GetPolygon(string name) { Polygons.TryGetValue(name, out var polygon); return polygon; }
+    public KoreGeoMultiPolygon? GetMultiPolygon(string name) { MultiPolygons.TryGetValue(name, out var mulPoly); return mulPoly; }
+    public KoreGeoCircle? GetCircle(string name) { Circles.TryGetValue(name, out var circle); return circle; }
 
-    public KoreGeoPoint? GetPoint(string name)
-    {
-        Points.TryGetValue(name, out var point);
-        return point;
-    }
-
-    public KoreGeoMultiPoint? GetMultiPoint(string name)
-    {
-        MultiPoints.TryGetValue(name, out var multiPoint);
-        return multiPoint;
-    }
-
-    public KoreGeoLineString? GetLineString(string name)
-    {
-        LineStrings.TryGetValue(name, out var lineString);
-        return lineString;
-    }
-
-    public KoreGeoMultiLineString? GetMultiLineString(string name)
-    {
-        MultiLines.TryGetValue(name, out var multiLine);
-        return multiLine;
-    }
-
-    public KoreGeoPolygon? GetPolygon(string name)
-    {
-        Polygons.TryGetValue(name, out var polygon);
-        return polygon;
-    }
-
-    public KoreGeoMultiPolygon? GetMultiPolygon(string name)
-    {
-        MultiPolygons.TryGetValue(name, out var multiPolygon);
-        return multiPolygon;
-    }
-
-    public KoreGeoCircle? GetCircle(string name)
-    {
-        Circles.TryGetValue(name, out var circle);
-        return circle;
-    }
-
-    public List<KoreGeoFeature> GetAllFeatures()
-    {
-        return Features.Values.ToList();
-    }
-
-    public List<KoreGeoPoint> GetAllPoints()
-    {
-        return Points.Values.ToList();
-    }
-
-    public List<KoreGeoMultiPoint> GetAllMultiPoints()
-    {
-        return MultiPoints.Values.ToList();
-    }
-
-    public List<KoreGeoLineString> GetAllLineStrings()
-    {
-        return LineStrings.Values.ToList();
-    }
-
-    public List<KoreGeoMultiLineString> GetAllMultiLineStrings()
-    {
-        return MultiLines.Values.ToList();
-    }
-
-    public List<KoreGeoPolygon> GetAllPolygons()
-    {
-        return Polygons.Values.ToList();
-    }
-
-    public List<KoreGeoMultiPolygon> GetAllMultiPolygons()
-    {
-        return MultiPolygons.Values.ToList();
-    }
-
-    public List<KoreGeoCircle> GetAllCircles()
-    {
-        return Circles.Values.ToList();
-    }
+    public List<KoreGeoFeature> GetAllFeatures() { return Features.Values.ToList(); }
+    public List<KoreGeoPoint> GetAllPoints() { return Points.Values.ToList(); }
+    public List<KoreGeoMultiPoint> GetAllMultiPoints() { return MultiPoints.Values.ToList(); }
+    public List<KoreGeoLineString> GetAllLineStrings() { return LineStrings.Values.ToList(); }
+    public List<KoreGeoMultiLineString> GetAllMultiLineStrings() { return MultiLines.Values.ToList(); }
+    public List<KoreGeoPolygon> GetAllPolygons() { return Polygons.Values.ToList(); }
+    public List<KoreGeoMultiPolygon> GetAllMultiPolygons() { return MultiPolygons.Values.ToList(); }
+    public List<KoreGeoCircle> GetAllCircles() { return Circles.Values.ToList(); }
 
     // --------------------------------------------------------------------------------------------
     // MARK: Complex Queries
     // --------------------------------------------------------------------------------------------
 
-    public List<KoreGeoFeature> GetFeaturesWithProperty(string propertyName)
+    public List<KoreGeoFeature> GetFeaturesWithPropertyName(string propertyName)
     {
         return Features.Values.Where(f =>
             f.Properties.ContainsKey(propertyName) &&
@@ -171,7 +101,41 @@ public partial class KoreGeoFeatureLibrary
                     break;
             }
         }
-
         return result;
     }
+
+    // --------------------------------------------------------------------------------------------
+
+    public static List<KoreGeoFeature> FilterFeaturesByPropertyName(List<KoreGeoFeature> featuresToFilter, string propertyName)
+    {
+        var result = new List<KoreGeoFeature>();
+        foreach (var feature in featuresToFilter)
+        {
+            if (feature.Properties.ContainsKey(propertyName) &&
+                feature.Properties[propertyName] != null &&
+                feature.Properties[propertyName].ToString() != string.Empty)
+            {
+                result.Add(feature);
+            }
+        }
+        return result;
+    }
+
+    public static List<KoreGeoFeature> FilterFeaturesByPropertyValue(List<KoreGeoFeature> featuresToFilter, string propertyName, object value)
+    {
+        var result = new List<KoreGeoFeature>();
+        foreach (var feature in featuresToFilter)
+        {
+            if (feature.Properties.ContainsKey(propertyName) &&
+                feature.Properties[propertyName] != null &&
+                feature.Properties[propertyName].Equals(value))
+            {
+                result.Add(feature);
+            }
+        }
+        return result;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
 }
