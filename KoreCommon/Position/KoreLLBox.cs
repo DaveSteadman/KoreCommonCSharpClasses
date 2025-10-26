@@ -134,6 +134,34 @@ public struct KoreLLBox
 
     // --------------------------------------------------------------------------------------------
 
+    // Create a new KoreLLBox that encompasses all the given points
+    // Usage: KoreLLBox box = KoreLLBox.FromList(pointList);
+    public static KoreLLBox FromList(List<KoreLLPoint> inPoints)
+    {
+        double minLat = double.MaxValue;
+        double maxLat = double.MinValue;
+        double minLon = double.MaxValue;
+        double maxLon = double.MinValue;
+
+        foreach (var p in inPoints)
+        {
+            minLat = Math.Min(minLat, p.LatRads);
+            maxLat = Math.Max(maxLat, p.LatRads);
+            minLon = Math.Min(minLon, p.LonRads);
+            maxLon = Math.Max(maxLon, p.LonRads);
+        }
+
+        return new KoreLLBox()
+        {
+            MinLatRads = minLat,
+            MaxLatRads = maxLat,
+            MinLonRads = minLon,
+            MaxLonRads = maxLon
+        };
+    }
+
+    // --------------------------------------------------------------------------------------------
+
     public bool Contains(KoreLLPoint inPos)
     {
         if (inPos.LatRads < MinLatRads) return false;

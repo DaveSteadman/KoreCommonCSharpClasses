@@ -1,5 +1,7 @@
 // <fileheader>
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -47,6 +49,9 @@ public partial class KoreGeoFeatureLibrary
         // Need at least 2 points for a line
         if (lineString.Points.Count < 2)
             return;
+
+        // Load optional id field (RFC 7946 Section 3.2)
+        PopulateFeatureId(lineString, featureElement);
 
         // Load properties (name, lineWidth, color, etc.)
         if (featureElement.TryGetProperty("properties", out var propertiesElement) && propertiesElement.ValueKind == JsonValueKind.Object)

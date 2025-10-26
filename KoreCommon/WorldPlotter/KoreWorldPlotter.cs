@@ -30,7 +30,7 @@ public class KoreWorldPlotter
     public KoreXYRect PixelBounds { get; private set; }
 
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // MARK: Constructors
     // --------------------------------------------------------------------------------------------
 
     /// <summary>
@@ -54,7 +54,7 @@ public class KoreWorldPlotter
     }
 
     // --------------------------------------------------------------------------------------------
-    // Coordinate Mapping: Lat/Lon <-> Pixel
+    // MARK: Coordinate Mapping: Lat/Lon <-> Pixel
     // --------------------------------------------------------------------------------------------
 
     /// <summary>
@@ -91,7 +91,7 @@ public class KoreWorldPlotter
     public KoreLLPoint PixelToLatLon(double x, double y)
     {
         // Reverse equirectangular projection
-        double lonDegs = MinLonDegs + (x / Width) * (MaxLonDegs - MinLonDegs);
+        double lonDegs = MinLonDegs + (x / Width)  * (MaxLonDegs - MinLonDegs);
         double latDegs = MaxLatDegs - (y / Height) * (MaxLatDegs - MinLatDegs); // Flip Y back
 
         return new KoreLLPoint { LatDegs = latDegs, LonDegs = lonDegs };
@@ -121,7 +121,7 @@ public class KoreWorldPlotter
     }
 
     // --------------------------------------------------------------------------------------------
-    // Geographic Feature Drawing
+    // MARK: Point
     // --------------------------------------------------------------------------------------------
 
     /// <summary>
@@ -137,6 +137,10 @@ public class KoreWorldPlotter
         }
     }
 
+    // --------------------------------------------------------------------------------------------
+    // MARK: MultiPoint
+    // --------------------------------------------------------------------------------------------
+
     /// <summary>
     /// Draw a geographic multi-point feature
     /// </summary>
@@ -147,6 +151,10 @@ public class KoreWorldPlotter
             DrawPoint(point, geoMultiPoint.Color, geoMultiPoint.Size);
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: LineString
+    // --------------------------------------------------------------------------------------------
 
     /// <summary>
     /// Draw a geographic line string feature
@@ -167,6 +175,10 @@ public class KoreWorldPlotter
             Plotter.DrawLine(startPixel, endPixel);
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: MultiLineString
+    // --------------------------------------------------------------------------------------------
 
     /// <summary>
     /// Draw a geographic multi-line string feature
@@ -192,6 +204,10 @@ public class KoreWorldPlotter
             }
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: Polygon
+    // --------------------------------------------------------------------------------------------
 
     /// <summary>
     /// Draw a geographic polygon feature
@@ -270,6 +286,10 @@ public class KoreWorldPlotter
         }
     }
 
+    // --------------------------------------------------------------------------------------------
+    // MARK: MultiPolygon
+    // --------------------------------------------------------------------------------------------
+
     /// <summary>
     /// Draw a geographic multi-polygon feature
     /// </summary>
@@ -303,6 +323,10 @@ public class KoreWorldPlotter
             polygon.StrokeWidth = originalStrokeWidth;
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: Circle
+    // --------------------------------------------------------------------------------------------
 
     /// <summary>
     /// Draw a geographic circle feature
@@ -342,6 +366,10 @@ public class KoreWorldPlotter
             Plotter.DrawPointAsCircle(centerSK, (int)radiusPixels);
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: Collection
+    // --------------------------------------------------------------------------------------------
 
     /// <summary>
     /// Draw an entire feature collection

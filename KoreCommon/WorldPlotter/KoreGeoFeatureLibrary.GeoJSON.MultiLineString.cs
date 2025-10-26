@@ -1,5 +1,7 @@
 // <fileheader>
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -58,6 +60,9 @@ public partial class KoreGeoFeatureLibrary
 
         if (multiLine.LineStrings.Count == 0)
             return;
+
+        // Load optional id field (RFC 7946 Section 3.2)
+        PopulateFeatureId(multiLine, featureElement);
 
         if (featureElement.TryGetProperty("properties", out var propertiesElement) && propertiesElement.ValueKind == JsonValueKind.Object)
         {

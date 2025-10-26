@@ -13,16 +13,16 @@ namespace KoreCommon;
 public partial class KoreGeoFeatureLibrary
 {
     // Core storage - features indexed by name
-    private Dictionary<string, KoreGeoFeature> features = new Dictionary<string, KoreGeoFeature>();
+    private Dictionary<string, KoreGeoFeature>         Features     = new Dictionary<string, KoreGeoFeature>();
 
     // Type-specific indexes for faster querying
-    private Dictionary<string, KoreGeoPoint> points = new Dictionary<string, KoreGeoPoint>();
-    private Dictionary<string, KoreGeoMultiPoint> multiPoints = new Dictionary<string, KoreGeoMultiPoint>();
-    private Dictionary<string, KoreGeoLineString> lineStrings = new Dictionary<string, KoreGeoLineString>();
-    private Dictionary<string, KoreGeoMultiLineString> multiLines = new Dictionary<string, KoreGeoMultiLineString>();
-    private Dictionary<string, KoreGeoPolygon> polygons = new Dictionary<string, KoreGeoPolygon>();
-    private Dictionary<string, KoreGeoMultiPolygon> multiPolygons = new Dictionary<string, KoreGeoMultiPolygon>();
-    private Dictionary<string, KoreGeoCircle> circles = new Dictionary<string, KoreGeoCircle>();
+    private Dictionary<string, KoreGeoPoint>           Points        = new Dictionary<string, KoreGeoPoint>();
+    private Dictionary<string, KoreGeoMultiPoint>      MultiPoints   = new Dictionary<string, KoreGeoMultiPoint>();
+    private Dictionary<string, KoreGeoLineString>      LineStrings   = new Dictionary<string, KoreGeoLineString>();
+    private Dictionary<string, KoreGeoMultiLineString> MultiLines    = new Dictionary<string, KoreGeoMultiLineString>();
+    private Dictionary<string, KoreGeoPolygon>         Polygons      = new Dictionary<string, KoreGeoPolygon>();
+    private Dictionary<string, KoreGeoMultiPolygon>    MultiPolygons = new Dictionary<string, KoreGeoMultiPolygon>();
+    private Dictionary<string, KoreGeoCircle>          Circles       = new Dictionary<string, KoreGeoCircle>();
 
     public string Name { get; set; } = string.Empty;
 
@@ -35,7 +35,7 @@ public partial class KoreGeoFeatureLibrary
     /// </summary>
     public IEnumerable<KoreGeoPoint> GetPointsInBox(KoreLLBox bounds)
     {
-        return points.Values.Where(p => bounds.Contains(p.Position));
+        return Points.Values.Where(p => bounds.Contains(p.Position));
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public partial class KoreGeoFeatureLibrary
         result.AddRange(GetPointsInBox(bounds));
 
         // Add line strings with any point in bounds
-        foreach (var line in lineStrings.Values)
+        foreach (var line in LineStrings.Values)
         {
             if (line.Points.Any(p => bounds.Contains(p)))
             {
@@ -57,7 +57,7 @@ public partial class KoreGeoFeatureLibrary
             }
         }
 
-        foreach (var multiLine in multiLines.Values)
+        foreach (var multiLine in MultiLines.Values)
         {
             if (multiLine.LineStrings.Any(line => line.Any(p => bounds.Contains(p))))
             {
@@ -66,7 +66,7 @@ public partial class KoreGeoFeatureLibrary
         }
 
         // Add polygons with any point in bounds
-        foreach (var polygon in polygons.Values)
+        foreach (var polygon in Polygons.Values)
         {
             if (polygon.OuterRing.Any(p => bounds.Contains(p)))
             {
@@ -74,7 +74,7 @@ public partial class KoreGeoFeatureLibrary
             }
         }
 
-        foreach (var multiPolygon in multiPolygons.Values)
+        foreach (var multiPolygon in MultiPolygons.Values)
         {
             if (multiPolygon.Polygons.Any(poly => poly.OuterRing.Any(p => bounds.Contains(p))))
             {
@@ -83,7 +83,7 @@ public partial class KoreGeoFeatureLibrary
         }
 
         // Add circles with center in bounds
-        foreach (var circle in circles.Values)
+        foreach (var circle in Circles.Values)
         {
             if (bounds.Contains(circle.Center))
             {
@@ -91,7 +91,7 @@ public partial class KoreGeoFeatureLibrary
             }
         }
 
-        foreach (var multiPoint in multiPoints.Values)
+        foreach (var multiPoint in MultiPoints.Values)
         {
             if (multiPoint.Points.Any(bounds.Contains))
             {
@@ -130,118 +130,79 @@ public partial class KoreGeoFeatureLibrary
     /// <summary>
     /// Get the total number of features
     /// </summary>
-    public int Count => features.Count;
+    public int Count => Features.Count;
 
     /// <summary>
     /// Get the number of features by type
     /// </summary>
     public (int Points, int MultiPoints, int LineStrings, int MultiLineStrings, int Polygons, int MultiPolygons, int Circles) GetCountsByType()
     {
-        return (points.Count, multiPoints.Count, lineStrings.Count, multiLines.Count, polygons.Count, multiPolygons.Count, circles.Count);
+        return (Points.Count, MultiPoints.Count, LineStrings.Count, MultiLines.Count, Polygons.Count, MultiPolygons.Count, Circles.Count);
     }
 
     /// <summary>
     /// Calculate bounding box that contains all features
+    /// Uses KoreLLBox.FromList to efficiently compute bounds from all feature points
     /// </summary>
     public KoreLLBox? CalculateBoundingBox()
     {
-        if (features.Count == 0)
+        if (Features.Count == 0)
             return null;
 
-        double minLat = double.MaxValue;
-        double maxLat = double.MinValue;
-        double minLon = double.MaxValue;
-        double maxLon = double.MinValue;
+        var allPoints = new List<KoreLLPoint>();
 
-        // Check all points
-        foreach (var point in points.Values)
+        // Collect points from all feature types
+        foreach (var point in Points.Values)
         {
-            minLat = Math.Min(minLat, point.Position.LatDegs);
-            maxLat = Math.Max(maxLat, point.Position.LatDegs);
-            minLon = Math.Min(minLon, point.Position.LonDegs);
-            maxLon = Math.Max(maxLon, point.Position.LonDegs);
+            allPoints.Add(point.Position);
         }
 
-        // Check all point collections
-        foreach (var multiPoint in multiPoints.Values)
+        foreach (var multiPoint in MultiPoints.Values)
         {
-            foreach (var p in multiPoint.Points)
-            {
-                minLat = Math.Min(minLat, p.LatDegs);
-                maxLat = Math.Max(maxLat, p.LatDegs);
-                minLon = Math.Min(minLon, p.LonDegs);
-                maxLon = Math.Max(maxLon, p.LonDegs);
-            }
+            allPoints.AddRange(multiPoint.Points);
         }
 
-        // Check all line points
-        foreach (var line in lineStrings.Values)
+        foreach (var line in LineStrings.Values)
         {
-            foreach (var p in line.Points)
-            {
-                minLat = Math.Min(minLat, p.LatDegs);
-                maxLat = Math.Max(maxLat, p.LatDegs);
-                minLon = Math.Min(minLon, p.LonDegs);
-                maxLon = Math.Max(maxLon, p.LonDegs);
-            }
+            allPoints.AddRange(line.Points);
         }
 
-        foreach (var multiLine in multiLines.Values)
+        foreach (var multiLine in MultiLines.Values)
         {
             foreach (var line in multiLine.LineStrings)
             {
-                foreach (var p in line)
-                {
-                    minLat = Math.Min(minLat, p.LatDegs);
-                    maxLat = Math.Max(maxLat, p.LatDegs);
-                    minLon = Math.Min(minLon, p.LonDegs);
-                    maxLon = Math.Max(maxLon, p.LonDegs);
-                }
+                allPoints.AddRange(line);
             }
         }
 
-        // Check all polygon points
-        foreach (var polygon in polygons.Values)
+        foreach (var polygon in Polygons.Values)
         {
-            foreach (var p in polygon.OuterRing)
+            allPoints.AddRange(polygon.OuterRing);
+            foreach (var innerRing in polygon.InnerRings)
             {
-                minLat = Math.Min(minLat, p.LatDegs);
-                maxLat = Math.Max(maxLat, p.LatDegs);
-                minLon = Math.Min(minLon, p.LonDegs);
-                maxLon = Math.Max(maxLon, p.LonDegs);
+                allPoints.AddRange(innerRing);
             }
         }
 
-        foreach (var multiPolygon in multiPolygons.Values)
+        foreach (var multiPolygon in MultiPolygons.Values)
         {
             foreach (var polygon in multiPolygon.Polygons)
             {
-                foreach (var p in polygon.OuterRing)
+                allPoints.AddRange(polygon.OuterRing);
+                foreach (var innerRing in polygon.InnerRings)
                 {
-                    minLat = Math.Min(minLat, p.LatDegs);
-                    maxLat = Math.Max(maxLat, p.LatDegs);
-                    minLon = Math.Min(minLon, p.LonDegs);
-                    maxLon = Math.Max(maxLon, p.LonDegs);
+                    allPoints.AddRange(innerRing);
                 }
             }
         }
 
-        // Check all circle centers
-        foreach (var circle in circles.Values)
+        foreach (var circle in Circles.Values)
         {
-            minLat = Math.Min(minLat, circle.Center.LatDegs);
-            maxLat = Math.Max(maxLat, circle.Center.LatDegs);
-            minLon = Math.Min(minLon, circle.Center.LonDegs);
-            maxLon = Math.Max(maxLon, circle.Center.LonDegs);
+            allPoints.Add(circle.Center);
         }
 
-        return new KoreLLBox()
-        {
-            MinLatDegs = minLat,
-            MaxLatDegs = maxLat,
-            MinLonDegs = minLon,
-            MaxLonDegs = maxLon
-        };
+        // Use KoreLLBox.FromList to calculate the bounding box efficiently
+        return allPoints.Count > 0 ? KoreLLBox.FromList(allPoints) : null;
     }
 
 }

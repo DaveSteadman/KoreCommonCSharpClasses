@@ -1,5 +1,7 @@
 // <fileheader>
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -74,6 +76,9 @@ public partial class KoreGeoFeatureLibrary
         // Must have at least an outer ring
         if (polygon.OuterRing.Count == 0)
             return;
+
+        // Load optional id field (RFC 7946 Section 3.2)
+        PopulateFeatureId(polygon, featureElement);
 
         // Load properties (name, fillColor, strokeColor, etc.)
         if (featureElement.TryGetProperty("properties", out var propertiesElement) && propertiesElement.ValueKind == JsonValueKind.Object)

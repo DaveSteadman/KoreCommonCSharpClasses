@@ -3,5 +3,5 @@
 /.vs
 test_db.sqlite
 *.bak
-/UnitTestArtefacts
 *.uid
+/UnitTestArtefacts

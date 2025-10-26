@@ -1,5 +1,7 @@
 // <fileheader>
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,165 +15,163 @@ namespace KoreCommon;
 public partial class KoreGeoFeatureLibrary
 {
     // --------------------------------------------------------------------------------------------
-    // MARK: Get Features
+    // MARK: Basic Queries
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Get any feature by name
-    /// </summary>
     public KoreGeoFeature? GetFeature(string name)
     {
-        features.TryGetValue(name, out var feature);
+        Features.TryGetValue(name, out var feature);
         return feature;
     }
 
-    /// <summary>
-    /// Get a point feature by name
-    /// </summary>
     public KoreGeoPoint? GetPoint(string name)
     {
-        points.TryGetValue(name, out var point);
+        Points.TryGetValue(name, out var point);
         return point;
     }
 
-    /// <summary>
-    /// Get a multi-point feature by name
-    /// </summary>
     public KoreGeoMultiPoint? GetMultiPoint(string name)
     {
-        multiPoints.TryGetValue(name, out var multiPoint);
+        MultiPoints.TryGetValue(name, out var multiPoint);
         return multiPoint;
     }
 
-    /// <summary>
-    /// Get a line string feature by name
-    /// </summary>
     public KoreGeoLineString? GetLineString(string name)
     {
-        lineStrings.TryGetValue(name, out var lineString);
+        LineStrings.TryGetValue(name, out var lineString);
         return lineString;
     }
 
-    /// <summary>
-    /// Get a multi-line string feature by name
-    /// </summary>
     public KoreGeoMultiLineString? GetMultiLineString(string name)
     {
-        multiLines.TryGetValue(name, out var multiLine);
+        MultiLines.TryGetValue(name, out var multiLine);
         return multiLine;
     }
 
-    /// <summary>
-    /// Get a polygon feature by name
-    /// </summary>
     public KoreGeoPolygon? GetPolygon(string name)
     {
-        polygons.TryGetValue(name, out var polygon);
+        Polygons.TryGetValue(name, out var polygon);
         return polygon;
     }
 
-    /// <summary>
-    /// Get a multi-polygon feature by name
-    /// </summary>
     public KoreGeoMultiPolygon? GetMultiPolygon(string name)
     {
-        multiPolygons.TryGetValue(name, out var multiPolygon);
+        MultiPolygons.TryGetValue(name, out var multiPolygon);
         return multiPolygon;
     }
 
-    /// <summary>
-    /// Get a circle feature by name
-    /// </summary>
     public KoreGeoCircle? GetCircle(string name)
     {
-        circles.TryGetValue(name, out var circle);
+        Circles.TryGetValue(name, out var circle);
         return circle;
     }
 
-    /// <summary>
-    /// Get all features
-    /// </summary>
-    public IEnumerable<KoreGeoFeature> GetAllFeatures()
+    public List<KoreGeoFeature> GetAllFeatures()
     {
-        return features.Values;
+        return Features.Values.ToList();
     }
 
-    /// <summary>
-    /// Get all points
-    /// </summary>
-    public IEnumerable<KoreGeoPoint> GetAllPoints()
+    public List<KoreGeoPoint> GetAllPoints()
     {
-        return points.Values;
+        return Points.Values.ToList();
     }
 
-    /// <summary>
-    /// Get all multi-point features
-    /// </summary>
-    public IEnumerable<KoreGeoMultiPoint> GetAllMultiPoints()
+    public List<KoreGeoMultiPoint> GetAllMultiPoints()
     {
-        return multiPoints.Values;
+        return MultiPoints.Values.ToList();
     }
 
-    /// <summary>
-    /// Get all line strings
-    /// </summary>
-    public IEnumerable<KoreGeoLineString> GetAllLineStrings()
+    public List<KoreGeoLineString> GetAllLineStrings()
     {
-        return lineStrings.Values;
+        return LineStrings.Values.ToList();
     }
 
-    /// <summary>
-    /// Get all multi-line string features
-    /// </summary>
-    public IEnumerable<KoreGeoMultiLineString> GetAllMultiLineStrings()
+    public List<KoreGeoMultiLineString> GetAllMultiLineStrings()
     {
-        return multiLines.Values;
+        return MultiLines.Values.ToList();
     }
 
-    /// <summary>
-    /// Get all polygons
-    /// </summary>
-    public IEnumerable<KoreGeoPolygon> GetAllPolygons()
+    public List<KoreGeoPolygon> GetAllPolygons()
     {
-        return polygons.Values;
+        return Polygons.Values.ToList();
     }
 
-    /// <summary>
-    /// Get all multi-polygons
-    /// </summary>
-    public IEnumerable<KoreGeoMultiPolygon> GetAllMultiPolygons()
+    public List<KoreGeoMultiPolygon> GetAllMultiPolygons()
     {
-        return multiPolygons.Values;
+        return MultiPolygons.Values.ToList();
     }
 
-    /// <summary>
-    /// Get all circles
-    /// </summary>
-    public IEnumerable<KoreGeoCircle> GetAllCircles()
+    public List<KoreGeoCircle> GetAllCircles()
     {
-        return circles.Values;
+        return Circles.Values.ToList();
     }
 
-    /// <summary>
-    /// Get all features that have a specific property defined (property exists and is not null/empty)
-    /// </summary>
-    public IEnumerable<KoreGeoFeature> GetFeaturesWithProperty(string propertyName)
+    // --------------------------------------------------------------------------------------------
+    // MARK: Complex Queries
+    // --------------------------------------------------------------------------------------------
+
+    public List<KoreGeoFeature> GetFeaturesWithProperty(string propertyName)
     {
-        return features.Values.Where(f =>
+        return Features.Values.Where(f =>
             f.Properties.ContainsKey(propertyName) &&
             f.Properties[propertyName] != null &&
-            f.Properties[propertyName].ToString() != string.Empty);
+            f.Properties[propertyName].ToString() != string.Empty).ToList();
     }
 
-    /// <summary>
-    /// Get all features where a property matches a specific value
-    /// </summary>
-    public IEnumerable<KoreGeoFeature> GetFeaturesWithPropertyValue(string propertyName, object value)
+    public List<KoreGeoFeature> GetFeaturesWithPropertyValue(string propertyName, object value)
     {
-        return features.Values.Where(f =>
+        return Features.Values.Where(f =>
             f.Properties.ContainsKey(propertyName) &&
             f.Properties[propertyName] != null &&
-            f.Properties[propertyName].Equals(value));
+            f.Properties[propertyName].Equals(value)).ToList();
     }
 
+    // --------------------------------------------------------------------------------------------
+    // MARK: Filters
+    // --------------------------------------------------------------------------------------------
+
+    // Takes a collection of features and returns only those that intersect with the given bounding box
+
+    public static List<KoreGeoFeature> FilterFeaturesByIntersectingBBox(IEnumerable<KoreGeoFeature> featuresToFilter, KoreLLBox bounds)
+    {
+        var result = new List<KoreGeoFeature>();
+
+        foreach (var feature in featuresToFilter)
+        {
+            switch (feature)
+            {
+                case KoreGeoPoint point:
+                    if (bounds.Contains(point.Position))
+                        result.Add(feature);
+                    break;
+                case KoreGeoMultiPoint multiPoint:
+                    if (multiPoint.Points.Any(p => bounds.Contains(p)))
+                        result.Add(feature);
+                    break;
+                case KoreGeoLineString lineString:
+                    if (lineString.Points.Any(p => bounds.Contains(p)))
+                        result.Add(feature);
+                    break;
+                case KoreGeoMultiLineString multiLine:
+                    if (multiLine.LineStrings.Any(line => line.Any(p => bounds.Contains(p))))
+                        result.Add(feature);
+                    break;
+                case KoreGeoPolygon polygon:
+                    if (polygon.OuterRing.Any(p => bounds.Contains(p)))
+                        result.Add(feature);
+                    break;
+                case KoreGeoMultiPolygon multiPolygon:
+                    if (multiPolygon.Polygons.Any(poly => poly.OuterRing.Any(p => bounds.Contains(p))))
+                        result.Add(feature);
+                    break;
+                case KoreGeoCircle circle:
+                    // Simple bounding box check for circle center
+                    if (bounds.Contains(circle.Center))
+                        result.Add(feature);
+                    break;
+            }
+        }
+
+        return result;
+    }
 }

@@ -1,5 +1,7 @@
 // <fileheader>
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -37,6 +39,9 @@ public partial class KoreGeoFeatureLibrary
                 LatDegs = lat
             }
         };
+
+        // Load optional id field (RFC 7946 Section 3.2)
+        PopulateFeatureId(point, featureElement);
 
         // Load properties (name, label, etc.)
         if (featureElement.TryGetProperty("properties", out var propertiesElement) && propertiesElement.ValueKind == JsonValueKind.Object)

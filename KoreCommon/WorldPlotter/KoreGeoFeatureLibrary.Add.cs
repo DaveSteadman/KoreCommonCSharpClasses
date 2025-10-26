@@ -27,31 +27,31 @@ public partial class KoreGeoFeatureLibrary
         }
 
         // Add to main collection
-        features[feature.Name] = feature;
+        Features[feature.Name] = feature;
 
         // Add to type-specific indexes
         switch (feature)
         {
             case KoreGeoPoint point:
-                points[feature.Name] = point;
+                Points[feature.Name] = point;
                 break;
             case KoreGeoMultiPoint multiPoint:
-                multiPoints[feature.Name] = multiPoint;
+                MultiPoints[feature.Name] = multiPoint;
                 break;
             case KoreGeoLineString lineString:
-                lineStrings[feature.Name] = lineString;
+                LineStrings[feature.Name] = lineString;
                 break;
             case KoreGeoMultiLineString multiLine:
-                multiLines[feature.Name] = multiLine;
+                MultiLines[feature.Name] = multiLine;
                 break;
             case KoreGeoPolygon polygon:
-                polygons[feature.Name] = polygon;
+                Polygons[feature.Name] = polygon;
                 break;
             case KoreGeoMultiPolygon multiPolygon:
-                multiPolygons[feature.Name] = multiPolygon;
+                MultiPolygons[feature.Name] = multiPolygon;
                 break;
             case KoreGeoCircle circle:
-                circles[feature.Name] = circle;
+                Circles[feature.Name] = circle;
                 break;
         }
     }
@@ -72,17 +72,17 @@ public partial class KoreGeoFeatureLibrary
     /// </summary>
     public bool RemoveFeature(string name)
     {
-        if (!features.TryGetValue(name, out var feature))
+        if (!Features.TryGetValue(name, out var feature))
             return false;
 
-        features.Remove(name);
-        points.Remove(name);
-        multiPoints.Remove(name);
-        lineStrings.Remove(name);
-        multiLines.Remove(name);
-        polygons.Remove(name);
-        multiPolygons.Remove(name);
-        circles.Remove(name);
+        Features.Remove(name);
+        Points.Remove(name);
+        MultiPoints.Remove(name);
+        LineStrings.Remove(name);
+        MultiLines.Remove(name);
+        Polygons.Remove(name);
+        MultiPolygons.Remove(name);
+        Circles.Remove(name);
 
         return true;
     }
@@ -92,14 +92,14 @@ public partial class KoreGeoFeatureLibrary
     /// </summary>
     public void Clear()
     {
-        features.Clear();
-        points.Clear();
-        multiPoints.Clear();
-        lineStrings.Clear();
-        multiLines.Clear();
-        polygons.Clear();
-        multiPolygons.Clear();
-        circles.Clear();
+        Features.Clear();
+        Points.Clear();
+        MultiPoints.Clear();
+        LineStrings.Clear();
+        MultiLines.Clear();
+        Polygons.Clear();
+        MultiPolygons.Clear();
+        Circles.Clear();
     }
 
 

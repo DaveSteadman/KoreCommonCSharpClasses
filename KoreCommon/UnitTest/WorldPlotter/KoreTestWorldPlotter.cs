@@ -44,11 +44,18 @@ public static class KoreTestWorldPlotter
                 countriesLibrary.LoadFromGeoJSON(countriesPath);
 
                 int polygonCount = 0;
+
+                // Define base color for all countries
+                KoreColorRGB baseColor = new KoreColorRGB(230, 230, 220, 150);
+
                 foreach (var geoPolygon in countriesLibrary.GetAllPolygons())
                 {
                     geoPolygon.StrokeColor = new KoreColorRGB(120, 120, 120);  // Medium gray outline
                     geoPolygon.StrokeWidth = 0.5;
-                    geoPolygon.FillColor = new KoreColorRGB(230, 230, 220, 80); // Very light beige, semi-transparent
+
+                    // Apply random color variation to single polygons too
+                    KoreColorRGB noiseColor = KoreColorOps.ColorWithRGBNoise(baseColor, 0.1f);
+                    geoPolygon.FillColor = noiseColor;
 
                     worldPlotter.DrawGeoPolygon(geoPolygon);
                     polygonCount++;
@@ -56,9 +63,12 @@ public static class KoreTestWorldPlotter
 
                 foreach (var multiPolygon in countriesLibrary.GetAllMultiPolygons())
                 {
-                    multiPolygon.StrokeColor = new KoreColorRGB(120, 120, 120);  // Medium gray outline
+                    multiPolygon.StrokeColor = new KoreColorRGB(120, 120, 160);  // Medium gray outline
                     multiPolygon.StrokeWidth = 0.5;
-                    multiPolygon.FillColor = new KoreColorRGB(230, 230, 220, 80); // Very light beige, semi-transparent
+
+                    // Apply random color variation to multi-polygons
+                    KoreColorRGB noiseColor = KoreColorOps.ColorWithRGBNoise(baseColor, 0.1f);
+                    multiPolygon.FillColor = noiseColor;
 
                     worldPlotter.DrawGeoMultiPolygon(multiPolygon);
                     polygonCount += multiPolygon.Polygons.Count;

@@ -1,5 +1,7 @@
 // <fileheader>
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,6 +14,9 @@ namespace KoreCommon;
 /// Library for managing and querying geographic features
 /// Provides storage, retrieval, and spatial filtering of geo features
 /// </summary>
+
+// GeoJSON Definition: See https://www.rfc-editor.org/rfc/rfc7946
+
 public partial class KoreGeoFeatureLibrary
 {
     // --------------------------------------------------------------------------------------------
@@ -62,6 +67,17 @@ public partial class KoreGeoFeatureLibrary
             if (!root.TryGetProperty("features", out var featuresElement) || featuresElement.ValueKind != JsonValueKind.Array)
                 throw new InvalidDataException("GeoJSON FeatureCollection is missing a features array");
 
+            // Import bbox if present (RFC 7946 Section 5)
+            if (root.TryGetProperty("bbox", out var bboxElement) && bboxElement.ValueKind == JsonValueKind.Array)
+            {
+                var bbox = ParseBoundingBox(bboxElement);
+                if (bbox.HasValue)
+                {
+                    // Store in KoreGeoFeatureCollection properties if needed
+                    // For now, we can calculate it on demand via CalculateBoundingBox()
+                }
+            }
+
             foreach (var featureElement in featuresElement.EnumerateArray())
             {
                 TryImportFeature(featureElement);
@@ -88,68 +104,52 @@ public partial class KoreGeoFeatureLibrary
         foreach (var point in GetAllPoints())
         {
             var properties = BuildPointProperties(point);
-
-            allFeatures.Add(new
+            var geometry = new
             {
-                type = "Feature",
-                properties,
-                geometry = new
-                {
-                    type = "Point",
-                    coordinates = new[] { point.Position.LonDegs, point.Position.LatDegs }
-                }
-            });
+                type = "Point",
+                coordinates = new[] { point.Position.LonDegs, point.Position.LatDegs }
+            };
+
+            allFeatures.Add(BuildFeatureObject(point, properties, geometry));
         }
 
         // Export all multi points
         foreach (var multiPoint in GetAllMultiPoints())
         {
             var properties = BuildMultiPointProperties(multiPoint);
-
-            allFeatures.Add(new
+            var geometry = new
             {
-                type = "Feature",
-                properties,
-                geometry = new
-                {
-                    type = "MultiPoint",
-                    coordinates = multiPoint.Points.ConvertAll(p => new[] { p.LonDegs, p.LatDegs })
-                }
-            });
+                type = "MultiPoint",
+                coordinates = multiPoint.Points.ConvertAll(p => new[] { p.LonDegs, p.LatDegs })
+            };
+
+            allFeatures.Add(BuildFeatureObject(multiPoint, properties, geometry));
         }
 
         // Export all line strings
         foreach (var lineString in GetAllLineStrings())
         {
             var properties = BuildLineStringProperties(lineString);
-
-            allFeatures.Add(new
+            var geometry = new
             {
-                type = "Feature",
-                properties,
-                geometry = new
-                {
-                    type = "LineString",
-                    coordinates = lineString.Points.ConvertAll(p => new[] { p.LonDegs, p.LatDegs })
-                }
-            });
+                type = "LineString",
+                coordinates = lineString.Points.ConvertAll(p => new[] { p.LonDegs, p.LatDegs })
+            };
+
+            allFeatures.Add(BuildFeatureObject(lineString, properties, geometry));
         }
 
         // Export all multi line strings
         foreach (var multiLine in GetAllMultiLineStrings())
         {
             var properties = BuildMultiLineStringProperties(multiLine);
-
-            allFeatures.Add(new
+            var geometry = new
             {
-                type = "Feature",
-                properties,
-                geometry = new
-                {
-                    type = "MultiLineString",
-                    coordinates = multiLine.LineStrings.ConvertAll(line => line.ConvertAll(p => new[] { p.LonDegs, p.LatDegs }))
-                }
-            });
+                type = "MultiLineString",
+                coordinates = multiLine.LineStrings.ConvertAll(line => line.ConvertAll(p => new[] { p.LonDegs, p.LatDegs }))
+            };
+
+            allFeatures.Add(BuildFeatureObject(multiLine, properties, geometry));
         }
 
         // Export all polygons
@@ -169,16 +169,13 @@ public partial class KoreGeoFeatureLibrary
                 rings.Add(innerRing.ConvertAll(p => new[] { p.LonDegs, p.LatDegs }));
             }
 
-            allFeatures.Add(new
+            var geometry = new
             {
-                type = "Feature",
-                properties,
-                geometry = new
-                {
-                    type = "Polygon",
-                    coordinates = rings
-                }
-            });
+                type = "Polygon",
+                coordinates = rings
+            };
+
+            allFeatures.Add(BuildFeatureObject(polygon, properties, geometry));
         }
 
         // Export all multi polygons
@@ -202,23 +199,36 @@ public partial class KoreGeoFeatureLibrary
                 coordinates.Add(rings);
             }
 
-            allFeatures.Add(new
+            var geometry = new
             {
-                type = "Feature",
-                properties,
-                geometry = new
-                {
-                    type = "MultiPolygon",
-                    coordinates
-                }
-            });
+                type = "MultiPolygon",
+                coordinates
+            };
+
+            allFeatures.Add(BuildFeatureObject(multiPolygon, properties, geometry));
         }
 
-        var featureCollection = new
+        // Calculate bounding box for the entire collection (RFC 7946 Section 5)
+        var bbox = CalculateBoundingBox();
+        object featureCollection;
+
+        if (bbox.HasValue)
         {
-            type = "FeatureCollection",
-            features = allFeatures
-        };
+            featureCollection = new
+            {
+                type = "FeatureCollection",
+                bbox = new[] { bbox.Value.MinLonDegs, bbox.Value.MinLatDegs, bbox.Value.MaxLonDegs, bbox.Value.MaxLatDegs },
+                features = allFeatures
+            };
+        }
+        else
+        {
+            featureCollection = new
+            {
+                type = "FeatureCollection",
+                features = allFeatures
+            };
+        }
 
         var options = new JsonSerializerOptions
         {
@@ -292,6 +302,23 @@ public partial class KoreGeoFeatureLibrary
             {
                 feature.Properties[property.Name] = value;
             }
+        }
+    }
+
+    /// <summary>
+    /// Populate the optional id field from a GeoJSON Feature (RFC 7946 Section 3.2)
+    /// The id can be a string or number
+    /// </summary>
+    private static void PopulateFeatureId(KoreGeoFeature feature, JsonElement featureElement)
+    {
+        if (featureElement.TryGetProperty("id", out var idElement))
+        {
+            feature.Id = idElement.ValueKind switch
+            {
+                JsonValueKind.String => idElement.GetString(),
+                JsonValueKind.Number => idElement.GetInt64().ToString(),
+                _ => null
+            };
         }
     }
 
@@ -370,4 +397,126 @@ public partial class KoreGeoFeatureLibrary
 
         return null;
     }
+
+    /// <summary>
+    /// Parse a GeoJSON bbox array into a KoreLLBox (RFC 7946 Section 5)
+    /// Format: [minLon, minLat, maxLon, maxLat] for 2D
+    /// </summary>
+    private static KoreLLBox? ParseBoundingBox(JsonElement bboxElement)
+    {
+        if (bboxElement.ValueKind != JsonValueKind.Array)
+            return null;
+
+        var coords = new List<double>();
+        foreach (var coord in bboxElement.EnumerateArray())
+        {
+            if (coord.ValueKind == JsonValueKind.Number)
+            {
+                coords.Add(coord.GetDouble());
+            }
+        }
+
+        // GeoJSON bbox format: [minLon, minLat, maxLon, maxLat] (and optionally minAlt, maxAlt)
+        if (coords.Count >= 4)
+        {
+            return new KoreLLBox
+            {
+                MinLonDegs = coords[0],
+                MinLatDegs = coords[1],
+                MaxLonDegs = coords[2],
+                MaxLatDegs = coords[3]
+            };
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Calculate bounding box from a list of points using KoreLLBox.FromList
+    /// </summary>
+    private static KoreLLBox? CalculateBoundingBoxFromPoints(List<KoreLLPoint> points)
+    {
+        if (points == null || points.Count == 0)
+            return null;
+
+        return KoreLLBox.FromList(points);
+    }
+
+    /// <summary>
+    /// Collect all points from a feature for bbox calculation
+    /// </summary>
+    private static List<KoreLLPoint> CollectAllPointsFromFeature(KoreGeoFeature feature)
+    {
+        var points = new List<KoreLLPoint>();
+
+        switch (feature)
+        {
+            case KoreGeoPoint point:
+                points.Add(point.Position);
+                break;
+            case KoreGeoMultiPoint multiPoint:
+                points.AddRange(multiPoint.Points);
+                break;
+            case KoreGeoLineString lineString:
+                points.AddRange(lineString.Points);
+                break;
+            case KoreGeoMultiLineString multiLine:
+                foreach (var line in multiLine.LineStrings)
+                {
+                    points.AddRange(line);
+                }
+                break;
+            case KoreGeoPolygon polygon:
+                points.AddRange(polygon.OuterRing);
+                foreach (var innerRing in polygon.InnerRings)
+                {
+                    points.AddRange(innerRing);
+                }
+                break;
+            case KoreGeoMultiPolygon multiPolygon:
+                foreach (var poly in multiPolygon.Polygons)
+                {
+                    points.AddRange(poly.OuterRing);
+                    foreach (var innerRing in poly.InnerRings)
+                    {
+                        points.AddRange(innerRing);
+                    }
+                }
+                break;
+            case KoreGeoCircle circle:
+                // For a circle, just use the center point
+                // A more accurate bbox would need to calculate the circle's extent
+                points.Add(circle.Center);
+                break;
+        }
+
+        return points;
+    }
+
+    /// <summary>
+    /// Build a GeoJSON Feature object with optional id (RFC 7946 Section 3.2)
+    /// </summary>
+    private static object BuildFeatureObject(KoreGeoFeature feature, Dictionary<string, object?> properties, object geometry)
+    {
+        if (!string.IsNullOrWhiteSpace(feature.Id))
+        {
+            return new
+            {
+                type = "Feature",
+                id = feature.Id,
+                properties,
+                geometry
+            };
+        }
+        else
+        {
+            return new
+            {
+                type = "Feature",
+                properties,
+                geometry
+            };
+        }
+    }
 }
+
