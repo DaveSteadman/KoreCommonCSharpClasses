@@ -35,12 +35,30 @@ public partial class KoreGeoFeatureLibrary
     }
 
     /// <summary>
+    /// Get a multi-point feature by name
+    /// </summary>
+    public KoreGeoMultiPoint? GetMultiPoint(string name)
+    {
+        multiPoints.TryGetValue(name, out var multiPoint);
+        return multiPoint;
+    }
+
+    /// <summary>
     /// Get a line feature by name
     /// </summary>
     public KoreGeoLine? GetLine(string name)
     {
         lines.TryGetValue(name, out var line);
         return line;
+    }
+
+    /// <summary>
+    /// Get a multi-line string feature by name
+    /// </summary>
+    public KoreGeoMultiLineString? GetMultiLineString(string name)
+    {
+        multiLines.TryGetValue(name, out var multiLine);
+        return multiLine;
     }
 
     /// <summary>
@@ -78,11 +96,27 @@ public partial class KoreGeoFeatureLibrary
     }
 
     /// <summary>
+    /// Get all multi-point features
+    /// </summary>
+    public IEnumerable<KoreGeoMultiPoint> GetAllMultiPoints()
+    {
+        return multiPoints.Values;
+    }
+
+    /// <summary>
     /// Get all lines
     /// </summary>
     public IEnumerable<KoreGeoLine> GetAllLines()
     {
         return lines.Values;
+    }
+
+    /// <summary>
+    /// Get all multi-line string features
+    /// </summary>
+    public IEnumerable<KoreGeoMultiLineString> GetAllMultiLineStrings()
+    {
+        return multiLines.Values;
     }
 
     /// <summary>

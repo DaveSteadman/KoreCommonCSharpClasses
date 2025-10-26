@@ -138,6 +138,17 @@ public class KoreWorldPlotter
     }
 
     /// <summary>
+    /// Draw a geographic multi-point feature
+    /// </summary>
+    public void DrawGeoMultiPoint(KoreGeoMultiPoint geoMultiPoint)
+    {
+        foreach (var point in geoMultiPoint.Points)
+        {
+            DrawPoint(point, geoMultiPoint.Color, geoMultiPoint.Size);
+        }
+    }
+
+    /// <summary>
     /// Draw a geographic line feature
     /// </summary>
     public void DrawGeoLine(KoreGeoLine geoLine)
@@ -154,6 +165,31 @@ public class KoreWorldPlotter
             var startPixel = LatLonToPixel(geoLine.Points[i]);
             var endPixel = LatLonToPixel(geoLine.Points[i + 1]);
             Plotter.DrawLine(startPixel, endPixel);
+        }
+    }
+
+    /// <summary>
+    /// Draw a geographic multi-line string feature
+    /// </summary>
+    public void DrawGeoMultiLineString(KoreGeoMultiLineString geoMultiLine)
+    {
+        if (geoMultiLine.LineStrings.Count == 0)
+            return;
+
+        Plotter.DrawSettings.Color = KoreSkiaSharpConv.ToSKColor(geoMultiLine.Color);
+        Plotter.DrawSettings.LineWidth = (float)geoMultiLine.LineWidth;
+
+        foreach (var line in geoMultiLine.LineStrings)
+        {
+            if (line.Count < 2)
+                continue;
+
+            for (int i = 0; i < line.Count - 1; i++)
+            {
+                var startPixel = LatLonToPixel(line[i]);
+                var endPixel = LatLonToPixel(line[i + 1]);
+                Plotter.DrawLine(startPixel, endPixel);
+            }
         }
     }
 
@@ -285,8 +321,14 @@ public class KoreWorldPlotter
                 case KoreGeoPoint point:
                     DrawGeoPoint(point);
                     break;
+                case KoreGeoMultiPoint multiPoint:
+                    DrawGeoMultiPoint(multiPoint);
+                    break;
                 case KoreGeoLine line:
                     DrawGeoLine(line);
+                    break;
+                case KoreGeoMultiLineString multiLine:
+                    DrawGeoMultiLineString(multiLine);
                     break;
                 case KoreGeoPolygon polygon:
                     DrawGeoPolygon(polygon);

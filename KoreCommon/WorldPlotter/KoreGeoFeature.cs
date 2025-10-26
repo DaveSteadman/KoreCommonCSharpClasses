@@ -31,6 +31,20 @@ public class KoreGeoPoint : KoreGeoFeature
 }
 
 // --------------------------------------------------------------------------------------------
+// MARK: MultiPoint
+// --------------------------------------------------------------------------------------------
+
+/// <summary>
+/// A collection of geographic points that share a common set of properties
+/// </summary>
+public class KoreGeoMultiPoint : KoreGeoFeature
+{
+    public List<KoreLLPoint> Points { get; set; } = new List<KoreLLPoint>();
+    public double Size { get; set; } = 5.0;
+    public KoreColorRGB Color { get; set; } = KoreColorRGB.Black;
+}
+
+// --------------------------------------------------------------------------------------------
 // MARK: Line
 // --------------------------------------------------------------------------------------------
 
@@ -43,6 +57,21 @@ public class KoreGeoLine : KoreGeoFeature
     public double LineWidth { get; set; } = 1.0;
     public KoreColorRGB Color { get; set; } = KoreColorRGB.Black;
     public bool IsGreatCircle { get; set; } = false; // Future: curved vs straight
+}
+
+// --------------------------------------------------------------------------------------------
+// MARK: MultiLineString
+// --------------------------------------------------------------------------------------------
+
+/// <summary>
+/// A collection of line strings that share a common set of properties
+/// </summary>
+public class KoreGeoMultiLineString : KoreGeoFeature
+{
+    public List<List<KoreLLPoint>> LineStrings { get; set; } = new List<List<KoreLLPoint>>();
+    public double LineWidth { get; set; } = 1.0;
+    public KoreColorRGB Color { get; set; } = KoreColorRGB.Black;
+    public bool IsGreatCircle { get; set; } = false;
 }
 
 // --------------------------------------------------------------------------------------------
