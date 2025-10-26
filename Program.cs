@@ -1,4 +1,6 @@
-﻿using System;
+// <fileheader>
+
+using System;
 
 // Environment Creation:
 // dotnet new console -n UnitTest
@@ -7,6 +9,7 @@
 // dotnet new console
 
 // Environment update:
+// dotnet workload list
 // dotnet list package --outdated
 // dotnet workload update
 
