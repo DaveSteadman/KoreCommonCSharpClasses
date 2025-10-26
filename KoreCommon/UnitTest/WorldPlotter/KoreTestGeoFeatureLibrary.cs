@@ -14,7 +14,7 @@ public static partial class KoreTestGeoFeatureLibrary
     public static void RunTests(KoreTestLog testLog)
     {
         TestSaveSinglePointToGeoJSON(testLog);
-        TestSaveLineToGeoJSON(testLog);
+        TestSaveLineStringToGeoJSON(testLog);
         TestSavePolygonToGeoJSON(testLog);
     }
 }

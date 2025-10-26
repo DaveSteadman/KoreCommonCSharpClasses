@@ -45,13 +45,13 @@ public class KoreGeoMultiPoint : KoreGeoFeature
 }
 
 // --------------------------------------------------------------------------------------------
-// MARK: Line
+// MARK: LineString
 // --------------------------------------------------------------------------------------------
 
 /// <summary>
 /// A line or path through multiple geographic points
 /// </summary>
-public class KoreGeoLine : KoreGeoFeature
+public class KoreGeoLineString : KoreGeoFeature
 {
     public List<KoreLLPoint> Points { get; set; } = new List<KoreLLPoint>();
     public double LineWidth { get; set; } = 1.0;
@@ -85,6 +85,21 @@ public class KoreGeoPolygon : KoreGeoFeature
 {
     public List<KoreLLPoint> OuterRing { get; set; } = new List<KoreLLPoint>();
     public List<List<KoreLLPoint>> InnerRings { get; set; } = new List<List<KoreLLPoint>>(); // Holes
+    public KoreColorRGB? FillColor { get; set; }
+    public KoreColorRGB? StrokeColor { get; set; }
+    public double StrokeWidth { get; set; } = 1.0;
+}
+
+// --------------------------------------------------------------------------------------------
+// MARK: MultiPolygon
+// --------------------------------------------------------------------------------------------
+
+/// <summary>
+/// A collection of polygon areas that share a common set of properties
+/// </summary>
+public class KoreGeoMultiPolygon : KoreGeoFeature
+{
+    public List<KoreGeoPolygon> Polygons { get; set; } = new List<KoreGeoPolygon>();
     public KoreColorRGB? FillColor { get; set; }
     public KoreColorRGB? StrokeColor { get; set; }
     public double StrokeWidth { get; set; } = 1.0;

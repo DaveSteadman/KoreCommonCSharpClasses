@@ -65,13 +65,13 @@ public partial class KoreGeoFeatureLibrary
         }
 
         var rawName = multiLine.Properties.TryGetValue("name", out var storedNameObj) ? storedNameObj?.ToString() : null;
-        multiLine.Name = GenerateUniqueName(string.IsNullOrWhiteSpace(rawName) ? "MultiLine" : rawName!);
+        multiLine.Name = GenerateUniqueName(string.IsNullOrWhiteSpace(rawName) ? "MultiLineString" : rawName!);
         multiLine.Properties["name"] = multiLine.Name;
 
         AddFeature(multiLine);
     }
 
-    private Dictionary<string, object?> BuildMultiLineProperties(KoreGeoMultiLineString multiLine)
+    private Dictionary<string, object?> BuildMultiLineStringProperties(KoreGeoMultiLineString multiLine)
     {
         var properties = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
         {

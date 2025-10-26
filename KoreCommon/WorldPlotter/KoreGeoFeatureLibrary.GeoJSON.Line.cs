@@ -7,20 +7,20 @@ using System.Text.Json;
 namespace KoreCommon;
 
 /// <summary>
-/// GeoJSON Line feature import/export for KoreGeoFeatureLibrary
+/// GeoJSON LineString feature import/export for KoreGeoFeatureLibrary
 /// </summary>
 public partial class KoreGeoFeatureLibrary
 {
     // ----------------------------------------------------------------------------------------
-    // MARK: Line Feature Import/Export
+    // MARK: LineString Feature Import/Export
     // ----------------------------------------------------------------------------------------
 
-    private void ImportLineFeature(JsonElement featureElement, JsonElement geometryElement)
+    private void ImportLineStringFeature(JsonElement featureElement, JsonElement geometryElement)
     {
         if (!geometryElement.TryGetProperty("coordinates", out var coordinatesElement) || coordinatesElement.ValueKind != JsonValueKind.Array)
             return;
 
-        var line = new KoreGeoLine();
+        var lineString = new KoreGeoLineString();
 
         // Parse coordinate array [[lon, lat], [lon, lat], ...]
         foreach (var coordElement in coordinatesElement.EnumerateArray())
@@ -37,7 +37,7 @@ public partial class KoreGeoFeatureLibrary
                 continue;
             var lat = coordEnumerator.Current.GetDouble();
 
-            line.Points.Add(new KoreLLPoint
+            lineString.Points.Add(new KoreLLPoint
             {
                 LonDegs = lon,
                 LatDegs = lat
@@ -45,44 +45,44 @@ public partial class KoreGeoFeatureLibrary
         }
 
         // Need at least 2 points for a line
-        if (line.Points.Count < 2)
+        if (lineString.Points.Count < 2)
             return;
 
         // Load properties (name, lineWidth, color, etc.)
         if (featureElement.TryGetProperty("properties", out var propertiesElement) && propertiesElement.ValueKind == JsonValueKind.Object)
         {
-            PopulateFeatureProperties(line, propertiesElement);
+            PopulateFeatureProperties(lineString, propertiesElement);
         }
 
-        var rawName = line.Properties.TryGetValue("name", out var storedNameObj) ? storedNameObj?.ToString() : null;
-        line.Name = GenerateUniqueName(string.IsNullOrWhiteSpace(rawName) ? "Line" : rawName!);
+        var rawName = lineString.Properties.TryGetValue("name", out var storedNameObj) ? storedNameObj?.ToString() : null;
+        lineString.Name = GenerateUniqueName(string.IsNullOrWhiteSpace(rawName) ? "LineString" : rawName!);
 
         // Ensure the feature dictionary reflects the final name
-        line.Properties["name"] = line.Name;
+        lineString.Properties["name"] = lineString.Name;
 
-        AddFeature(line);
+        AddFeature(lineString);
     }
 
-    private Dictionary<string, object?> BuildLineProperties(KoreGeoLine line)
+    private Dictionary<string, object?> BuildLineStringProperties(KoreGeoLineString lineString)
     {
         var properties = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
         {
-            ["name"] = line.Name
+            ["name"] = lineString.Name
         };
 
         // Add line-specific properties if they differ from defaults
-        if (line.LineWidth != 1.0)
+        if (lineString.LineWidth != 1.0)
         {
-            properties["lineWidth"] = line.LineWidth;
+            properties["lineWidth"] = lineString.LineWidth;
         }
 
-        if (line.IsGreatCircle)
+        if (lineString.IsGreatCircle)
         {
-            properties["isGreatCircle"] = line.IsGreatCircle;
+            properties["isGreatCircle"] = lineString.IsGreatCircle;
         }
 
         // Include other custom properties
-        foreach (var kvp in line.Properties)
+        foreach (var kvp in lineString.Properties)
         {
             if (string.Equals(kvp.Key, "name", StringComparison.OrdinalIgnoreCase))
                 continue;

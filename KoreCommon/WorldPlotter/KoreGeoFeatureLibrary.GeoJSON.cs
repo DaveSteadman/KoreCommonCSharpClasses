@@ -118,10 +118,10 @@ public partial class KoreGeoFeatureLibrary
             });
         }
 
-        // Export all lines
-        foreach (var line in GetAllLines())
+        // Export all line strings
+        foreach (var lineString in GetAllLineStrings())
         {
-            var properties = BuildLineProperties(line);
+            var properties = BuildLineStringProperties(lineString);
 
             allFeatures.Add(new
             {
@@ -130,7 +130,7 @@ public partial class KoreGeoFeatureLibrary
                 geometry = new
                 {
                     type = "LineString",
-                    coordinates = line.Points.ConvertAll(p => new[] { p.LonDegs, p.LatDegs })
+                    coordinates = lineString.Points.ConvertAll(p => new[] { p.LonDegs, p.LatDegs })
                 }
             });
         }
@@ -138,7 +138,7 @@ public partial class KoreGeoFeatureLibrary
         // Export all multi line strings
         foreach (var multiLine in GetAllMultiLineStrings())
         {
-            var properties = BuildMultiLineProperties(multiLine);
+            var properties = BuildMultiLineStringProperties(multiLine);
 
             allFeatures.Add(new
             {
@@ -177,6 +177,39 @@ public partial class KoreGeoFeatureLibrary
                 {
                     type = "Polygon",
                     coordinates = rings
+                }
+            });
+        }
+
+        // Export all multi polygons
+        foreach (var multiPolygon in GetAllMultiPolygons())
+        {
+            var properties = BuildMultiPolygonProperties(multiPolygon);
+
+            var coordinates = new List<List<List<double[]>>>();
+            foreach (var polygon in multiPolygon.Polygons)
+            {
+                var rings = new List<List<double[]>>
+                {
+                    polygon.OuterRing.ConvertAll(p => new[] { p.LonDegs, p.LatDegs })
+                };
+
+                foreach (var innerRing in polygon.InnerRings)
+                {
+                    rings.Add(innerRing.ConvertAll(p => new[] { p.LonDegs, p.LatDegs }));
+                }
+
+                coordinates.Add(rings);
+            }
+
+            allFeatures.Add(new
+            {
+                type = "Feature",
+                properties,
+                geometry = new
+                {
+                    type = "MultiPolygon",
+                    coordinates
                 }
             });
         }
@@ -221,7 +254,7 @@ public partial class KoreGeoFeatureLibrary
                 ImportMultiPointFeature(featureElement, geometryElement);
                 break;
             case "LineString":
-                ImportLineFeature(featureElement, geometryElement);
+                ImportLineStringFeature(featureElement, geometryElement);
                 break;
             case "MultiLineString":
                 ImportMultiLineStringFeature(featureElement, geometryElement);

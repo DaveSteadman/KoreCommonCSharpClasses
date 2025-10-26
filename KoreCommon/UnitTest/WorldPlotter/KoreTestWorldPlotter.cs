@@ -54,6 +54,16 @@ public static class KoreTestWorldPlotter
                     polygonCount++;
                 }
 
+                foreach (var multiPolygon in countriesLibrary.GetAllMultiPolygons())
+                {
+                    multiPolygon.StrokeColor = new KoreColorRGB(120, 120, 120);  // Medium gray outline
+                    multiPolygon.StrokeWidth = 0.5;
+                    multiPolygon.FillColor = new KoreColorRGB(230, 230, 220, 80); // Very light beige, semi-transparent
+
+                    worldPlotter.DrawGeoMultiPolygon(multiPolygon);
+                    polygonCount += multiPolygon.Polygons.Count;
+                }
+
                 testLog.AddComment($"Loaded and drew {polygonCount} country polygons");
             }
             catch (Exception ex)
@@ -247,13 +257,13 @@ public static class KoreTestWorldPlotter
                 lineLibrary.LoadFromGeoJSON(lineJsonPath);
 
                 // Draw all lines from the library
-                foreach (var geoLine in lineLibrary.GetAllLines())
+                foreach (var geoLine in lineLibrary.GetAllLineStrings())
                 {
                     // Check if any point of the line is in bounds
                     bool lineInBounds = geoLine.Points.Any(p => ukBounds.Contains(p));
                     if (lineInBounds)
                     {
-                        ukMap.DrawGeoLine(geoLine);
+                        ukMap.DrawGeoLineString(geoLine);
                         testLog.AddComment($"Loaded and drew line feature: {geoLine.Name} from GeoJSON");
                     }
                 }
@@ -286,7 +296,17 @@ public static class KoreTestWorldPlotter
                     outlinePolygonCount++;
                 }
 
-                testLog.AddComment($"Loaded and drew {outlinePolygonCount} UK country outline polygons from MultiPolygon GeoJSON");
+                foreach (var multiPolygon in ukOutlineLibrary.GetAllMultiPolygons())
+                {
+                    multiPolygon.StrokeColor = new KoreColorRGB(100, 100, 180);  // Medium blue
+                    multiPolygon.StrokeWidth = 1.5;
+                    multiPolygon.FillColor = new KoreColorRGB(235, 245, 235, 60); // Very light green, semi-transparent
+
+                    ukMap.DrawGeoMultiPolygon(multiPolygon);
+                    outlinePolygonCount += multiPolygon.Polygons.Count;
+                }
+
+                testLog.AddComment($"Loaded and drew {outlinePolygonCount} UK country outline polygons from GeoJSON");
             }
             catch (Exception ex)
             {
@@ -312,6 +332,16 @@ public static class KoreTestWorldPlotter
                     {
                         ukMap.DrawGeoPolygon(geoPolygon);
                         testLog.AddComment($"Loaded and drew polygon feature: {geoPolygon.Name} from GeoJSON");
+                    }
+                }
+
+                foreach (var multiPolygon in polygonLibrary.GetAllMultiPolygons())
+                {
+                    bool polygonInBounds = multiPolygon.Polygons.Any(poly => poly.OuterRing.Any(p => ukBounds.Contains(p)));
+                    if (polygonInBounds)
+                    {
+                        ukMap.DrawGeoMultiPolygon(multiPolygon);
+                        testLog.AddComment($"Loaded and drew multi-polygon feature: {multiPolygon.Name} from GeoJSON");
                     }
                 }
             }
@@ -433,7 +463,17 @@ public static class KoreTestWorldPlotter
                     polygonCount++;
                 }
 
-                testLog.AddComment($"Loaded and drew {polygonCount} polygons from UK MultiPolygon GeoJSON");
+                foreach (var multiPolygon in ukLibrary.GetAllMultiPolygons())
+                {
+                    multiPolygon.StrokeColor = new KoreColorRGB(50, 50, 150);  // Dark blue
+                    multiPolygon.StrokeWidth = 2.0;
+                    multiPolygon.FillColor = new KoreColorRGB(220, 240, 220, 80); // Light green, semi-transparent
+
+                    ukMap.DrawGeoMultiPolygon(multiPolygon);
+                    polygonCount += multiPolygon.Polygons.Count;
+                }
+
+                testLog.AddComment($"Loaded and drew {polygonCount} polygons from UK GeoJSON");
             }
             catch (Exception ex)
             {
@@ -491,6 +531,16 @@ public static class KoreTestWorldPlotter
 
                     worldMap.DrawGeoPolygon(geoPolygon);
                     polygonCount++;
+                }
+
+                foreach (var multiPolygon in countriesLibrary.GetAllMultiPolygons())
+                {
+                    multiPolygon.StrokeColor = new KoreColorRGB(80, 80, 80);  // Dark gray outline
+                    multiPolygon.StrokeWidth = 0.5;
+                    multiPolygon.FillColor = new KoreColorRGB(200, 220, 200, 120); // Light green fill, semi-transparent
+
+                    worldMap.DrawGeoMultiPolygon(multiPolygon);
+                    polygonCount += multiPolygon.Polygons.Count;
                 }
 
                 testLog.AddComment($"Loaded and drew {polygonCount} country polygons from CountryOutline_All.geojson");

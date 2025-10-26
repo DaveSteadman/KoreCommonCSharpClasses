@@ -11,7 +11,7 @@ namespace KoreCommon.UnitTest;
 /// </summary>
 public static partial class KoreTestGeoFeatureLibrary
 {
-    public static void TestSaveLineToGeoJSON(KoreTestLog testLog)
+    public static void TestSaveLineStringToGeoJSON(KoreTestLog testLog)
     {
         const string testName = "GeoFeatureLibrary LineString Save/Load";
 
@@ -23,7 +23,7 @@ public static partial class KoreTestGeoFeatureLibrary
             };
 
             // Create a simple route: London -> Farnborough -> Southampton
-            var line = new KoreGeoLine
+            var line = new KoreGeoLineString
             {
                 Name = "TestRoute",
                 LineWidth = 4.0, // Wider stroke for better visibility
@@ -92,7 +92,7 @@ public static partial class KoreTestGeoFeatureLibrary
             var loadedLibrary = new KoreGeoFeatureLibrary();
             loadedLibrary.LoadFromGeoJSON(geoJsonPath);
 
-            var loadedLine = loadedLibrary.GetLine("TestRoute");
+            var loadedLine = loadedLibrary.GetLineString("TestRoute");
             if (loadedLine == null)
             {
                 testLog.AddResult(testName, false, "Failed to load line feature from GeoJSON");

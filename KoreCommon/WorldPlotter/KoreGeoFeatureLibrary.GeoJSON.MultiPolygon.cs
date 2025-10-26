@@ -1,94 +1,160 @@
+// <fileheader>
+
+using System;
+using System.Collections.Generic;
 using System.Text.Json;
-using KoreCommon;
 
-namespace KoreCommon
+namespace KoreCommon;
+
+/// <summary>
+/// GeoJSON MultiPolygon feature import/export for KoreGeoFeatureLibrary
+/// </summary>
+public partial class KoreGeoFeatureLibrary
 {
-    public partial class KoreGeoFeatureLibrary
+    // ----------------------------------------------------------------------------------------
+    // MARK: MultiPolygon Feature Import/Export
+    // ----------------------------------------------------------------------------------------
+
+    private void ImportMultiPolygonFeature(JsonElement featureElement, JsonElement geometryElement)
     {
-        // MARK: MultiPolygon Feature Import/Export
-        // ----------------------------------------------------------------------------------------
+        if (!geometryElement.TryGetProperty("coordinates", out var coordinatesElement) || coordinatesElement.ValueKind != JsonValueKind.Array)
+            return;
 
-        private void ImportMultiPolygonFeature(JsonElement featureElement, JsonElement geometryElement)
+        var multiPolygon = new KoreGeoMultiPolygon();
+
+        foreach (var polygonCoords in coordinatesElement.EnumerateArray())
         {
-            if (!geometryElement.TryGetProperty("coordinates", out var coordinatesElement) || coordinatesElement.ValueKind != JsonValueKind.Array)
-                return;
+            if (polygonCoords.ValueKind != JsonValueKind.Array)
+                continue;
 
-            // MultiPolygon coordinates: [ [[[outer], [hole1], ...]], [[[outer2], ...]], ... ]
-            // Each element is a complete Polygon (outer ring + optional holes)
+            var polygon = new KoreGeoPolygon();
+            var ringIndex = 0;
 
-            foreach (var polygonCoords in coordinatesElement.EnumerateArray())
+            foreach (var ringElement in polygonCoords.EnumerateArray())
             {
-                if (polygonCoords.ValueKind != JsonValueKind.Array)
+                if (ringElement.ValueKind != JsonValueKind.Array)
                     continue;
 
-                var polygon = new KoreGeoPolygon();
+                var ring = new List<KoreLLPoint>();
 
-                int ringIndex = 0;
-                foreach (var ringElement in polygonCoords.EnumerateArray())
+                foreach (var coordElement in ringElement.EnumerateArray())
                 {
-                    if (ringElement.ValueKind != JsonValueKind.Array)
+                    if (coordElement.ValueKind != JsonValueKind.Array)
                         continue;
 
-                    var ring = new List<KoreLLPoint>();
-
-                    foreach (var coordElement in ringElement.EnumerateArray())
-                    {
-                        if (coordElement.ValueKind != JsonValueKind.Array)
-                            continue;
-
-                        var coordEnumerator = coordElement.EnumerateArray();
-                        if (!coordEnumerator.MoveNext())
-                            continue;
-                        var lon = coordEnumerator.Current.GetDouble();
-
-                        if (!coordEnumerator.MoveNext())
-                            continue;
-                        var lat = coordEnumerator.Current.GetDouble();
-
-                        ring.Add(new KoreLLPoint
-                        {
-                            LonDegs = lon,
-                            LatDegs = lat
-                        });
-                    }
-
-                    if (ring.Count < 3)
+                    var coordEnumerator = coordElement.EnumerateArray();
+                    if (!coordEnumerator.MoveNext())
                         continue;
+                    var lon = coordEnumerator.Current.GetDouble();
 
-                    if (ringIndex == 0)
-                    {
-                        // First ring is the outer boundary
-                        polygon.OuterRing = ring;
-                    }
-                    else
-                    {
-                        // Subsequent rings are holes
-                        polygon.InnerRings.Add(ring);
-                    }
+                    if (!coordEnumerator.MoveNext())
+                        continue;
+                    var lat = coordEnumerator.Current.GetDouble();
 
-                    ringIndex++;
+                    ring.Add(new KoreLLPoint
+                    {
+                        LonDegs = lon,
+                        LatDegs = lat
+                    });
                 }
 
-                if (polygon.OuterRing.Count < 3)
+                if (ring.Count < 3)
                     continue;
 
-                // Load properties (shared across all polygons in MultiPolygon for now)
-                if (featureElement.TryGetProperty("properties", out var propertiesElement) && propertiesElement.ValueKind == JsonValueKind.Object)
+                if (ringIndex == 0)
                 {
-                    PopulateFeatureProperties(polygon, propertiesElement);
+                    polygon.OuterRing = ring;
+                }
+                else
+                {
+                    polygon.InnerRings.Add(ring);
                 }
 
-                var rawName = polygon.Properties.TryGetValue("name", out var storedNameObj) ? storedNameObj?.ToString() : null;
-                polygon.Name = GenerateUniqueName(string.IsNullOrWhiteSpace(rawName) ? "Polygon" : rawName!);
+                ringIndex++;
+            }
 
-                // Ensure the feature dictionary reflects the final name
-                polygon.Properties["name"] = polygon.Name;
+            if (polygon.OuterRing.Count < 3)
+                continue;
 
-                AddFeature(polygon);
+            multiPolygon.Polygons.Add(polygon);
+        }
+
+        if (multiPolygon.Polygons.Count == 0)
+            return;
+
+        if (featureElement.TryGetProperty("properties", out var propertiesElement) && propertiesElement.ValueKind == JsonValueKind.Object)
+        {
+            PopulateFeatureProperties(multiPolygon, propertiesElement);
+
+            if (propertiesElement.TryGetProperty("fillColor", out var fillColorElement) && fillColorElement.ValueKind == JsonValueKind.String)
+            {
+                var fillColorStr = fillColorElement.GetString();
+                if (!string.IsNullOrWhiteSpace(fillColorStr))
+                {
+                    multiPolygon.FillColor = KoreColorIO.HexStringToRGB(fillColorStr);
+                }
+            }
+
+            if (propertiesElement.TryGetProperty("strokeColor", out var strokeColorElement) && strokeColorElement.ValueKind == JsonValueKind.String)
+            {
+                var strokeColorStr = strokeColorElement.GetString();
+                if (!string.IsNullOrWhiteSpace(strokeColorStr))
+                {
+                    multiPolygon.StrokeColor = KoreColorIO.HexStringToRGB(strokeColorStr);
+                }
+            }
+
+            if (propertiesElement.TryGetProperty("strokeWidth", out var strokeWidthElement) && strokeWidthElement.ValueKind == JsonValueKind.Number)
+            {
+                multiPolygon.StrokeWidth = strokeWidthElement.GetDouble();
             }
         }
 
-        // Note: For exporting, we treat each polygon separately for now
-        // In future, we could group polygons with same properties into a single MultiPolygon feature
+        var rawName = multiPolygon.Properties.TryGetValue("name", out var storedNameObj) ? storedNameObj?.ToString() : null;
+        multiPolygon.Name = GenerateUniqueName(string.IsNullOrWhiteSpace(rawName) ? "MultiPolygon" : rawName!);
+        multiPolygon.Properties["name"] = multiPolygon.Name;
+
+        AddFeature(multiPolygon);
+    }
+
+    private Dictionary<string, object?> BuildMultiPolygonProperties(KoreGeoMultiPolygon multiPolygon)
+    {
+        var properties = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["name"] = multiPolygon.Name
+        };
+
+        if (multiPolygon.StrokeWidth != 1.0)
+        {
+            properties["strokeWidth"] = multiPolygon.StrokeWidth;
+        }
+
+        if (multiPolygon.FillColor.HasValue)
+        {
+            properties["fillColor"] = KoreColorIO.RBGtoHexString(multiPolygon.FillColor.Value);
+        }
+
+        if (multiPolygon.StrokeColor.HasValue)
+        {
+            properties["strokeColor"] = KoreColorIO.RBGtoHexString(multiPolygon.StrokeColor.Value);
+        }
+
+        foreach (var kvp in multiPolygon.Properties)
+        {
+            if (string.Equals(kvp.Key, "name", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(kvp.Key, "strokeWidth", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(kvp.Key, "fillColor", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(kvp.Key, "strokeColor", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (TryConvertPropertyValue(kvp.Value, out var convertedValue))
+            {
+                properties[kvp.Key] = convertedValue;
+            }
+        }
+
+        return properties;
     }
 }
