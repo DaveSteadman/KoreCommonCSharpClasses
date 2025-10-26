@@ -44,12 +44,12 @@ public partial class KoreGeoFeatureLibrary
     }
 
     /// <summary>
-    /// Get a line feature by name
+    /// Get a line string feature by name
     /// </summary>
-    public KoreGeoLine? GetLine(string name)
+    public KoreGeoLineString? GetLineString(string name)
     {
-        lines.TryGetValue(name, out var line);
-        return line;
+        lineStrings.TryGetValue(name, out var lineString);
+        return lineString;
     }
 
     /// <summary>
@@ -68,6 +68,15 @@ public partial class KoreGeoFeatureLibrary
     {
         polygons.TryGetValue(name, out var polygon);
         return polygon;
+    }
+
+    /// <summary>
+    /// Get a multi-polygon feature by name
+    /// </summary>
+    public KoreGeoMultiPolygon? GetMultiPolygon(string name)
+    {
+        multiPolygons.TryGetValue(name, out var multiPolygon);
+        return multiPolygon;
     }
 
     /// <summary>
@@ -104,11 +113,11 @@ public partial class KoreGeoFeatureLibrary
     }
 
     /// <summary>
-    /// Get all lines
+    /// Get all line strings
     /// </summary>
-    public IEnumerable<KoreGeoLine> GetAllLines()
+    public IEnumerable<KoreGeoLineString> GetAllLineStrings()
     {
-        return lines.Values;
+        return lineStrings.Values;
     }
 
     /// <summary>
@@ -125,6 +134,14 @@ public partial class KoreGeoFeatureLibrary
     public IEnumerable<KoreGeoPolygon> GetAllPolygons()
     {
         return polygons.Values;
+    }
+
+    /// <summary>
+    /// Get all multi-polygons
+    /// </summary>
+    public IEnumerable<KoreGeoMultiPolygon> GetAllMultiPolygons()
+    {
+        return multiPolygons.Values;
     }
 
     /// <summary>

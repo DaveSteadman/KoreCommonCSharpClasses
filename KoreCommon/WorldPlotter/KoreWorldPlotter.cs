@@ -149,21 +149,21 @@ public class KoreWorldPlotter
     }
 
     /// <summary>
-    /// Draw a geographic line feature
+    /// Draw a geographic line string feature
     /// </summary>
-    public void DrawGeoLine(KoreGeoLine geoLine)
+    public void DrawGeoLineString(KoreGeoLineString geoLineString)
     {
-        if (geoLine.Points.Count < 2)
+        if (geoLineString.Points.Count < 2)
             return;
 
-        Plotter.DrawSettings.Color = KoreSkiaSharpConv.ToSKColor(geoLine.Color);
-        Plotter.DrawSettings.LineWidth = (float)geoLine.LineWidth;
+        Plotter.DrawSettings.Color = KoreSkiaSharpConv.ToSKColor(geoLineString.Color);
+        Plotter.DrawSettings.LineWidth = (float)geoLineString.LineWidth;
 
         // Convert all points to pixels and draw line segments
-        for (int i = 0; i < geoLine.Points.Count - 1; i++)
+        for (int i = 0; i < geoLineString.Points.Count - 1; i++)
         {
-            var startPixel = LatLonToPixel(geoLine.Points[i]);
-            var endPixel = LatLonToPixel(geoLine.Points[i + 1]);
+            var startPixel = LatLonToPixel(geoLineString.Points[i]);
+            var endPixel = LatLonToPixel(geoLineString.Points[i + 1]);
             Plotter.DrawLine(startPixel, endPixel);
         }
     }
@@ -271,6 +271,40 @@ public class KoreWorldPlotter
     }
 
     /// <summary>
+    /// Draw a geographic multi-polygon feature
+    /// </summary>
+    public void DrawGeoMultiPolygon(KoreGeoMultiPolygon geoMultiPolygon)
+    {
+        foreach (var polygon in geoMultiPolygon.Polygons)
+        {
+            var originalFill = polygon.FillColor;
+            var originalStroke = polygon.StrokeColor;
+            var originalStrokeWidth = polygon.StrokeWidth;
+
+            if (!polygon.FillColor.HasValue && geoMultiPolygon.FillColor.HasValue)
+            {
+                polygon.FillColor = geoMultiPolygon.FillColor;
+            }
+
+            if (!polygon.StrokeColor.HasValue && geoMultiPolygon.StrokeColor.HasValue)
+            {
+                polygon.StrokeColor = geoMultiPolygon.StrokeColor;
+            }
+
+            if (Math.Abs(polygon.StrokeWidth - 1.0) < double.Epsilon && Math.Abs(geoMultiPolygon.StrokeWidth - 1.0) > double.Epsilon)
+            {
+                polygon.StrokeWidth = geoMultiPolygon.StrokeWidth;
+            }
+
+            DrawGeoPolygon(polygon);
+
+            polygon.FillColor = originalFill;
+            polygon.StrokeColor = originalStroke;
+            polygon.StrokeWidth = originalStrokeWidth;
+        }
+    }
+
+    /// <summary>
     /// Draw a geographic circle feature
     /// </summary>
     public void DrawGeoCircle(KoreGeoCircle geoCircle)
@@ -324,14 +358,17 @@ public class KoreWorldPlotter
                 case KoreGeoMultiPoint multiPoint:
                     DrawGeoMultiPoint(multiPoint);
                     break;
-                case KoreGeoLine line:
-                    DrawGeoLine(line);
+                case KoreGeoLineString lineString:
+                    DrawGeoLineString(lineString);
                     break;
                 case KoreGeoMultiLineString multiLine:
                     DrawGeoMultiLineString(multiLine);
                     break;
                 case KoreGeoPolygon polygon:
                     DrawGeoPolygon(polygon);
+                    break;
+                case KoreGeoMultiPolygon multiPolygon:
+                    DrawGeoMultiPolygon(multiPolygon);
                     break;
                 case KoreGeoCircle circle:
                     DrawGeoCircle(circle);
