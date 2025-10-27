@@ -4,4 +4,4 @@
 test_db.sqlite
 *.bak
 *.uid
-/UnitTestArtefacts
+
