@@ -124,6 +124,8 @@ public partial class KoreGeoFeatureLibrary
         AddFeature(polygon);
     }
 
+    // ----------------------------------------------------------------------------------------
+
     private Dictionary<string, object?> BuildPolygonProperties(KoreGeoPolygon polygon)
     {
         var properties = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)

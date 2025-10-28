@@ -33,17 +33,11 @@ public class KoreWorldPlotter
     // MARK: Constructors
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Create a world plotter with specified dimensions covering the full world (-90 to 90 lat, -180 to 180 lon)
-    /// </summary>
     public KoreWorldPlotter(int width = 3600, int height = 1800)
         : this(width, height, KoreLLBox.GlobalBox)
     {
     }
 
-    /// <summary>
-    /// Create a world plotter with specified dimensions and constrained geographic bounds
-    /// </summary>
     public KoreWorldPlotter(int width, int height, KoreLLBox geoBounds)
     {
         Width = width;
@@ -57,17 +51,11 @@ public class KoreWorldPlotter
     // MARK: Coordinate Mapping: Lat/Lon <-> Pixel
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Convert lat/lon to pixel coordinates using equirectangular projection
-    /// </summary>
     public KoreXYVector LatLonToPixel(KoreLLPoint llPoint)
     {
         return LatLonToPixel(llPoint.LatDegs, llPoint.LonDegs);
     }
 
-    /// <summary>
-    /// Convert lat/lon degrees to pixel coordinates using equirectangular projection
-    /// </summary>
     public KoreXYVector LatLonToPixel(double latDegs, double lonDegs)
     {
         // Equirectangular projection: simple linear mapping
@@ -77,17 +65,11 @@ public class KoreWorldPlotter
         return new KoreXYVector(x, y);
     }
 
-    /// <summary>
-    /// Convert pixel coordinates to lat/lon using equirectangular projection
-    /// </summary>
     public KoreLLPoint PixelToLatLon(KoreXYVector pixel)
     {
         return PixelToLatLon(pixel.X, pixel.Y);
     }
 
-    /// <summary>
-    /// Convert pixel coordinates to lat/lon degrees using equirectangular projection
-    /// </summary>
     public KoreLLPoint PixelToLatLon(double x, double y)
     {
         // Reverse equirectangular projection
@@ -101,9 +83,6 @@ public class KoreWorldPlotter
     // Basic Drawing
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a point at a lat/lon location
-    /// </summary>
     public void DrawPoint(KoreLLPoint llPoint, KoreColorRGB color, double size = 5.0)
     {
         KoreXYVector pixel = LatLonToPixel(llPoint);
@@ -111,9 +90,6 @@ public class KoreWorldPlotter
         Plotter.DrawPoint(pixel, (int)size);
     }
 
-    /// <summary>
-    /// Draw text label at a lat/lon location
-    /// </summary>
     public void DrawTextAtPosition(string text, KoreLLPoint llPoint, KoreXYRectPosition anchor, int fontSize = 12)
     {
         KoreXYVector pixel = LatLonToPixel(llPoint);
@@ -124,9 +100,6 @@ public class KoreWorldPlotter
     // MARK: Point
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a geographic point feature
-    /// </summary>
     public void DrawGeoPoint(KoreGeoPoint geoPoint)
     {
         DrawPoint(geoPoint.Position, geoPoint.Color, geoPoint.Size);
@@ -141,9 +114,6 @@ public class KoreWorldPlotter
     // MARK: MultiPoint
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a geographic multi-point feature
-    /// </summary>
     public void DrawGeoMultiPoint(KoreGeoMultiPoint geoMultiPoint)
     {
         foreach (var point in geoMultiPoint.Points)
@@ -156,9 +126,6 @@ public class KoreWorldPlotter
     // MARK: LineString
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a geographic line string feature
-    /// </summary>
     public void DrawGeoLineString(KoreGeoLineString geoLineString)
     {
         if (geoLineString.Points.Count < 2)
@@ -180,9 +147,6 @@ public class KoreWorldPlotter
     // MARK: MultiLineString
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a geographic multi-line string feature
-    /// </summary>
     public void DrawGeoMultiLineString(KoreGeoMultiLineString geoMultiLine)
     {
         if (geoMultiLine.LineStrings.Count == 0)
@@ -209,9 +173,6 @@ public class KoreWorldPlotter
     // MARK: Polygon
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a geographic polygon feature
-    /// </summary>
     public void DrawGeoPolygon(KoreGeoPolygon geoPolygon)
     {
         if (geoPolygon.OuterRing.Count < 3)
@@ -290,9 +251,6 @@ public class KoreWorldPlotter
     // MARK: MultiPolygon
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a geographic multi-polygon feature
-    /// </summary>
     public void DrawGeoMultiPolygon(KoreGeoMultiPolygon geoMultiPolygon)
     {
         foreach (var polygon in geoMultiPolygon.Polygons)
@@ -328,9 +286,6 @@ public class KoreWorldPlotter
     // MARK: Circle
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a geographic circle feature
-    /// </summary>
     public void DrawGeoCircle(KoreGeoCircle geoCircle)
     {
         // Convert center to pixels
@@ -371,9 +326,6 @@ public class KoreWorldPlotter
     // MARK: Collection
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw an entire feature collection
-    /// </summary>
     public void DrawGeoFeatureCollection(KoreGeoFeatureCollection collection)
     {
         foreach (var feature in collection.Features)
@@ -409,9 +361,6 @@ public class KoreWorldPlotter
     // Save
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Save the world map to a PNG file
-    /// </summary>
     public void Save(string filePath)
     {
         Plotter.Save(filePath);

@@ -122,6 +122,8 @@ public partial class KoreGeoFeatureLibrary
         AddFeature(multiPolygon);
     }
 
+    // ----------------------------------------------------------------------------------------
+
     private Dictionary<string, object?> BuildMultiPolygonProperties(KoreGeoMultiPolygon multiPolygon)
     {
         var properties = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)

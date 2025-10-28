@@ -6,9 +6,10 @@ using System.Collections.Generic;
 
 namespace KoreCommon;
 
-/// <summary>
-/// Base class for all geographic features that can be drawn on a world map
-/// </summary>
+// --------------------------------------------------------------------------------------------
+// MARK: KoreGeoFeature
+// --------------------------------------------------------------------------------------------
+
 public abstract class KoreGeoFeature
 {
     public string Name { get; set; } = string.Empty;
@@ -20,9 +21,6 @@ public abstract class KoreGeoFeature
 // MARK: Point
 // --------------------------------------------------------------------------------------------
 
-/// <summary>
-/// A single geographic point with optional label
-/// </summary>
 public class KoreGeoPoint : KoreGeoFeature
 {
     public KoreLLPoint Position { get; set; }
@@ -37,53 +35,64 @@ public class KoreGeoPoint : KoreGeoFeature
 // MARK: MultiPoint
 // --------------------------------------------------------------------------------------------
 
-/// <summary>
-/// A collection of geographic points that share a common set of properties
-/// </summary>
 public class KoreGeoMultiPoint : KoreGeoFeature
 {
     public List<KoreLLPoint> Points { get; set; } = new List<KoreLLPoint>();
     public double Size { get; set; } = 5.0;
     public KoreColorRGB Color { get; set; } = KoreColorRGB.Black;
+    public KoreLLBox? BoundingBox { get; private set; }
+
+    public void CalcBoundingBox()
+    {
+        BoundingBox = Points.Count > 0 ? KoreLLBox.FromList(Points) : null;
+    }
 }
 
 // --------------------------------------------------------------------------------------------
 // MARK: LineString
 // --------------------------------------------------------------------------------------------
 
-/// <summary>
-/// A line or path through multiple geographic points
-/// </summary>
 public class KoreGeoLineString : KoreGeoFeature
 {
     public List<KoreLLPoint> Points { get; set; } = new List<KoreLLPoint>();
     public double LineWidth { get; set; } = 1.0;
     public KoreColorRGB Color { get; set; } = KoreColorRGB.Black;
     public bool IsGreatCircle { get; set; } = false; // Future: curved vs straight
+    public KoreLLBox? BoundingBox { get; private set; }
+
+    public void CalcBoundingBox()
+    {
+        BoundingBox = Points.Count > 0 ? KoreLLBox.FromList(Points) : null;
+    }
 }
 
 // --------------------------------------------------------------------------------------------
 // MARK: MultiLineString
 // --------------------------------------------------------------------------------------------
 
-/// <summary>
-/// A collection of line strings that share a common set of properties
-/// </summary>
 public class KoreGeoMultiLineString : KoreGeoFeature
 {
     public List<List<KoreLLPoint>> LineStrings { get; set; } = new List<List<KoreLLPoint>>();
     public double LineWidth { get; set; } = 1.0;
     public KoreColorRGB Color { get; set; } = KoreColorRGB.Black;
     public bool IsGreatCircle { get; set; } = false;
+    public KoreLLBox? BoundingBox { get; private set; }
+
+    public void CalcBoundingBox()
+    {
+        var allPoints = new List<KoreLLPoint>();
+        foreach (var line in LineStrings)
+        {
+            allPoints.AddRange(line);
+        }
+        BoundingBox = allPoints.Count > 0 ? KoreLLBox.FromList(allPoints) : null;
+    }
 }
 
 // --------------------------------------------------------------------------------------------
 // MARK: Polygon
 // --------------------------------------------------------------------------------------------
 
-/// <summary>
-/// A filled polygon area with optional holes (like islands with lakes)
-/// </summary>
 public class KoreGeoPolygon : KoreGeoFeature
 {
     public List<KoreLLPoint> OuterRing { get; set; } = new List<KoreLLPoint>();
@@ -91,30 +100,51 @@ public class KoreGeoPolygon : KoreGeoFeature
     public KoreColorRGB? FillColor { get; set; }
     public KoreColorRGB? StrokeColor { get; set; }
     public double StrokeWidth { get; set; } = 1.0;
+    public KoreLLBox? BoundingBox { get; private set; }
+
+    public void CalcBoundingBox()
+    {
+        var allPoints = new List<KoreLLPoint>();
+        allPoints.AddRange(OuterRing);
+        foreach (var innerRing in InnerRings)
+        {
+            allPoints.AddRange(innerRing);
+        }
+        BoundingBox = allPoints.Count > 0 ? KoreLLBox.FromList(allPoints) : null;
+    }
 }
 
 // --------------------------------------------------------------------------------------------
 // MARK: MultiPolygon
 // --------------------------------------------------------------------------------------------
 
-/// <summary>
-/// A collection of polygon areas that share a common set of properties
-/// </summary>
 public class KoreGeoMultiPolygon : KoreGeoFeature
 {
     public List<KoreGeoPolygon> Polygons { get; set; } = new List<KoreGeoPolygon>();
     public KoreColorRGB? FillColor { get; set; }
     public KoreColorRGB? StrokeColor { get; set; }
     public double StrokeWidth { get; set; } = 1.0;
+    public KoreLLBox? BoundingBox { get; private set; }
+
+    public void CalcBoundingBox()
+    {
+        var allPoints = new List<KoreLLPoint>();
+        foreach (var polygon in Polygons)
+        {
+            allPoints.AddRange(polygon.OuterRing);
+            foreach (var innerRing in polygon.InnerRings)
+            {
+                allPoints.AddRange(innerRing);
+            }
+        }
+        BoundingBox = allPoints.Count > 0 ? KoreLLBox.FromList(allPoints) : null;
+    }
 }
 
 // --------------------------------------------------------------------------------------------
 // MARK: Circle
 // --------------------------------------------------------------------------------------------
 
-/// <summary>
-/// A circular coverage area (radius in meters)
-/// </summary>
 public class KoreGeoCircle : KoreGeoFeature
 {
     public KoreLLPoint Center { get; set; }
@@ -128,9 +158,6 @@ public class KoreGeoCircle : KoreGeoFeature
 // MARK: Feature Collection
 // --------------------------------------------------------------------------------------------
 
-/// <summary>
-/// A collection of geographic features with optional bounding box
-/// </summary>
 public class KoreGeoFeatureCollection
 {
     public List<KoreGeoFeature> Features { get; set; } = new List<KoreGeoFeature>();

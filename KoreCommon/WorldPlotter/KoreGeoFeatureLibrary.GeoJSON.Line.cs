@@ -8,9 +8,8 @@ using System.Text.Json;
 
 namespace KoreCommon;
 
-/// <summary>
-/// GeoJSON LineString feature import/export for KoreGeoFeatureLibrary
-/// </summary>
+// GeoJSON LineString feature import/export for KoreGeoFeatureLibrary
+
 public partial class KoreGeoFeatureLibrary
 {
     // ----------------------------------------------------------------------------------------
@@ -67,6 +66,8 @@ public partial class KoreGeoFeatureLibrary
 
         AddFeature(lineString);
     }
+
+    // ----------------------------------------------------------------------------------------
 
     private Dictionary<string, object?> BuildLineStringProperties(KoreGeoLineString lineString)
     {

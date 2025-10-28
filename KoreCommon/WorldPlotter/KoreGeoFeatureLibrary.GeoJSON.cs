@@ -209,7 +209,7 @@ public partial class KoreGeoFeatureLibrary
         }
 
         // Calculate bounding box for the entire collection (RFC 7946 Section 5)
-        var bbox = CalculateBoundingBox();
+        var bbox = LibraryBoundingBox();
         object featureCollection;
 
         if (bbox.HasValue)

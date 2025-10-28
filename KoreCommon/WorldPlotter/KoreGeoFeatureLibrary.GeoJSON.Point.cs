@@ -68,6 +68,8 @@ public partial class KoreGeoFeatureLibrary
         AddFeature(point);
     }
 
+    // ----------------------------------------------------------------------------------------
+
     private Dictionary<string, object?> BuildPointProperties(KoreGeoPoint point)
     {
         var properties = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)

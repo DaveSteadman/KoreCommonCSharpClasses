@@ -16,6 +16,9 @@ public static partial class KoreTestGeoFeatureLibrary
         TestSaveSinglePointToGeoJSON(testLog);
         TestSaveLineStringToGeoJSON(testLog);
         TestSavePolygonToGeoJSON(testLog);
+        TestMultiSegmentRouteAcrossUK(testLog);
+        TestFlexibleJoinRouteAcrossUK(testLog);
+        TestRouteGeoJSONKoreIO(testLog);
     }
 }
 

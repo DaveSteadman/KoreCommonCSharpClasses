@@ -63,6 +63,8 @@ public partial class KoreGeoFeatureLibrary
         AddFeature(multiPoint);
     }
 
+    // ----------------------------------------------------------------------------------------
+
     private Dictionary<string, object?> BuildMultiPointProperties(KoreGeoMultiPoint multiPoint)
     {
         var properties = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)

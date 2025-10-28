@@ -18,23 +18,23 @@ public partial class KoreGeoFeatureLibrary
     // MARK: Basic Queries
     // --------------------------------------------------------------------------------------------
 
-    public KoreGeoFeature? GetFeature(string name) { Features.TryGetValue(name, out var feature); return feature; }
-    public KoreGeoPoint? GetPoint(string name) { Points.TryGetValue(name, out var point); return point; }
-    public KoreGeoMultiPoint? GetMultiPoint(string name) { MultiPoints.TryGetValue(name, out var multiPoint); return multiPoint; }
-    public KoreGeoLineString? GetLineString(string name) { LineStrings.TryGetValue(name, out var lineString); return lineString; }
-    public KoreGeoMultiLineString? GetMultiLineString(string name) { MultiLines.TryGetValue(name, out var multiLine); return multiLine; }
-    public KoreGeoPolygon? GetPolygon(string name) { Polygons.TryGetValue(name, out var polygon); return polygon; }
-    public KoreGeoMultiPolygon? GetMultiPolygon(string name) { MultiPolygons.TryGetValue(name, out var mulPoly); return mulPoly; }
-    public KoreGeoCircle? GetCircle(string name) { Circles.TryGetValue(name, out var circle); return circle; }
+    public KoreGeoFeature?          GetFeature(string name)          { Features.TryGetValue(name, out var feature);       return feature; }
+    public KoreGeoPoint?            GetPoint(string name)            { Points.TryGetValue(name, out var point);           return point; }
+    public KoreGeoMultiPoint?       GetMultiPoint(string name)       { MultiPoints.TryGetValue(name, out var multiPoint); return multiPoint; }
+    public KoreGeoLineString?       GetLineString(string name)       { LineStrings.TryGetValue(name, out var lineString); return lineString; }
+    public KoreGeoMultiLineString?  GetMultiLineString(string name)  { MultiLines.TryGetValue(name, out var multiLine);   return multiLine; }
+    public KoreGeoPolygon?          GetPolygon(string name)          { Polygons.TryGetValue(name, out var polygon);       return polygon; }
+    public KoreGeoMultiPolygon?     GetMultiPolygon(string name)     { MultiPolygons.TryGetValue(name, out var mulPoly);  return mulPoly; }
+    public KoreGeoCircle?           GetCircle(string name)           { Circles.TryGetValue(name, out var circle);         return circle; }
 
-    public List<KoreGeoFeature> GetAllFeatures() { return Features.Values.ToList(); }
-    public List<KoreGeoPoint> GetAllPoints() { return Points.Values.ToList(); }
-    public List<KoreGeoMultiPoint> GetAllMultiPoints() { return MultiPoints.Values.ToList(); }
-    public List<KoreGeoLineString> GetAllLineStrings() { return LineStrings.Values.ToList(); }
+    public List<KoreGeoFeature>         GetAllFeatures()         { return Features.Values.ToList(); }
+    public List<KoreGeoPoint>           GetAllPoints()           { return Points.Values.ToList(); }
+    public List<KoreGeoMultiPoint>      GetAllMultiPoints()      { return MultiPoints.Values.ToList(); }
+    public List<KoreGeoLineString>      GetAllLineStrings()      { return LineStrings.Values.ToList(); }
     public List<KoreGeoMultiLineString> GetAllMultiLineStrings() { return MultiLines.Values.ToList(); }
-    public List<KoreGeoPolygon> GetAllPolygons() { return Polygons.Values.ToList(); }
-    public List<KoreGeoMultiPolygon> GetAllMultiPolygons() { return MultiPolygons.Values.ToList(); }
-    public List<KoreGeoCircle> GetAllCircles() { return Circles.Values.ToList(); }
+    public List<KoreGeoPolygon>         GetAllPolygons()         { return Polygons.Values.ToList(); }
+    public List<KoreGeoMultiPolygon>    GetAllMultiPolygons()    { return MultiPolygons.Values.ToList(); }
+    public List<KoreGeoCircle>          GetAllCircles()          { return Circles.Values.ToList(); }
 
     // --------------------------------------------------------------------------------------------
     // MARK: Complex Queries
@@ -135,7 +135,5 @@ public partial class KoreGeoFeatureLibrary
         }
         return result;
     }
-
-    // --------------------------------------------------------------------------------------------
 
 }

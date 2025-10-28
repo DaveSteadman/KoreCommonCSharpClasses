@@ -5,18 +5,12 @@ using KoreCommon.SkiaSharp;
 
 namespace KoreCommon;
 
-/// <summary>
-/// KoreWorldPlotterOps: Utility operations for drawing overlays on world maps
-/// </summary>
 public static class KoreWorldPlotterOps
 {
     // --------------------------------------------------------------------------------------------
     // MARK: Grid Overlays
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a lat/lon grid overlay on the world map
-    /// </summary>
     public static void DrawGrid(
         KoreWorldPlotter worldPlotter,
         int latSpacingDegs = 15,
@@ -50,9 +44,6 @@ public static class KoreWorldPlotterOps
 
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw grid with labels at intersections
-    /// </summary>
     public static void DrawGridWithLabels(
         KoreWorldPlotter worldPlotter,
         int latSpacingDegs = 30,
@@ -172,9 +163,6 @@ public static class KoreWorldPlotterOps
     // Border Drawing
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Draw a border around the world map
-    /// </summary>
     public static void DrawBorder(
         KoreWorldPlotter worldPlotter,
         KoreColorRGB? borderColor = null,

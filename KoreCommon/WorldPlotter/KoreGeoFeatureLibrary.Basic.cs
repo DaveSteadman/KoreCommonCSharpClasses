@@ -16,9 +16,6 @@ public partial class KoreGeoFeatureLibrary
     // MARK: Add/Remove Features
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Add a feature to the library
-    /// </summary>
     public void AddFeature(KoreGeoFeature feature)
     {
         if (string.IsNullOrEmpty(feature.Name))
@@ -32,33 +29,16 @@ public partial class KoreGeoFeatureLibrary
         // Add to type-specific indexes
         switch (feature)
         {
-            case KoreGeoPoint point:
-                Points[feature.Name] = point;
-                break;
-            case KoreGeoMultiPoint multiPoint:
-                MultiPoints[feature.Name] = multiPoint;
-                break;
-            case KoreGeoLineString lineString:
-                LineStrings[feature.Name] = lineString;
-                break;
-            case KoreGeoMultiLineString multiLine:
-                MultiLines[feature.Name] = multiLine;
-                break;
-            case KoreGeoPolygon polygon:
-                Polygons[feature.Name] = polygon;
-                break;
-            case KoreGeoMultiPolygon multiPolygon:
-                MultiPolygons[feature.Name] = multiPolygon;
-                break;
-            case KoreGeoCircle circle:
-                Circles[feature.Name] = circle;
-                break;
+            case KoreGeoPoint point:               Points[feature.Name]        = point;        break;
+            case KoreGeoMultiPoint multiPoint:     MultiPoints[feature.Name]   = multiPoint;   break;
+            case KoreGeoLineString lineString:     LineStrings[feature.Name]   = lineString;   break;
+            case KoreGeoMultiLineString multiLine: MultiLines[feature.Name]    = multiLine;    break;
+            case KoreGeoPolygon polygon:           Polygons[feature.Name]      = polygon;      break;
+            case KoreGeoMultiPolygon multiPolygon: MultiPolygons[feature.Name] = multiPolygon; break;
+            case KoreGeoCircle circle:             Circles[feature.Name]       = circle;       break;
         }
     }
 
-    /// <summary>
-    /// Add multiple features at once
-    /// </summary>
     public void AddFeatures(IEnumerable<KoreGeoFeature> featuresToAdd)
     {
         foreach (var feature in featuresToAdd)
@@ -67,9 +47,6 @@ public partial class KoreGeoFeatureLibrary
         }
     }
 
-    /// <summary>
-    /// Remove a feature by name
-    /// </summary>
     public bool RemoveFeature(string name)
     {
         if (!Features.TryGetValue(name, out var feature))
@@ -87,9 +64,6 @@ public partial class KoreGeoFeatureLibrary
         return true;
     }
 
-    /// <summary>
-    /// Clear all features
-    /// </summary>
     public void Clear()
     {
         Features.Clear();

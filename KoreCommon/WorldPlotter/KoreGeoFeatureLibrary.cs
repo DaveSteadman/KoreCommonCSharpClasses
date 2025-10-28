@@ -52,99 +52,55 @@ public partial class KoreGeoFeatureLibrary
         foreach (var line in LineStrings.Values)
         {
             if (line.Points.Any(p => bounds.Contains(p)))
-            {
                 result.Add(line);
-            }
         }
 
         foreach (var multiLine in MultiLines.Values)
         {
             if (multiLine.LineStrings.Any(line => line.Any(p => bounds.Contains(p))))
-            {
                 result.Add(multiLine);
-            }
-        }
+       }
 
         // Add polygons with any point in bounds
         foreach (var polygon in Polygons.Values)
         {
             if (polygon.OuterRing.Any(p => bounds.Contains(p)))
-            {
                 result.Add(polygon);
-            }
         }
 
         foreach (var multiPolygon in MultiPolygons.Values)
         {
             if (multiPolygon.Polygons.Any(poly => poly.OuterRing.Any(p => bounds.Contains(p))))
-            {
                 result.Add(multiPolygon);
-            }
         }
 
         // Add circles with center in bounds
         foreach (var circle in Circles.Values)
         {
             if (bounds.Contains(circle.Center))
-            {
                 result.Add(circle);
-            }
         }
 
         foreach (var multiPoint in MultiPoints.Values)
         {
             if (multiPoint.Points.Any(bounds.Contains))
-            {
                 result.Add(multiPoint);
-            }
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// Get all points within a radius (in meters) of a center point
-    /// </summary>
-    public IEnumerable<KoreGeoPoint> GetPointsNear(KoreLLPoint center, double radiusMeters)
-    {
-        // TODO: Implement proper geodetic distance calculation
-        // For now, use a simple bounding box approximation
-        double latDegsPerMeter = 1.0 / 111320.0;
-        double radiusDegs = radiusMeters * latDegsPerMeter;
-
-        var bounds = new KoreLLBox()
-        {
-            MinLatDegs = center.LatDegs - radiusDegs,
-            MaxLatDegs = center.LatDegs + radiusDegs,
-            MinLonDegs = center.LonDegs - radiusDegs,
-            MaxLonDegs = center.LonDegs + radiusDegs
-        };
-
-        return GetPointsInBox(bounds);
     }
 
     // --------------------------------------------------------------------------------------------
     // MARK: Statistics
     // --------------------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Get the total number of features
-    /// </summary>
     public int Count => Features.Count;
 
     /// <summary>
-    /// Get the number of features by type
+    /// Calculate the bounding box that encompasses all features in the library
+    /// Used primarily for GeoJSON export metadata
     /// </summary>
-    public (int Points, int MultiPoints, int LineStrings, int MultiLineStrings, int Polygons, int MultiPolygons, int Circles) GetCountsByType()
-    {
-        return (Points.Count, MultiPoints.Count, LineStrings.Count, MultiLines.Count, Polygons.Count, MultiPolygons.Count, Circles.Count);
-    }
-
-    /// <summary>
-    /// Calculate bounding box that contains all features
-    /// Uses KoreLLBox.FromList to efficiently compute bounds from all feature points
-    /// </summary>
-    public KoreLLBox? CalculateBoundingBox()
+    public KoreLLBox? LibraryBoundingBox()
     {
         if (Features.Count == 0)
             return null;

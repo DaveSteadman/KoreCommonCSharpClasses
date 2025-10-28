@@ -76,6 +76,8 @@ public partial class KoreGeoFeatureLibrary
         AddFeature(multiLine);
     }
 
+    // ----------------------------------------------------------------------------------------
+
     private Dictionary<string, object?> BuildMultiLineStringProperties(KoreGeoMultiLineString multiLine)
     {
         var properties = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
