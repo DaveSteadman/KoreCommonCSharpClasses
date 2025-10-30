@@ -7,11 +7,12 @@ using System.Collections.Generic;
 namespace KoreCommon;
 
 /// <summary>
-/// Base class for all geographic features
+/// A collection of geographic features
 /// </summary>
-public abstract class KoreGeoFeature
+public class KoreGeoFeatureCollection
 {
+    public List<KoreGeoFeature> Features { get; set; } = new List<KoreGeoFeature>();
+    public KoreLLBox? BoundingBox { get; set; }
     public string Name { get; set; } = string.Empty;
-    public string? Id { get; set; } // Optional GeoJSON Feature id (RFC 7946 Section 3.2)
     public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
 }

@@ -31,6 +31,8 @@ public partial class KoreGeoFeatureLibrary
 
             var polygon = new KoreGeoPolygon();
             var ringIndex = 0;
+            // NOTE: RFC 7946 specifies outer ring should be CCW, holes should be CW
+            // but we accept any winding direction during import
 
             foreach (var ringElement in polygonCoords.EnumerateArray())
             {

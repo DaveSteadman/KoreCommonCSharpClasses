@@ -26,6 +26,8 @@ public partial class KoreGeoFeatureLibrary
 
         var ringIndex = 0;
         // Parse rings: first is outer ring, rest are holes
+        // NOTE: RFC 7946 specifies outer ring should be CCW, holes should be CW
+        // but we accept any winding direction during import
         foreach (var ringElement in coordinatesElement.EnumerateArray())
         {
             if (ringElement.ValueKind != JsonValueKind.Array)

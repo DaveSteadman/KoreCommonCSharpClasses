@@ -158,6 +158,8 @@ public partial class KoreGeoFeatureLibrary
             var properties = BuildPolygonProperties(polygon);
 
             // Build rings array: [outerRing, hole1, hole2, ...]
+            // NOTE: RFC 7946 specifies outer ring should be CCW, holes should be CW
+            // We export as-is without enforcing winding direction
             var rings = new List<List<double[]>>();
 
             // Outer ring
