@@ -1,6 +1,6 @@
 # C Sharp Common Classes
 
-A dotnet console program for the development of common classes, before they are cut/paste into more complex applications and relied upon.
+A dotnet console program for the development of common classes, before they are cut/paste into more complex applications and relied on.
 
 Areas:
 - 2D and 3D maths, including custome mesh and colour handling.
