@@ -72,4 +72,21 @@ public class KoreSkiaSharpPlotterDrawSettings
 
         return settings;
     }
+
+    // Read the current SKPaint settings, so they can be applied back later
+
+    public KoreSkiaSharpPlotterDrawSettings AbsorbCurrentSettings()
+    {
+        KoreSkiaSharpPlotterDrawSettings newSettings = new KoreSkiaSharpPlotterDrawSettings();
+
+        newSettings.Paint.StrokeWidth = this.Paint.StrokeWidth;
+        newSettings.Paint.Color = this.Paint.Color;
+        newSettings.Paint.Style = this.Paint.Style;
+        newSettings.Paint.IsAntialias = this.Paint.IsAntialias;
+
+        newSettings.LineSpacing = this.LineSpacing;
+        newSettings.PointCrossSize = this.PointCrossSize;
+
+        return newSettings;
+    }
 }
