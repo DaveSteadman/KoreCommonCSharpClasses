@@ -110,8 +110,6 @@ public static class KoreTestWorldPlotter
             }
         }
 
-        worldPlotter.Plotter.DrawLine(new KoreXYVector(10,10), new KoreXYVector(100,100));
-
         testLog.AddComment($"Drew great circle route from London to Sydney with {greatCirclePoints.Count} points");
 
         // Draw ALL positions from KorePositionLibrary

@@ -24,12 +24,12 @@ public static class KoreTestPlotter
             KoreSkiaSharpPlotter plotter = new(1000, 1000); // 1000x1000 pixels
 
             // Define out basic objects
-            KoreXYCircle circle1 = new(5, 6, 4); // X, y, radius
-            KoreXYCircle circle2 = new(10, 10, 8);
-            KoreXYLine line1 = new(1.2, 2.2, 8, 19);
-            KoreXYLine line2 = new(1, 17, 19, 3);
-            KoreXYLine line3 = new(14, 15, 17, 18);
-            KoreXYLine line4 = new(16, 16, 18, 18);
+            KoreXYCircle circle1 = new(250, 300, 200); // X, y, radius (scaled 5x)
+            KoreXYCircle circle2 = new(500, 500, 400);
+            KoreXYLine line1 = new(60, 110, 440, 595);
+            KoreXYLine line2 = new(650, 685, 895, 65);
+            KoreXYLine line3 = new(700, 750, 850, 900);
+            KoreXYLine line4 = new(800, 800, 900, 900);
 
             // Set the line width
             plotter.DrawSettings.Paint.StrokeWidth = 3;
@@ -48,7 +48,7 @@ public static class KoreTestPlotter
             plotter.DrawCircle(circle2);
             plotter.DrawLine(line2);
 
-            KoreXYRect outline = new(0.1, 0.1, 19.9, 19.9);
+            KoreXYRect outline = new(10, 10, 990, 990);
             plotter.DrawRect(outline);
 
             // --- RED: Tangent points ---
@@ -107,7 +107,7 @@ public static class KoreTestPlotter
             foreach (KoreXYVector p in circleCircleInt1)
                 plotter.DrawPoint(p);
 
-            KoreXYVector textPoint = new(0.2, 0.2);
+            KoreXYVector textPoint = new(600, 50);
             plotter.DrawSettings.Color = SKColors.Orange;
             plotter.DrawPoint(textPoint);
 
@@ -117,7 +117,7 @@ public static class KoreTestPlotter
             plotter.DrawTextAtPosition($"{KoreCentralTime.TimestampLocal}\nPlotter Test 1 // BL Origin", textPoint, KoreXYRectPosition.BottomLeft);
             plotter.DrawSettings.ResetToDefaults();
 
-            plotter.Save("test.png");
+            plotter.Save("UnitTestArtefacts/Plotter_Test.png");
         }
         catch (Exception e)
         {
@@ -129,16 +129,10 @@ public static class KoreTestPlotter
     {
         try
         {
-            KoreSkiaSharpPlotter plotter = new(1000, 1000); // 1000x1000 pixels
+            KoreSkiaSharpPlotter plotter = new(800, 800); // 800x800 pixels
 
-            // Define out basic objects
-            KoreXYCircle circleMain = new(10, 10, 9); // X, y, radius
-
-            // KoreXYCircle circle2 = new (10, 10,  8);
-            // KoreXYLine line1     = new (1.2, 2.2,  8, 19);
-            // KoreXYLine line2     = new (1,  17, 19,  3);
-            // KoreXYLine line3     = new (14 ,15, 17, 18);
-            // KoreXYLine line4     = new (16 ,16, 18, 18);
+            // Define out basic objects (scaled 40x)
+            KoreXYCircle circleMain = new(400, 400, 360); // X, y, radius
 
             // Set the line width
             plotter.DrawSettings.Paint.StrokeWidth = 3;
@@ -148,7 +142,7 @@ public static class KoreTestPlotter
 
             // Draw basic outline, just confirm we have the right draw area
             plotter.DrawSettings.Color = SKColors.LightGray;
-            KoreXYRect outline = new(0.1, 0.1, 19.9, 19.9);
+            KoreXYRect outline = new(4, 4, 796, 796);
             plotter.DrawRect(outline);
 
             // Draw our main objects
@@ -156,7 +150,7 @@ public static class KoreTestPlotter
             plotter.DrawCircle(circleMain);
 
             // Create arc from the main circle
-            KoreXYArc arcMain = new(circleMain.Center, circleMain.Radius - 1, 0, KoreValueUtils.DegsToRads(80));
+            KoreXYArc arcMain = new(circleMain.Center, circleMain.Radius - 40, 0, KoreValueUtils.DegsToRads(80));
             plotter.DrawArc(arcMain);
 
             // Draw tghe Arc points (greeen start, red end)
@@ -166,11 +160,11 @@ public static class KoreTestPlotter
             plotter.DrawPoint(arcMain.EndPoint);
 
             // Draw an arc box
-            KoreXYAnnularSector arcBox = new(circleMain.Center, arcMain.Radius - 5, arcMain.Radius - 1, arcMain.StartAngleRads, KoreValueUtils.DegsToRads(80));
+            KoreXYAnnularSector arcBox = new(circleMain.Center, arcMain.Radius - 200, arcMain.Radius - 40, arcMain.StartAngleRads, KoreValueUtils.DegsToRads(80));
             plotter.DrawArcBox(arcBox);
 
             // Draw an intersecting line
-            KoreXYLine line1 = new(3, 15, 19, 13);
+            KoreXYLine line1 = new(120, 600, 760, 520);
             plotter.DrawSettings.Color = SKColors.LightGray;
             plotter.DrawLine(line1);
 
@@ -181,9 +175,9 @@ public static class KoreTestPlotter
 
             // Test the 3 point bezier curve
             {
-                KoreXYVector pA = new(1, 1);
-                KoreXYVector pB = new(5, 10);
-                KoreXYVector pC = new(15, 5);
+                KoreXYVector pA = new(40, 40);
+                KoreXYVector pB = new(200, 400);
+                KoreXYVector pC = new(600, 200);
                 KoreXYLine lineAB = new(pA, pB);
                 KoreXYLine lineBC = new(pB, pC);
                 KoreXYPolyLine? bezier = KoreXYPolyLineOps.Create3PointBezier(pA, pB, pC, 10);
@@ -207,10 +201,10 @@ public static class KoreTestPlotter
 
             // Test the 4 point bezier curve
             {
-                KoreXYVector pA = new(1, 19);
-                KoreXYVector pB = new(3, 14);
-                KoreXYVector pC = new(5, 15);
-                KoreXYVector pD = new(7, 18);
+                KoreXYVector pA = new(40, 760);
+                KoreXYVector pB = new(120, 560);
+                KoreXYVector pC = new(200, 600);
+                KoreXYVector pD = new(280, 720);
                 KoreXYLine lineAB = new(pA, pB);
                 KoreXYLine lineBC = new(pB, pC);
                 KoreXYLine lineCD = new(pC, pD);
@@ -236,13 +230,13 @@ public static class KoreTestPlotter
             }
 
             // draw an outline box, check the bounds
-            KoreXYRect outline2 = new(0.1, 0.1, 19.9, 19.9);
+            KoreXYRect outline2 = new(4, 4, 796, 796);
             plotter.DrawSettings.Color = SKColors.LightBlue;
             plotter.DrawSettings.Paint.StrokeWidth = 2;
             plotter.DrawRect(outline2);
 
             // Final: Save plot:
-            plotter.Save("test2.png");
+            plotter.Save("UnitTestArtefacts/Plotter_Test2.png");
         }
         catch (Exception e)
         {
