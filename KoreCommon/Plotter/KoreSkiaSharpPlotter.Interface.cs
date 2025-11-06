@@ -21,10 +21,64 @@ public partial class KoreSkiaSharpPlotter
     public void DrawPointAsCircle(KoreXYVector v, int radius = 3)   => DrawPointAsCircle(KoreSkiaSharpConv.ToSKPoint(v), radius);
 
     // --------------------------------------------------------------------------------------------
+    // MARK: Circle
+    // --------------------------------------------------------------------------------------------
+
+    public void DrawCircle(KoreXYVector center, float radius)
+    {
+        SKPoint skCenter = KoreSkiaSharpConv.ToSKPoint(center);
+        canvas.DrawCircle(skCenter, radius, DrawSettings.Paint);
+    }
+
+    public void DrawCircle(KoreXYCircle circle)
+    {
+        SKPoint skCenter = KoreSkiaSharpConv.ToSKPoint(circle.Center);
+        canvas.DrawCircle(skCenter, (float)circle.Radius, DrawSettings.Paint);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // MARK: Arc
+    // --------------------------------------------------------------------------------------------
+
+    public void DrawArc(KoreXYArc arc)
+    {
+        SKRect skRect = new SKRect(
+            (float)(arc.Center.X - arc.Radius),
+            (float)(arc.Center.Y - arc.Radius),
+            (float)(arc.Center.X + arc.Radius),
+            (float)(arc.Center.Y + arc.Radius)
+        );
+
+        float startAngleDegs = (float)KoreValueUtils.RadsToDegs(arc.StartAngleRads);
+        float sweepAngleDegs = (float)KoreValueUtils.RadsToDegs(arc.DeltaAngleRads);
+
+        canvas.DrawArc(skRect, startAngleDegs, sweepAngleDegs, false, DrawSettings.Paint);
+    }
+
+    public void DrawArcBox(KoreXYAnnularSector arcbox)
+    {
+        KoreXYArc innerArc = arcbox.InnerArc;
+        KoreXYArc outerArc = arcbox.OuterArc;
+
+        DrawArc(innerArc);  // Draw inner arc
+        DrawArc(outerArc);  // Draw outer arc
+
+        DrawLine(arcbox.StartInnerOuterLine); // Draw connecting start lines
+        DrawLine(arcbox.EndInnerOuterLine);
+    }
+
+    // --------------------------------------------------------------------------------------------
     // MARK: Line
     // --------------------------------------------------------------------------------------------
 
     public void DrawLine(KoreXYVector v1, KoreXYVector v2) => DrawLine(KoreSkiaSharpConv.ToSKPoint(v1), KoreSkiaSharpConv.ToSKPoint(v2));
+
+    public void DrawLine(KoreXYLine line)
+    {
+        SKPoint p1 = KoreSkiaSharpConv.ToSKPoint(line.P1);
+        SKPoint p2 = KoreSkiaSharpConv.ToSKPoint(line.P2);
+        DrawLine(p1, p2);
+    }
 
     // --------------------------------------------------------------------------------------------
     // MARK: Triangle
@@ -40,6 +94,11 @@ public partial class KoreSkiaSharpPlotter
     {
         SKRect skRect = KoreSkiaSharpConv.ToSKRect(rect);
         DrawRect(skRect, fillPaint);
+    }
+    public void DrawRect(KoreXYRect rect)
+    {
+        SKRect skRect = KoreSkiaSharpConv.ToSKRect(rect);
+        DrawRect(skRect, DrawSettings.Paint);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -60,7 +119,7 @@ public partial class KoreSkiaSharpPlotter
     // MARK: Text
     // --------------------------------------------------------------------------------------------
 
-    public void DrawText(string text, KoreXYVector pos, int fontSize = 12)             => DrawText(text, KoreSkiaSharpConv.ToSKPoint(pos), fontSize);
+    public void DrawText(string text, KoreXYVector pos, int fontSize = 12)           => DrawText(text, KoreSkiaSharpConv.ToSKPoint(pos), fontSize);
     public void DrawTextCentered(string text, KoreXYVector pos, float fontSize = 12) => DrawTextCentered(text, KoreSkiaSharpConv.ToSKPoint(pos), fontSize);
 
     // --------------------------------------------------------------------------------------------
@@ -146,5 +205,8 @@ public partial class KoreSkiaSharpPlotter
         using var image = GetBitmap().Encode(SKEncodedImageFormat.Png, 100);
         return image.ToArray();
     }
+
+    // --------------------------------------------------------------------------------------------
+
 
 }

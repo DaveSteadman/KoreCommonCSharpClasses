@@ -1,6 +1,7 @@
 // <fileheader>
 
 using System;
+using KoreCommon.SkiaSharp;
 
 namespace KoreCommon.UnitTest;
 
@@ -51,7 +52,7 @@ public static class KoreTestWorldPlotter
                 foreach (var geoPolygon in countriesLibrary.GetAllPolygons())
                 {
                     geoPolygon.StrokeColor = new KoreColorRGB(120, 120, 120);  // Medium gray outline
-                    geoPolygon.StrokeWidth = 0.5;
+                    geoPolygon.StrokeWidth = 2;
 
                     // Apply random color variation to single polygons too
                     KoreColorRGB noiseColor = KoreColorOps.ColorWithRGBNoise(baseColor, 0.2f);
@@ -64,7 +65,7 @@ public static class KoreTestWorldPlotter
                 foreach (var multiPolygon in countriesLibrary.GetAllMultiPolygons())
                 {
                     multiPolygon.StrokeColor = new KoreColorRGB(120, 120, 160);  // Medium gray outline
-                    multiPolygon.StrokeWidth = 0.5;
+                    multiPolygon.StrokeWidth = 2;
 
                     // Apply random color variation to multi-polygons
                     KoreColorRGB noiseColor = KoreColorOps.ColorWithRGBNoise(baseColor, 0.1f);
@@ -81,6 +82,37 @@ public static class KoreTestWorldPlotter
                 testLog.AddComment($"Failed to load countries: {ex.Message}");
             }
         }
+
+        // Draw a great circle route (e.g., London to Sydney)
+        var londonPos = KorePositionLibrary.GetLLPos("London");
+        var sydneyPos = KorePositionLibrary.GetLLPos("Sydney");
+
+        // Generate 100 points along the great circle
+        var greatCirclePoints = KoreLLPointOps.GreatCirclePointList(londonPos, sydneyPos, 100);
+
+        // Draw the great circle in segments, filtering out longitude wraps
+        worldPlotter.Plotter.DrawSettings.Color = KoreSkiaSharpConv.ToSKColor(new KoreColorRGB(255, 50, 50)); // Bright red
+        worldPlotter.Plotter.DrawSettings.Paint.StrokeWidth = 3.0f;
+
+
+        for (int i = 0; i < greatCirclePoints.Count - 1; i++)
+        {
+            var p1 = greatCirclePoints[i];
+            var p2 = greatCirclePoints[i + 1];
+
+            // Filter out segments that wrap around (longitude jump > 180 degrees)
+            double lonDiff = Math.Abs(p2.LonDegs - p1.LonDegs);
+            if (lonDiff < 180)
+            {
+                var pixel1 = worldPlotter.LatLonToPixel(p1);
+                var pixel2 = worldPlotter.LatLonToPixel(p2);
+                worldPlotter.Plotter.DrawLine(pixel1, pixel2);
+            }
+        }
+
+        worldPlotter.Plotter.DrawLine(new KoreXYVector(10,10), new KoreXYVector(100,100));
+
+        testLog.AddComment($"Drew great circle route from London to Sydney with {greatCirclePoints.Count} points");
 
         // Draw ALL positions from KorePositionLibrary
         var pointColor = new KoreColorRGB(255, 100, 100); // Light red

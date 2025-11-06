@@ -16,6 +16,7 @@ namespace KoreCommon.SkiaSharp;
 public class KoreSkiaSharpPlotterDrawSettings
 {
     public SKPaint Paint { get; } = new SKPaint(); // This is a cache of the last paint object created, so we can reuse it if the settings haven't changed
+    public SKFont Font { get; } = new SKFont();
 
     public float LineWidth
     {
@@ -33,6 +34,12 @@ public class KoreSkiaSharpPlotterDrawSettings
     {
         get { return Paint.IsAntialias; }
         set { Paint.IsAntialias = value; }
+    }
+
+    public float TextSize
+    {
+        get { return Font.Size; }
+        set { Font.Size = value; }
     }
 
     public float LineSpacing { get; set; } = 0;
