@@ -14,7 +14,7 @@ using KoreCommon.UnitTest;
 
 // Class to run a thread for command line input.
 // This class can't do anything, it must delgate all actual processing to the KoreEventDriver class.
-public class KoreConsole
+public class KoreCommandHandler
 {
     // Thread control
     private Thread? consoleThread = null;
@@ -34,7 +34,7 @@ public class KoreConsole
     // MARK: Constructor
     // ---------------------------------------------------------------------------------------------
 
-    public KoreConsole()
+    public KoreCommandHandler()
     {
         running = false;
 
