@@ -30,6 +30,8 @@ public class KoreCommandHandler
     // Event to set on new input, to unblock the console thread to process new commands.
     private AutoResetEvent InputEvent = new AutoResetEvent(false);
 
+    public bool IsRunning => running;
+
     // ---------------------------------------------------------------------------------------------
     // MARK: Constructor
     // ---------------------------------------------------------------------------------------------
