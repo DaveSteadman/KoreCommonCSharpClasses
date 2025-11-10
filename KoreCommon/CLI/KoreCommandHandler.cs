@@ -55,6 +55,7 @@ public class KoreCommandHandler
             KoreCentralLog.AddEntry($"Starting console thread... ({commandHandlers.Count} Commands.)");
             running = true;
             consoleThread = new Thread(ConsoleLoop);
+            consoleThread.IsBackground = true; // Allow app to exit even if this thread is still running
             consoleThread?.Start();
         }
     }
@@ -91,7 +92,7 @@ public class KoreCommandHandler
     private void InitializeCommands()
     {
         // Register commands and their handlers here
-        KoreCentralLog.AddEntry("KoreConsole: Initializing commands...");
+        KoreCentralLog.AddEntry("KoreCommandHandler: Initializing commands...");
 
         // General app control commands
         AddCommandHandler(new KoreCommandFileRename());
@@ -156,6 +157,13 @@ public class KoreCommandHandler
     {
         var inputParts = commandLine.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
+        // Check for internal commands first
+        var (internalHandled, internalResponse) = TryRunInternalCommand(inputParts);
+        if (internalHandled)
+        {
+            return (true, internalResponse);
+        }
+
         // Go through each of the registered command handlers looking for a match
         foreach (var currCmd in commandHandlers)
         {
@@ -203,10 +211,11 @@ public class KoreCommandHandler
     // ---------------------------------------------------------------------------------------------
     // - private void Cmd<Name>(string[] args)
 
-    private bool RunInternalCommand(List<string> inputParts)
+    // New method that returns response as a tuple - used by RunSingleCommand
+    private (bool handled, string response) TryRunInternalCommand(List<string> inputParts)
     {
         if (inputParts.Count == 0)
-            return false;
+            return (false, string.Empty);
 
         string command = inputParts[0];
 
@@ -220,52 +229,63 @@ public class KoreCommandHandler
                     {
                         helpStr.AppendLine($"- {cmd.HelpString}");
                     }
-                    OutputQueue.AddString(helpStr.ToString());
-                    return true;
+                    return (true, helpStr.ToString());
                 }
 
             case "runfile":
                 {
                     if (inputParts.Count < 2)
                     {
-                        OutputQueue.AddString("Usage: runfile <filename>");
-                        return true;
+                        return (true, "Usage: runfile <filename>");
                     }
 
                     string filename = inputParts[1];
 
                     if (!System.IO.File.Exists(filename))
                     {
-                        OutputQueue.AddString($"File does not exist: {filename}");
-                        return true;
+                        return (true, $"File does not exist: {filename}");
                     }
 
-                    OutputQueue.AddString($"Running file: {filename}");
+                    StringBuilder result = new StringBuilder();
+                    result.AppendLine($"Running file: {filename}");
 
                     string[] lines = System.IO.File.ReadAllLines(filename);
 
                     foreach (string line in lines)
                     {
-                        // trim line to 100 characters
+                        // Queue the commands to be executed
+                        InputQueue.AddString(line);
+
+                        // trim line to 100 characters for display
                         if (line.Length > 100)
                         {
-                            string shortLine = line.Substring(0, 100);
-                            shortLine += "...";
-                            OutputQueue.AddString($"FILE>> {shortLine}");
+                            string shortLine = line.Substring(0, 100) + "...";
+                            result.AppendLine($"FILE>> {shortLine}");
                         }
                         else
                         {
-                            OutputQueue.AddString($"FILE>> {line}");
+                            result.AppendLine($"FILE>> {line}");
                         }
-
-                        InputQueue.AddString(line);
                     }
-                    return true;
+                    return (true, result.ToString());
                 }
 
             default:
-                return false;
+                return (false, string.Empty);
         }
+    }
+
+    // Legacy method that uses OutputQueue - used by ProcessCommand (threaded mode)
+    private bool RunInternalCommand(List<string> inputParts)
+    {
+        var (handled, response) = TryRunInternalCommand(inputParts);
+
+        if (handled && !string.IsNullOrEmpty(response))
+        {
+            OutputQueue.AddString(response);
+        }
+
+        return handled;
     }
 }
 
